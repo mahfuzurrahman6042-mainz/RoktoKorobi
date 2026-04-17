@@ -1,4 +1,4 @@
-# RedReach - Blood Donation PWA
+# RoktoKorobi - Blood Donation PWA
 
 A Progressive Web Application (PWA) for blood donation management that connects blood donors with those in need.
 
