@@ -2,6 +2,8 @@
 
 A Progressive Web Application (PWA) for blood donation management that connects blood donors with those in need.
 
+# Latest deployment with login fix
+
 ## Features
 
 ### User Features
