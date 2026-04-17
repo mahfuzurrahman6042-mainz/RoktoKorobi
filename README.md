@@ -4,12 +4,26 @@ A Progressive Web Application (PWA) for blood donation management that connects 
 
 ## Features
 
-- **Donor Registration**: Register as a blood donor with complete profile information
+### User Features
+- **Donor Registration**: Register as a blood donor (ages 18+) or user (ages 13+)
 - **Blood Requests**: Submit urgent blood requests with location and urgency details
 - **Donor Search**: Find blood donors near you with filtering by blood group and location
 - **Eligibility Checking**: Check if you're eligible to donate based on last donation date
-- **PWA Support**: Works offline and can be installed on mobile devices
-- **Real-time Updates**: Built with React Query for efficient data management
+- **User-to-Admin Messaging**: Send messages to admins through donor profiles
+
+### Admin System
+- **Multi-Role Support**: Four user roles - User, Admin, Super Admin, Organizational Advocate
+- **Super Admin Dashboard**: Full control, assign roles, ban admins, manage self-claim settings
+- **Admin Dashboard**: Handle user messages, resolve issues or escalate to super admin
+- **Organizational Advocate Dashboard**: Manage partnerships and campaigns
+- **Self-Claim Super Admin**: Toggle to enable/disable super admin signup
+- **Role-Based Access**: Automatic dashboard switching based on user role
+
+### PWA Features
+- **Offline Support**: Works without internet connection using service worker
+- **Installable**: Can be installed as a mobile app
+- **Push Notifications**: Ready for notification integration
+- **App Shortcuts**: Quick access to key features
 
 ## Tech Stack
 
@@ -71,10 +85,20 @@ npm start
 
 The application uses the following main tables:
 
-- `profiles`: Donor registration information
+- `profiles`: User registration information (includes role, password, is_donor fields)
 - `blood_requests`: Blood donation requests
 - `donations`: Donation records
 - `notifications`: System notifications
+- `messages`: User-to-admin and admin-to-super-admin messages
+- `escalations`: Escalated messages from admins to super admin
+- `settings`: System settings (e.g., self_claim_super_admin toggle)
+
+### User Roles
+- `user`: Regular user (default)
+- `admin`: Can handle user messages and escalate issues
+- `super_admin`: Full control, can assign roles and ban admins
+- `org_advocate`: Manages partnerships and campaigns
+- `banned`: Banned users
 
 See `database/schema_v22_hardened.sql` for the complete schema including stored functions.
 
@@ -87,11 +111,18 @@ See `database/schema_v22_hardened.sql` for the complete schema including stored 
 
 ## Pages
 
+### User Pages
 - **Home** (`/`): Landing page with navigation to all features
-- **Register** (`/register`): Donor registration form
+- **Register** (`/register`): User/donor registration form (ages 13+)
+- **Login** (`/login`): User login with super admin signup option
 - **Request** (`/request`): Blood request submission
-- **Donors** (`/donors`): Search and filter donors
+- **Donors** (`/donors`): Search and filter donors with messaging
 - **Eligibility** (`/eligibility`): Check donation eligibility
+
+### Admin Pages
+- **Super Admin Dashboard** (`/dashboard/super-admin`): Full system control, role assignment, ban users
+- **Admin Dashboard** (`/dashboard/admin`): Handle user messages, resolve or escalate
+- **Org Advocate Dashboard** (`/dashboard/org-advocate`): Manage partnerships and campaigns
 
 ## API Routes
 

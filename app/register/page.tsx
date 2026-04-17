@@ -12,6 +12,8 @@ export default function RegisterPage() {
     age: '',
     location: '',
     weight: '',
+    wantsToBeDonor: false,
+    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +24,21 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
 
+    // Validate donor eligibility
+    const age = parseInt(formData.age);
+    if (formData.wantsToBeDonor && age < 18) {
+      setError('You must be at least 18 years old to register as a blood donor.');
+      setLoading(false);
+      return;
+    }
+
+    // Validate password
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error: insertError } = await supabase
         .from('profiles')
@@ -31,9 +48,12 @@ export default function RegisterPage() {
             email: formData.email,
             phone: formData.phone,
             blood_group: formData.bloodGroup,
-            age: parseInt(formData.age),
+            age: age,
             location: formData.location,
             weight: parseInt(formData.weight),
+            is_donor: formData.wantsToBeDonor && age >= 18,
+            password: formData.password, // In production, this should be hashed
+            role: 'user', // Default role
           },
         ]);
 
@@ -48,6 +68,8 @@ export default function RegisterPage() {
         age: '',
         location: '',
         weight: '',
+        wantsToBeDonor: false,
+        password: '',
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -127,6 +149,25 @@ export default function RegisterPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            Password (min 6 characters)
+          </label>
+          <input
+            type="password"
+            required
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '1rem'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
             Phone Number
           </label>
           <input
@@ -174,12 +215,12 @@ export default function RegisterPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Age
+            Age (13-65)
           </label>
           <input
             type="number"
             required
-            min="18"
+            min="13"
             max="65"
             value={formData.age}
             onChange={(e) => setFormData({ ...formData, age: e.target.value })}
@@ -191,6 +232,23 @@ export default function RegisterPage() {
               fontSize: '1rem'
             }}
           />
+        </div>
+
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            <input
+              type="checkbox"
+              checked={formData.wantsToBeDonor}
+              onChange={(e) => setFormData({ ...formData, wantsToBeDonor: e.target.checked })}
+              style={{ marginRight: '0.5rem' }}
+            />
+            I want to be a blood donor (must be 18+)
+          </label>
+          {formData.wantsToBeDonor && parseInt(formData.age) < 18 && (
+            <div style={{ color: '#f44336', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+              ⚠️ You must be at least 18 to donate blood
+            </div>
+          )}
         </div>
 
         <div>

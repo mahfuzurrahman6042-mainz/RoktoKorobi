@@ -3,10 +3,23 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ color: '#e53935', fontSize: '3rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ color: '#e53935', fontSize: '2rem', margin: 0 }}>
           🩸 RedReach
         </h1>
+        <Link href="/login" style={{
+          padding: '0.75rem 1.5rem',
+          backgroundColor: '#2196f3',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '8px',
+          fontWeight: 'bold'
+        }}>
+          Login
+        </Link>
+      </div>
+
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <p style={{ fontSize: '1.5rem', color: '#666', marginBottom: '2rem' }}>
           Connect Blood Donors with Those in Need
         </p>

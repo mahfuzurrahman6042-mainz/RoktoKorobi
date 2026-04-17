@@ -20,6 +20,15 @@ export default function DonorsPage() {
     bloodGroup: '',
     location: '',
   });
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  const [messageText, setMessageText] = useState('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    setCurrentUser(user);
+  }, []);
 
   useEffect(() => {
     fetchDonors();
@@ -34,6 +43,7 @@ export default function DonorsPage() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
+        .eq('is_donor', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -53,12 +63,39 @@ export default function DonorsPage() {
     }
 
     if (filters.location) {
-      filtered = filtered.filter(d => 
+      filtered = filtered.filter(d =>
         d.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
     setFilteredDonors(filtered);
+  };
+
+  const handleSendMessage = async () => {
+    if (!currentUser || !selectedDonor || !messageText.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert([
+          {
+            from_user_id: currentUser.id,
+            from_user_name: currentUser.name,
+            to_user_id: selectedDonor.id,
+            message: messageText,
+            status: 'pending',
+          },
+        ]);
+
+      if (error) throw error;
+
+      alert('Message sent to admin');
+      setMessageModalOpen(false);
+      setMessageText('');
+      setSelectedDonor(null);
+    } catch (err) {
+      alert('Failed to send message');
+    }
   };
 
   return (
@@ -162,23 +199,116 @@ export default function DonorsPage() {
                 <div><strong>Phone:</strong> {donor.phone}</div>
               </div>
 
-              <a
-                href={`tel:${donor.phone}`}
-                style={{
-                  display: 'inline-block',
-                  marginTop: '1rem',
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#4caf50',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 'bold'
-                }}
-              >
-                📞 Call Donor
-              </a>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                <a
+                  href={`tel:${donor.phone}`}
+                  style={{
+                    display: 'inline-block',
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#4caf50',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  📞 Call Donor
+                </a>
+                {currentUser && (
+                  <button
+                    onClick={() => {
+                      setSelectedDonor(donor);
+                      setMessageModalOpen(true);
+                    }}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: '#2196f3',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    � Message Admin
+                  </button>
+                )}
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {messageModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
+            maxWidth: '500px',
+            width: '90%'
+          }}>
+            <h2 style={{ marginBottom: '1rem' }}>💬 Send Message to Admin</h2>
+            <textarea
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder="Type your message..."
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                minHeight: '150px',
+                marginBottom: '1rem'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setMessageModalOpen(false);
+                  setMessageText('');
+                  setSelectedDonor(null);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#9e9e9e',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendMessage}
+                disabled={!messageText.trim()}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#2196f3',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: !messageText.trim() ? 'not-allowed' : 'pointer',
+                  opacity: !messageText.trim() ? 0.6 : 1
+                }}
+              >
+                Send Message
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
