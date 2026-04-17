@@ -5,7 +5,7 @@ export default function Home() {
     <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ color: '#e53935', fontSize: '2rem', margin: 0 }}>
-          🩸 RedReach
+          🩸 RoktoKorobi
         </h1>
         <Link href="/login" style={{
           padding: '0.75rem 1.5rem',
@@ -121,9 +121,9 @@ export default function Home() {
         borderRadius: '12px',
         textAlign: 'center'
       }}>
-        <h2 style={{ color: '#333', marginBottom: '1rem' }}>About RedReach</h2>
+        <h2 style={{ color: '#333', marginBottom: '1rem' }}>About RoktoKorobi</h2>
         <p style={{ color: '#666', lineHeight: '1.8', maxWidth: '800px', margin: '0 auto' }}>
-          RedReach is a blood donation management system that connects blood donors with those in need.
+          RoktoKorobi is a blood donation management system that connects blood donors with those in need.
           Our platform makes it easy to register as a donor, request blood in emergencies, find donors
           near you, and check your donation eligibility. Together, we can save lives.
         </p>
@@ -138,7 +138,7 @@ export default function Home() {
       }}>
         <h3 style={{ color: '#1565c0', marginBottom: '0.5rem' }}>📱 PWA Features</h3>
         <p style={{ color: '#666', margin: 0 }}>
-          RedReach works offline and can be installed on your device for quick access.
+          RoktoKorobi works offline and can be installed on your device for quick access.
         </p>
       </div>
     </main>

@@ -1,7 +1,7 @@
 {
-  "name": "redreach-v22",
+  "name": "roktokorobi",
   "version": "22.0.0",
-  "description": "RedReach Blood Donation Management System",
+  "description": "RoktoKorobi Blood Donation Management System",
   "private": true,
   "scripts": {
     "dev": "next dev",

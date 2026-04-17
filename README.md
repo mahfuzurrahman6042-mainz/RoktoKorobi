@@ -45,7 +45,7 @@ A Progressive Web Application (PWA) for blood donation management that connects 
 
 1. **Navigate to the project directory**:
    ```bash
-   cd c:\Users\Mahfuzur Rahman\Downloads\RedReach_v22_fixed
+   cd c:\Users\Mahfuzur Rahman\Downloads\RoktoKorobi
    ```
 
 2. **Install dependencies**:

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'redreach-v1';
+const CACHE_NAME = 'roktokorobi-v1';
 const urlsToCache = [
   '/',
   '/manifest.json',

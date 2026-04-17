@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'RedReach - Blood Donation',
+  title: 'RoktoKorobi - Blood Donation',
   description: 'Connect blood donors with those in need. Save lives by donating blood.',
   manifest: '/manifest.json',
   themeColor: '#e53935',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'RedReach',
+    title: 'RoktoKorobi',
   },
   icons: {
     icon: '/icon-192.png',
@@ -33,7 +33,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#e53935" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="RedReach" />
+        <meta name="apple-mobile-web-app-title" content="RoktoKorobi" />
       </head>
       <body className={inter.className}>
         {children}
