@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function RequestPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     patientName: '',
     bloodGroup: '',
@@ -60,7 +62,7 @@ export default function RequestPage() {
   return (
     <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '1rem' }}>
       <h1 style={{ color: '#e53935', fontSize: '2rem', marginBottom: '1rem' }}>
-        🚨 Request Blood
+        🚨 {t('requestBlood')}
       </h1>
 
       {success && (
@@ -71,7 +73,7 @@ export default function RequestPage() {
           borderRadius: '8px',
           marginBottom: '1rem'
         }}>
-          Blood request submitted successfully! Nearby donors will be notified.
+          {t('success')}
         </div>
       )}
 
@@ -90,7 +92,7 @@ export default function RequestPage() {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Patient Name
+            {t('patientName')}
           </label>
           <input
             type="text"
@@ -109,7 +111,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Blood Group Required
+            {t('bloodGroupRequired')}
           </label>
           <select
             required
@@ -123,7 +125,7 @@ export default function RequestPage() {
               fontSize: '1rem'
             }}
           >
-            <option value="">Select Blood Group</option>
+            <option value="">Select {t('bloodGroup')}</option>
             <option value="O+">O+</option>
             <option value="O-">O-</option>
             <option value="A+">A+</option>
@@ -137,7 +139,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Hospital Name
+            {t('hospitalName')}
           </label>
           <input
             type="text"
@@ -156,7 +158,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Hospital Location
+            {t('location')}
           </label>
           <input
             type="text"
@@ -175,7 +177,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Urgency Level
+            {t('urgency')}
           </label>
           <select
             required
@@ -197,7 +199,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Contact Number
+            {t('phone')}
           </label>
           <input
             type="tel"
@@ -250,7 +252,7 @@ export default function RequestPage() {
             opacity: loading ? 0.6 : 1
           }}
         >
-          {loading ? 'Submitting...' : 'Submit Blood Request'}
+          {loading ? t('loading') : t('submitRequest')}
         </button>
       </form>
     </div>

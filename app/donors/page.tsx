@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Donor {
   id: string;
@@ -13,6 +14,7 @@ interface Donor {
 }
 
 export default function DonorsPage() {
+  const { t } = useLanguage();
   const [donors, setDonors] = useState<Donor[]>([]);
   const [filteredDonors, setFilteredDonors] = useState<Donor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +103,7 @@ export default function DonorsPage() {
   return (
     <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '1rem' }}>
       <h1 style={{ color: '#e53935', fontSize: '2rem', marginBottom: '1rem' }}>
-        🔍 Find Blood Donors
+        🔍 {t('findDonors')}
       </h1>
 
       <div style={{
@@ -110,11 +112,11 @@ export default function DonorsPage() {
         borderRadius: '8px',
         marginBottom: '2rem'
       }}>
-        <h2 style={{ marginBottom: '1rem' }}>Filter Donors</h2>
+        <h2 style={{ marginBottom: '1rem' }}>{t('search')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Blood Group
+              {t('filterByBloodGroup')}
             </label>
             <select
               value={filters.bloodGroup}
@@ -127,7 +129,7 @@ export default function DonorsPage() {
                 fontSize: '1rem'
               }}
             >
-              <option value="">All Blood Groups</option>
+              <option value="">All {t('bloodGroup')}</option>
               <option value="O+">O+</option>
               <option value="O-">O-</option>
               <option value="A+">A+</option>
@@ -141,13 +143,13 @@ export default function DonorsPage() {
 
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Location
+              {t('filterByLocation')}
             </label>
             <input
               type="text"
               value={filters.location}
               onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-              placeholder="Enter location"
+              placeholder={t('location')}
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -161,10 +163,10 @@ export default function DonorsPage() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>Loading donors...</div>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>{t('loading')}</div>
       ) : filteredDonors.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-          No donors found matching your criteria.
+          No donors found
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '1rem' }}>
@@ -212,7 +214,7 @@ export default function DonorsPage() {
                     fontWeight: 'bold'
                   }}
                 >
-                  📞 Call Donor
+                  📞 {t('contactDonor')}
                 </a>
                 {currentUser && (
                   <button
@@ -230,7 +232,7 @@ export default function DonorsPage() {
                       cursor: 'pointer'
                     }}
                   >
-                    � Message Admin
+                    💬 {t('sendMessage')}
                   </button>
                 )}
               </div>
@@ -259,11 +261,11 @@ export default function DonorsPage() {
             maxWidth: '500px',
             width: '90%'
           }}>
-            <h2 style={{ marginBottom: '1rem' }}>💬 Send Message to Admin</h2>
+            <h2 style={{ marginBottom: '1rem' }}>💬 {t('sendMessage')}</h2>
             <textarea
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={t('messagePlaceholder')}
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -290,7 +292,7 @@ export default function DonorsPage() {
                   cursor: 'pointer'
                 }}
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={handleSendMessage}
@@ -305,7 +307,7 @@ export default function DonorsPage() {
                   opacity: !messageText.trim() ? 0.6 : 1
                 }}
               >
-                Send Message
+                {t('send')}
               </button>
             </div>
           </div>

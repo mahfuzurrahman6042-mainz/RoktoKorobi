@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Message {
   id: string;
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export default function AdminDashboard() {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [replyMessage, setReplyMessage] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
@@ -85,12 +87,12 @@ export default function AdminDashboard() {
     router.push('/');
   };
 
-  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>{t('loading')}</div>;
 
   return (
     <div style={{ maxWidth: '1000px', margin: '2rem auto', padding: '1rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ color: '#2196f3', fontSize: '2rem' }}>🛡️ Admin Dashboard</h1>
+        <h1 style={{ color: '#2196f3', fontSize: '2rem' }}>🛡️ {t('adminDashboard')}</h1>
         <button
           onClick={handleLogout}
           style={{
@@ -102,7 +104,7 @@ export default function AdminDashboard() {
             cursor: 'pointer'
           }}
         >
-          Logout
+          {t('logout')}
         </button>
       </div>
 
@@ -113,18 +115,18 @@ export default function AdminDashboard() {
         marginBottom: '2rem',
         border: '2px solid #2196f3'
       }}>
-        <h2 style={{ marginBottom: '0.5rem' }}>Your Role</h2>
+        <h2 style={{ marginBottom: '0.5rem' }}>{t('dashboard')}</h2>
         <p style={{ color: '#666' }}>
           As an admin, you receive messages from users and help solve their issues. 
           If you cannot resolve an issue, escalate it to the super admin.
         </p>
       </div>
 
-      <h2 style={{ marginBottom: '1rem' }}>User Messages ({messages.length})</h2>
+      <h2 style={{ marginBottom: '1rem' }}>{t('messages')} ({messages.length})</h2>
 
       {messages.length === 0 ? (
         <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-          No pending messages from users
+          {t('noMessages')}
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '1rem' }}>
@@ -152,7 +154,7 @@ export default function AdminDashboard() {
                   <textarea
                     value={replyMessage}
                     onChange={(e) => setReplyMessage(e.target.value)}
-                    placeholder="Type your response..."
+                    placeholder={t('messagePlaceholder')}
                     style={{
                       width: '100%',
                       padding: '0.75rem',
@@ -176,7 +178,7 @@ export default function AdminDashboard() {
                         opacity: !replyMessage ? 0.6 : 1
                       }}
                     >
-                      ✅ Resolve
+                      ✅ {t('markResolved')}
                     </button>
                     <button
                       onClick={() => handleReply(false)}
@@ -191,7 +193,7 @@ export default function AdminDashboard() {
                         opacity: !replyMessage ? 0.6 : 1
                       }}
                     >
-                      ⬆️ Escalate to Super Admin
+                      ⬆️ {t('escalate')}
                     </button>
                     <button
                       onClick={() => setSelectedMessage(null)}
@@ -204,7 +206,7 @@ export default function AdminDashboard() {
                         cursor: 'pointer'
                       }}
                     >
-                      Cancel
+                      {t('cancel')}
                     </button>
                   </div>
                 </div>
@@ -220,7 +222,7 @@ export default function AdminDashboard() {
                     cursor: 'pointer'
                   }}
                 >
-                  Respond
+                  {t('respond')}
                 </button>
               )}
             </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface User {
   id: string;
@@ -24,6 +25,7 @@ interface Message {
 }
 
 export default function SuperAdminDashboard() {
+  const { t } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -115,12 +117,12 @@ export default function SuperAdminDashboard() {
     router.push('/');
   };
 
-  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>{t('loading')}</div>;
 
   return (
     <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '1rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ color: '#e53935', fontSize: '2rem' }}>👑 Super Admin Dashboard</h1>
+        <h1 style={{ color: '#e53935', fontSize: '2rem' }}>👑 {t('superAdminDashboard')}</h1>
         <button
           onClick={handleLogout}
           style={{
@@ -132,7 +134,7 @@ export default function SuperAdminDashboard() {
             cursor: 'pointer'
           }}
         >
-          Logout
+          {t('logout')}
         </button>
       </div>
 
@@ -144,7 +146,7 @@ export default function SuperAdminDashboard() {
         marginBottom: '2rem',
         border: '2px solid #ff9800'
       }}>
-        <h2 style={{ marginBottom: '1rem' }}>Self-Claim Super Admin</h2>
+        <h2 style={{ marginBottom: '1rem' }}>{t('disableSelfClaim')}</h2>
         <p style={{ marginBottom: '1rem', color: '#666' }}>
           When enabled, users can sign up as super admin. When disabled, only you can assign super admin role.
         </p>
@@ -171,11 +173,11 @@ export default function SuperAdminDashboard() {
         borderRadius: '8px',
         marginBottom: '2rem'
       }}>
-        <h2 style={{ marginBottom: '1rem' }}>Assign Role to User</h2>
+        <h2 style={{ marginBottom: '1rem' }}>{t('assignRoles')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Select User
+              {t('selectUser')}
             </label>
             <select
               value={selectedUser?.id || ''}
@@ -188,7 +190,7 @@ export default function SuperAdminDashboard() {
                 fontSize: '1rem'
               }}
             >
-              <option value="">Select a user</option>
+              <option value="">{t('selectUser')}</option>
               {users.filter(u => u.role !== 'super_admin').map(user => (
                 <option key={user.id} value={user.id}>
                   {user.name} ({user.email}) - {user.role}
@@ -199,7 +201,7 @@ export default function SuperAdminDashboard() {
 
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              New Role
+              {t('selectRole')}
             </label>
             <select
               value={newRole}
@@ -212,7 +214,7 @@ export default function SuperAdminDashboard() {
                 fontSize: '1rem'
               }}
             >
-              <option value="">Select role</option>
+              <option value="">{t('selectRole')}</option>
               <option value="user">User</option>
               <option value="admin">Admin</option>
               <option value="org_advocate">Organizational Advocate</option>
@@ -233,14 +235,14 @@ export default function SuperAdminDashboard() {
               opacity: !selectedUser || !newRole ? 0.6 : 1
             }}
           >
-            Assign Role
+            {t('assign')}
           </button>
         </div>
       </div>
 
       {/* Users List */}
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ marginBottom: '1rem' }}>All Users ({users.length})</h2>
+        <h2 style={{ marginBottom: '1rem' }}>{t('dashboard')} ({users.length})</h2>
         <div style={{ display: 'grid', gap: '1rem' }}>
           {users.map(user => (
             <div
@@ -288,7 +290,7 @@ export default function SuperAdminDashboard() {
                     cursor: 'pointer'
                   }}
                 >
-                  Ban User
+                  {t('delete')}
                 </button>
               )}
             </div>
@@ -298,10 +300,10 @@ export default function SuperAdminDashboard() {
 
       {/* Messages from Admins */}
       <div>
-        <h2 style={{ marginBottom: '1rem' }}>Escalated Messages from Admins</h2>
+        <h2 style={{ marginBottom: '1rem' }}>{t('messages')}</h2>
         {messages.length === 0 ? (
           <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-            No escalated messages
+            {t('noMessages')}
           </div>
         ) : (
           <div style={{ display: 'grid', gap: '1rem' }}>

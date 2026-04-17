@@ -1,11 +1,16 @@
+'use client';
+
 import Link from 'next/link';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ color: '#e53935', fontSize: '2rem', margin: 0 }}>
-          🩸 RoktoKorobi
+          🩸 {t('appTitle')}
         </h1>
         <Link href="/login" style={{
           padding: '0.75rem 1.5rem',
@@ -15,16 +20,16 @@ export default function Home() {
           borderRadius: '8px',
           fontWeight: 'bold'
         }}>
-          Login
+          {t('login')}
         </Link>
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <p style={{ fontSize: '1.5rem', color: '#666', marginBottom: '2rem' }}>
-          Connect Blood Donors with Those in Need
+          {t('appSubtitle')}
         </p>
         <p style={{ fontSize: '1.1rem', color: '#888' }}>
-          Save lives by donating blood or finding donors near you
+          {t('aboutText')}
         </p>
       </div>
 
@@ -46,10 +51,10 @@ export default function Home() {
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📝</div>
             <h2 style={{ color: '#e53935', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
-              Register as Donor
+              {t('feature1')}
             </h2>
             <p style={{ color: '#666' }}>
-              Sign up as a blood donor and save lives
+              {t('feature1Desc')}
             </p>
           </div>
         </Link>
@@ -66,10 +71,10 @@ export default function Home() {
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚨</div>
             <h2 style={{ color: '#ff9800', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
-              Request Blood
+              {t('feature2')}
             </h2>
             <p style={{ color: '#666' }}>
-              Submit urgent blood requests
+              {t('feature2Desc')}
             </p>
           </div>
         </Link>
@@ -86,10 +91,10 @@ export default function Home() {
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
             <h2 style={{ color: '#4caf50', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
-              Find Donors
+              {t('feature3')}
             </h2>
             <p style={{ color: '#666' }}>
-              Search for blood donors near you
+              {t('feature3Desc')}
             </p>
           </div>
         </Link>
@@ -106,10 +111,10 @@ export default function Home() {
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🩺</div>
             <h2 style={{ color: '#2196f3', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
-              Check Eligibility
+              {t('feature4')}
             </h2>
             <p style={{ color: '#666' }}>
-              Check if you're eligible to donate
+              {t('feature4Desc')}
             </p>
           </div>
         </Link>
@@ -121,11 +126,9 @@ export default function Home() {
         borderRadius: '12px',
         textAlign: 'center'
       }}>
-        <h2 style={{ color: '#333', marginBottom: '1rem' }}>About RoktoKorobi</h2>
+        <h2 style={{ color: '#333', marginBottom: '1rem' }}>{t('about')}</h2>
         <p style={{ color: '#666', lineHeight: '1.8', maxWidth: '800px', margin: '0 auto' }}>
-          RoktoKorobi is a blood donation management system that connects blood donors with those in need.
-          Our platform makes it easy to register as a donor, request blood in emergencies, find donors
-          near you, and check your donation eligibility. Together, we can save lives.
+          {t('aboutText')}
         </p>
       </div>
 
@@ -136,9 +139,9 @@ export default function Home() {
         borderRadius: '8px',
         borderLeft: '4px solid #2196f3'
       }}>
-        <h3 style={{ color: '#1565c0', marginBottom: '0.5rem' }}>📱 PWA Features</h3>
+        <h3 style={{ color: '#1565c0', marginBottom: '0.5rem' }}>📱 {t('features')}</h3>
         <p style={{ color: '#666', margin: 0 }}>
-          RoktoKorobi works offline and can be installed on your device for quick access.
+          {t('pwaText')}
         </p>
       </div>
     </main>

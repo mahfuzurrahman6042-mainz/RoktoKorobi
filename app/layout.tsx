@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { LanguageProvider } from '@/lib/LanguageContext';
+import LanguageGuard from '@/components/LanguageGuard';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,7 +38,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="RoktoKorobi" />
       </head>
       <body className={inter.className}>
-        {children}
+        <LanguageProvider>
+          <LanguageGuard>
+            {children}
+          </LanguageGuard>
+        </LanguageProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `

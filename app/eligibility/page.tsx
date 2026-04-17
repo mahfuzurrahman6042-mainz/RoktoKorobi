@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { useEligibility } from '@/lib/hooks/useEligibility';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function EligibilityPage() {
+  const { t } = useLanguage();
   const [donorId, setDonorId] = useState('');
   const { status, loading, error } = useEligibility(donorId || undefined);
 
   return (
     <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '1rem' }}>
       <h1 style={{ color: '#e53935', fontSize: '2rem', marginBottom: '1rem' }}>
-        🩺 Check Donation Eligibility
+        🩺 {t('checkEligibility')}
       </h1>
 
       <div style={{
@@ -20,13 +22,13 @@ export default function EligibilityPage() {
         marginBottom: '2rem'
       }}>
         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-          Enter Donor ID
+          {t('lastDonationDate')}
         </label>
         <input
           type="text"
           value={donorId}
           onChange={(e) => setDonorId(e.target.value)}
-          placeholder="Enter your donor ID"
+          placeholder={t('lastDonationDate')}
           style={{
             width: '100%',
             padding: '0.75rem',
@@ -38,7 +40,7 @@ export default function EligibilityPage() {
       </div>
 
       {loading && (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>Checking eligibility...</div>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>{t('loading')}</div>
       )}
 
       {error && (
@@ -72,7 +74,7 @@ export default function EligibilityPage() {
               color: status.isEligible ? '#2e7d32' : '#c62828',
               margin: 0
             }}>
-              {status.isEligible ? 'Eligible to Donate' : 'Not Eligible'}
+              {status.isEligible ? t('eligible') : t('notEligible')}
             </h2>
           </div>
 
@@ -130,7 +132,7 @@ export default function EligibilityPage() {
               borderRadius: '8px',
               borderLeft: '4px solid #ff9800'
             }}>
-              <strong>Note:</strong> You must wait at least 90 days between blood donations.
+              <strong>Note:</strong> {t('waitDays')}
             </div>
           )}
         </div>

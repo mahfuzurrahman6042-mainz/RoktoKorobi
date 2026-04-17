@@ -3,8 +3,10 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function OrgAdvocateDashboard() {
+  const { t } = useLanguage();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function OrgAdvocateDashboard() {
   return (
     <div style={{ maxWidth: '1000px', margin: '2rem auto', padding: '1rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ color: '#9c27b0', fontSize: '2rem' }}>🏢 Organizational Advocate Dashboard</h1>
+        <h1 style={{ color: '#9c27b0', fontSize: '2rem' }}>🏢 {t('orgAdvocateDashboard')}</h1>
         <button
           onClick={handleLogout}
           style={{
@@ -35,7 +37,7 @@ export default function OrgAdvocateDashboard() {
             cursor: 'pointer'
           }}
         >
-          Logout
+          {t('logout')}
         </button>
       </div>
 
@@ -46,7 +48,7 @@ export default function OrgAdvocateDashboard() {
         marginBottom: '2rem',
         border: '2px solid #9c27b0'
       }}>
-        <h2 style={{ marginBottom: '0.5rem' }}>Your Role</h2>
+        <h2 style={{ marginBottom: '0.5rem' }}>{t('dashboard')}</h2>
         <p style={{ color: '#666', lineHeight: '1.6' }}>
           As an Organizational Advocate, you represent partner organizations and help coordinate 
           blood donation campaigns. You can view donor statistics and manage organizational requests.

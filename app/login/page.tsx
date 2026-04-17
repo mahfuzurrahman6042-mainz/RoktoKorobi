@@ -3,8 +3,12 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/LanguageContext';
+import { hashPassword, verifyPassword } from '@/lib/auth';
+import { sanitizeInput, validateEmail, validatePassword } from '@/lib/validation';
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,12 +23,27 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    // Sanitize and validate inputs
+    const sanitizedEmail = sanitizeInput(formData.email);
+    
+    if (!validateEmail(sanitizedEmail)) {
+      setError('Invalid email address');
+      setLoading(false);
+      return;
+    }
+
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.message);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('email', formData.email)
-        .eq('password', formData.password)
+        .eq('email', sanitizedEmail)
         .single();
 
       if (error || !data) {
@@ -33,8 +52,23 @@ export default function LoginPage() {
         return;
       }
 
-      // Store user info in localStorage
-      localStorage.setItem('user', JSON.stringify(data));
+      // Verify hashed password
+      const isPasswordValid = await verifyPassword(formData.password, data.password);
+      if (!isPasswordValid) {
+        setError('Invalid email or password');
+        setLoading(false);
+        return;
+      }
+
+      // Store only non-sensitive user info in localStorage
+      const safeUserData = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        is_donor: data.is_donor,
+      };
+      localStorage.setItem('user', JSON.stringify(safeUserData));
       
       // Redirect based on role
       switch (data.role) {
@@ -62,6 +96,22 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    // Sanitize and validate inputs
+    const sanitizedEmail = sanitizeInput(formData.email);
+    
+    if (!validateEmail(sanitizedEmail)) {
+      setError('Invalid email address');
+      setLoading(false);
+      return;
+    }
+
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.message);
+      setLoading(false);
+      return;
+    }
+
     try {
       // Check if super admin already exists
       const { data: existingAdmin } = await supabase
@@ -76,14 +126,17 @@ export default function LoginPage() {
         return;
       }
 
+      // Hash password before storing
+      const hashedPassword = await hashPassword(formData.password);
+
       // Create super admin
       const { error: insertError } = await supabase
         .from('profiles')
         .insert([
           {
             name: 'Super Admin',
-            email: formData.email,
-            password: formData.password,
+            email: sanitizedEmail,
+            password: hashedPassword,
             role: 'super_admin',
             is_donor: false,
             age: 18,
@@ -102,7 +155,15 @@ export default function LoginPage() {
         .single();
 
       if (data) {
-        localStorage.setItem('user', JSON.stringify(data));
+        // Store only non-sensitive user info in localStorage
+        const safeUserData = {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          is_donor: data.is_donor,
+        };
+        localStorage.setItem('user', JSON.stringify(safeUserData));
         router.push('/dashboard/super-admin');
       }
     } catch (err) {
@@ -115,7 +176,7 @@ export default function LoginPage() {
   return (
     <div style={{ maxWidth: '500px', margin: '2rem auto', padding: '1rem' }}>
       <h1 style={{ color: '#e53935', fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>
-        {isSuperAdminSignup ? '👑 Sign Up as Super Admin' : '🔐 Login'}
+        {isSuperAdminSignup ? '👑 ' + t('superAdminSignup') : '🔐 ' + t('loginTitle')}
       </h1>
 
       {error && (
@@ -133,7 +194,7 @@ export default function LoginPage() {
       <form onSubmit={isSuperAdminSignup ? handleSuperAdminSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Email
+            {t('email')}
           </label>
           <input
             type="email"
@@ -152,7 +213,7 @@ export default function LoginPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Password
+            {t('password')}
           </label>
           <input
             type="password"
@@ -184,7 +245,7 @@ export default function LoginPage() {
             opacity: loading ? 0.6 : 1
           }}
         >
-          {loading ? 'Processing...' : isSuperAdminSignup ? 'Sign Up as Super Admin' : 'Login'}
+          {loading ? t('loading') : isSuperAdminSignup ? t('superAdminSignup') : t('loginBtn')}
         </button>
       </form>
 
@@ -202,14 +263,14 @@ export default function LoginPage() {
             cursor: 'pointer'
           }}
         >
-          {isSuperAdminSignup ? 'Switch to Regular Login' : 'Sign Up as Super Admin'}
+          {isSuperAdminSignup ? t('login') : t('superAdminSignup')}
         </button>
       </div>
 
       {!isSuperAdminSignup && (
         <div style={{ marginTop: '1rem', textAlign: 'center' }}>
           <a href="/register" style={{ color: '#2196f3', textDecoration: 'none' }}>
-            Don't have an account? Register
+            {t('noAccount')} {t('registerLink')}
           </a>
         </div>
       )}
