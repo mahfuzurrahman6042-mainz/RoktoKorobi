@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
@@ -115,6 +115,28 @@ export default function Home() {
             </h2>
             <p style={{ color: '#666' }}>
               {t('feature4Desc')}
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/blog" style={{ textDecoration: 'none' }}>
+          <div style={{
+            padding: '2rem',
+            backgroundColor: 'white',
+            border: '2px solid #9c27b0',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s',
+            cursor: 'pointer'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📰</div>
+            <h2 style={{ color: '#9c27b0', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+              {language === 'bn' ? 'ব্লগ এবং সংবাদ' : 'Blog & News'}
+            </h2>
+            <p style={{ color: '#666' }}>
+              {language === 'bn' 
+                ? 'সংস্থা এবং ক্লাব থেকে রক্তদান সংবাদ ও ইভেন্ট দেখুন' 
+                : 'View blood donation news and events from organizations and clubs'}
             </p>
           </div>
         </Link>
