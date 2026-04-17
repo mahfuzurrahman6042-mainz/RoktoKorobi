@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/LanguageContext';
 import { hashPassword, verifyPassword } from '@/lib/auth';
 import { sanitizeInput, validateEmail, validatePassword } from '@/lib/validation';
+import { setCookie } from 'cookies-next';
 
 export default function LoginPage() {
   const { t } = useLanguage();
@@ -69,6 +70,9 @@ export default function LoginPage() {
         is_donor: data.is_donor,
       };
       localStorage.setItem('user', JSON.stringify(safeUserData));
+      
+      // Set cookie for middleware authentication
+      setCookie('user_session', JSON.stringify(safeUserData), { maxAge: 60 * 60 * 24 * 7 }); // 7 days
       
       // Redirect based on role
       switch (data.role) {
@@ -164,6 +168,10 @@ export default function LoginPage() {
           is_donor: data.is_donor,
         };
         localStorage.setItem('user', JSON.stringify(safeUserData));
+        
+        // Set cookie for middleware authentication
+        setCookie('user_session', JSON.stringify(safeUserData), { maxAge: 60 * 60 * 24 * 7 }); // 7 days
+        
         router.push('/dashboard/super-admin');
       }
     } catch (err) {
