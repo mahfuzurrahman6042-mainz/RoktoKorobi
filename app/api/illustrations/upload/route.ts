@@ -14,6 +14,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // File validation
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'File size exceeds 5MB limit' }, { status: 400 });
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed' }, { status: 400 });
+    }
+
     // Get user from localStorage (in production, use proper auth)
     const userStr = request.headers.get('x-user-data');
     if (!userStr) {
@@ -39,7 +51,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
     }
 
     // Get public URL
@@ -66,7 +78,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to create illustration' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, illustration: insertData }, { status: 200 });

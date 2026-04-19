@@ -45,14 +45,7 @@ export default function RootLayout({
         </LanguageProvider>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').then(
-                  (registration) => console.log('Service Worker registered'),
-                  (error) => console.log('Service Worker registration failed', error)
-                );
-              }
-            `,
+            __html: `if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').then((registration) => console.log('Service Worker registered'), (error) => console.log('Service Worker registration failed', error)); }`,
           }}
         />
       </body>

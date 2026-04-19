@@ -31,7 +31,7 @@ export async function POST(
         .eq('illustration_id', id);
 
       if (deleteError) {
-        return NextResponse.json({ error: deleteError.message }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to remove from favorites' }, { status: 500 });
       }
 
       return NextResponse.json({ success: true, favorited: false }, { status: 200 });
@@ -45,7 +45,7 @@ export async function POST(
         });
 
       if (insertError) {
-        return NextResponse.json({ error: insertError.message }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to add to favorites' }, { status: 500 });
       }
 
       return NextResponse.json({ success: true, favorited: true }, { status: 200 });

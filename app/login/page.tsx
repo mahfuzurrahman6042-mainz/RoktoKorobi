@@ -40,6 +40,16 @@ export default function LoginPage() {
     }
 
     try {
+      // Check if account is locked
+      const { data: lockoutData } = await supabase.rpc('check_account_lockout', { p_email: sanitizedEmail });
+      if (lockoutData) {
+        const { data: remaining } = await supabase.rpc('get_lockout_remaining', { p_email: sanitizedEmail });
+        const minutes = Math.ceil(remaining / 60);
+        setError(`Account locked. Try again in ${minutes} minutes.`);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -47,6 +57,12 @@ export default function LoginPage() {
         .single();
 
       if (error || !data) {
+        // Record failed login attempt
+        await supabase.rpc('record_login_attempt', { 
+          p_email: sanitizedEmail, 
+          p_ip_address: 'unknown', 
+          p_success: false 
+        });
         setError('Invalid email or password');
         setLoading(false);
         return;
@@ -55,10 +71,23 @@ export default function LoginPage() {
       // Verify hashed password
       const isPasswordValid = await verifyPassword(formData.password, data.password);
       if (!isPasswordValid) {
+        // Record failed login attempt
+        await supabase.rpc('record_login_attempt', { 
+          p_email: sanitizedEmail, 
+          p_ip_address: 'unknown', 
+          p_success: false 
+        });
         setError('Invalid email or password');
         setLoading(false);
         return;
       }
+
+      // Record successful login
+      await supabase.rpc('record_login_attempt', { 
+        p_email: sanitizedEmail, 
+        p_ip_address: 'unknown', 
+        p_success: true 
+      });
 
       // Store only non-sensitive user info in localStorage
       const safeUserData = {
