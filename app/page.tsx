@@ -302,7 +302,22 @@ export default function Home() {
 
           }}>
 
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎨</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+              <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 20C35 20 25 35 25 50C25 65 35 80 50 80C65 80 75 65 75 50C75 35 65 20 50 20Z" fill="#DC143C"/>
+                <path d="M50 30C42 30 36 38 36 50C36 62 42 70 50 70C58 70 64 62 64 50C64 38 58 30 50 30Z" fill="#FF6B6B"/>
+                <path d="M50 40C46 40 44 44 44 50C44 56 46 60 50 60C54 60 56 56 56 50C56 44 54 40 50 40Z" fill="#FFB6C1"/>
+                <circle cx="50" cy="50" r="5" fill="#8B0000"/>
+                <path d="M50 20L50 35" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M50 65L50 80" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M25 50L40 50" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M60 50L75 50" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M32 32L43 43" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M57 57L68 68" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M68 32L57 43" stroke="#8B0000" strokeWidth="2"/>
+                <path d="M43 57L32 68" stroke="#8B0000" strokeWidth="2"/>
+              </svg>
+            </div>
 
             <h2 style={{ color: '#ff5722', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
 
