@@ -306,7 +306,7 @@ export default function Home() {
 
             <h2 style={{ color: '#ff5722', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
 
-              {language === 'bn' ? 'রক্তকরবী চিত্রাঙ্কন' : 'Roktokorobi Chitrokothon'}
+              {language === 'bn' ? 'রক্তকরবী চিত্রকথন' : 'RoktoKorobi Chitrokothon'}
 
             </h2>
 

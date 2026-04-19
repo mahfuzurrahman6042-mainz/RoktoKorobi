@@ -151,7 +151,7 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-red-600">
-            {language === 'bn' ? 'রক্তকরবী চিত্রাঙ্কন' : 'Roktokorobi Chitrokothon'}
+            {language === 'bn' ? 'রক্তকরবী চিত্রকথন' : 'RoktoKorobi Chitrokothon'}
           </h1>
           <Link
             href="/illustrations"
