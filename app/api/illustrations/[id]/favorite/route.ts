@@ -3,9 +3,10 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const userStr = request.headers.get('x-user-data');
     if (!userStr) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,7 +19,7 @@ export async function POST(
       .from('user_favorites')
       .select('*')
       .eq('user_id', user.id)
-      .eq('illustration_id', params.id)
+      .eq('illustration_id', id)
       .single();
 
     if (existing) {
@@ -27,7 +28,7 @@ export async function POST(
         .from('user_favorites')
         .delete()
         .eq('user_id', user.id)
-        .eq('illustration_id', params.id);
+        .eq('illustration_id', id);
 
       if (deleteError) {
         return NextResponse.json({ error: deleteError.message }, { status: 500 });
@@ -40,7 +41,7 @@ export async function POST(
         .from('user_favorites')
         .insert({
           user_id: user.id,
-          illustration_id: params.id,
+          illustration_id: id,
         });
 
       if (insertError) {

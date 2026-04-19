@@ -3,9 +3,10 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const userStr = request.headers.get('x-user-data');
     if (!userStr) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -20,7 +21,7 @@ export async function POST(
     const { data, error } = await supabase
       .from('illustrations')
       .update({ status: 'rejected' })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
