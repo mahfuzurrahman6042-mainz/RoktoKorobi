@@ -9,14 +9,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('illustrations')
-      .select(`
-        *,
-        illustration_sections (
-          id,
-          name_en,
-          name_bn
-        )
-      `)
+      .select('*')
       .eq('status', 'approved');
 
     if (sectionId) {
@@ -27,13 +20,13 @@ export async function GET(request: NextRequest) {
       query = query.eq('language', language);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const { data: illustrations, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch illustrations' }, { status: 500 });
     }
 
-    return NextResponse.json({ illustrations: data }, { status: 200 });
+    return NextResponse.json({ illustrations }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
