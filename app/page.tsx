@@ -282,6 +282,48 @@ export default function Home() {
 
         </Link>
 
+        <Link href="/illustrations" style={{ textDecoration: 'none' }}>
+
+          <div style={{
+
+            padding: '2rem',
+
+            backgroundColor: 'white',
+
+            border: '2px solid #ff5722',
+
+            borderRadius: '12px',
+
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+
+            transition: 'transform 0.2s',
+
+            cursor: 'pointer'
+
+          }}>
+
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎨</div>
+
+            <h2 style={{ color: '#ff5722', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+
+              {language === 'bn' ? 'রক্তকরবী চিত্রাঙ্কন' : 'Roktokorobi Chitrokothon'}
+
+            </h2>
+
+            <p style={{ color: '#666' }}>
+
+              {language === 'bn' 
+
+                ? 'রক্তদান সচেতনতা বৃদ্ধির জন্য তৈরি চিত্রকল্প দেখুন' 
+
+                : 'View illustrations raising blood donation awareness'}
+
+            </p>
+
+          </div>
+
+        </Link>
+
       </div>
 
 
