@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   title_bn TEXT, -- Bengali title
   content TEXT NOT NULL,
   content_bn TEXT, -- Bengali content
-  author_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  author_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   author_name TEXT NOT NULL,
   organization TEXT, -- Organization/club name
   is_published BOOLEAN DEFAULT true,
@@ -31,9 +31,9 @@ CREATE POLICY "Org advocates and admins can create posts"
   TO authenticated
   WITH CHECK (
     EXISTS (
-      SELECT 1 FROM users
-      WHERE users.id = auth.uid()
-      AND (users.role = 'org_advocate' OR users.role = 'admin' OR users.role = 'super_admin')
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND (profiles.role = 'org_advocate' OR profiles.role = 'admin' OR profiles.role = 'super_admin')
     )
   );
 
@@ -45,9 +45,9 @@ CREATE POLICY "Authors can update their own posts"
   USING (author_id = auth.uid())
   WITH CHECK (
     EXISTS (
-      SELECT 1 FROM users
-      WHERE users.id = auth.uid()
-      AND (users.role = 'org_advocate' OR users.role = 'admin' OR users.role = 'super_admin')
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND (profiles.role = 'org_advocate' OR profiles.role = 'admin' OR profiles.role = 'super_admin')
     )
   );
 
