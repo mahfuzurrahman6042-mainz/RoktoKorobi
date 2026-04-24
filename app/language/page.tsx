@@ -23,7 +23,8 @@ export default function LanguageSelector() {
 
   const selectLanguage = (lang: 'en' | 'bn') => {
     localStorage.setItem('roktokorobi-language', lang);
-    router.push('/register');
+    // Force a page reload to ensure localStorage is set before navigation
+    window.location.href = '/register';
   };
 
   return (
