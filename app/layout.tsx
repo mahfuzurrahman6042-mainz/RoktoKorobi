@@ -37,9 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${fraunces.variable} ${dmSans.variable} ${hindSiliguri.variable}`}>
         <LanguageProvider>
-          <LanguageGuard>
-            {children}
-          </LanguageGuard>
+          {children}
         </LanguageProvider>
       </body>
     </html>
