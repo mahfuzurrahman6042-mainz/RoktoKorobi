@@ -19,6 +19,7 @@
     "bcryptjs": "^2.4.3",
     "cookie": "^1.1.1",
     "jose": "^6.2.2",
+    "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "next": "^16.2.4",
     "react": "^18.2.0",
