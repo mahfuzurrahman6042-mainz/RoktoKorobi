@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   
+  // CSS optimization settings
+  optimizeCss: false,
+  
   // Request timeout configuration (30 seconds)
   experimental: {
     serverActions: {
