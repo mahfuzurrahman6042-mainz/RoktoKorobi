@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/lib/LanguageContext';
 import { hashPassword } from '@/lib/auth';
@@ -9,7 +9,9 @@ import { geocodeDonorArea } from '@/lib/geolocation-utils';
 import PrivacyPolicyConsent from '@/components/PrivacyPolicyConsent';
 
 export default function RegisterPage() {
-  const { t, language } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  const languageContext = useLanguage();
+  const { t, language } = languageContext;
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,6 +29,21 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p style={{ color: '#757575', fontSize: '1.1rem' }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
