@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/lib/LanguageContext';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 interface BlogPost {
   id: string;
   title: string;
