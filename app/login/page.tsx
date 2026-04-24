@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/LanguageContext';
-import { hashPassword, verifyPassword } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import { sanitizeInput, validateEmail, validatePassword } from '@/lib/validation';
+import { hashPassword, verifyPassword } from '@/lib/auth';
 
 export default function LoginPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -16,7 +16,25 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSuperAdminSignup, setIsSuperAdminSignup] = useState(false);
+  const [allowSuperAdminSignup, setAllowSuperAdminSignup] = useState(true);
   const router = useRouter();
+
+  // Check if super admin signup is allowed
+  useEffect(() => {
+    const checkSuperAdminSignupSetting = async () => {
+      const { data } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'self_claim_super_admin')
+        .single();
+      
+      if (data) {
+        setAllowSuperAdminSignup(data.value === 'true');
+      }
+    };
+    
+    checkSuperAdminSignupSetting();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,78 +58,41 @@ export default function LoginPage() {
     }
 
     try {
-      // Check if account is locked
-      const { data: lockoutData } = await supabase.rpc('check_account_lockout', { p_email: sanitizedEmail });
-      if (lockoutData) {
-        const { data: remaining } = await supabase.rpc('get_lockout_remaining', { p_email: sanitizedEmail });
-        const minutes = Math.ceil(remaining / 60);
-        setError(`Account locked. Try again in ${minutes} minutes.`);
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', sanitizedEmail)
-        .single();
-
-      if (error || !data) {
-        // Record failed login attempt
-        await supabase.rpc('record_login_attempt', { 
-          p_email: sanitizedEmail, 
-          p_ip_address: 'unknown', 
-          p_success: false 
-        });
-        setError('Invalid email or password');
-        setLoading(false);
-        return;
-      }
-
-      // Verify hashed password
-      const isPasswordValid = await verifyPassword(formData.password, data.password);
-      if (!isPasswordValid) {
-        // Record failed login attempt
-        await supabase.rpc('record_login_attempt', { 
-          p_email: sanitizedEmail, 
-          p_ip_address: 'unknown', 
-          p_success: false 
-        });
-        setError('Invalid email or password');
-        setLoading(false);
-        return;
-      }
-
-      // Record successful login
-      await supabase.rpc('record_login_attempt', { 
-        p_email: sanitizedEmail, 
-        p_ip_address: 'unknown', 
-        p_success: true 
+      // Call the new login API route with httpOnly cookies
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: sanitizedEmail,
+          password: formData.password,
+        }),
       });
 
-      // Store only non-sensitive user info in localStorage
-      const safeUserData = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        is_donor: data.is_donor,
-      };
-      localStorage.setItem('user', JSON.stringify(safeUserData));
-      
-      // Redirect based on role
-      switch (data.role) {
-        case 'super_admin':
-          router.push('/dashboard/super-admin');
-          break;
-        case 'admin':
-          router.push('/dashboard/admin');
-          break;
-        case 'org_advocate':
-          router.push('/dashboard/org-advocate');
-          break;
-        default:
-          router.push('/');
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Login failed');
+        setLoading(false);
+        return;
+      }
+
+      if (result.success && result.user) {
+        // Redirect based on role
+        switch (result.user.role) {
+          case 'super_admin':
+            router.push('/dashboard/super-admin');
+            break;
+          case 'admin':
+            router.push('/dashboard/admin');
+            break;
+          case 'org_advocate':
+            router.push('/dashboard/org-advocate');
+            break;
+          default:
+            router.push('/');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -142,59 +123,44 @@ export default function LoginPage() {
     }
 
     try {
-      // Check if super admin already exists
-      const { data: existingAdmin } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('role', 'super_admin')
-        .single();
+      // Call the server-side API for super admin signup
+      const response = await fetch('/api/auth/super-admin-signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: sanitizedEmail,
+          password: formData.password,
+        }),
+      });
 
-      if (existingAdmin) {
-        setError('Super admin already exists. Contact the existing super admin.');
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Super admin signup failed');
         setLoading(false);
         return;
       }
 
-      // Hash password before storing
-      const hashedPassword = await hashPassword(formData.password);
+      // Login the new super admin using the API route
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: sanitizedEmail,
+          password: formData.password,
+        }),
+      });
 
-      // Create super admin
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            name: 'Super Admin',
-            email: sanitizedEmail,
-            password: hashedPassword,
-            role: 'super_admin',
-            is_donor: false,
-            age: 18,
-            location: 'System',
-            weight: 50,
-          },
-        ]);
+      const loginResult = await loginResponse.json();
 
-      if (insertError) throw insertError;
-
-      // Login the new super admin
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', formData.email)
-        .single();
-
-      if (data) {
-        // Store only non-sensitive user info in localStorage
-        const safeUserData = {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          role: data.role,
-          is_donor: data.is_donor,
-        };
-        localStorage.setItem('user', JSON.stringify(safeUserData));
-        
+      if (loginResponse.ok && loginResult.success) {
         router.push('/dashboard/super-admin');
+      } else {
+        setError(loginResult.error || 'Login after signup failed');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Super admin signup failed');
@@ -204,106 +170,180 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '2rem auto', padding: '1rem' }}>
-      <h1 style={{ color: '#e53935', fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>
-        {isSuperAdminSignup ? '👑 ' + t('superAdminSignup') : '🔐 ' + t('loginTitle')}
-      </h1>
-
-      {error && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#f44336',
-          color: 'white',
-          borderRadius: '8px',
-          marginBottom: '1rem'
-        }}>
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={isSuperAdminSignup ? handleSuperAdminSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            {t('email')}
-          </label>
-          <input
-            type="email"
-            required
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            {t('password')}
-          </label>
-          <input
-            type="password"
-            required
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem'
-            }}
-          />
+    <div style={{ 
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
+      padding: '20px'
+    }}>
+      <div className="card" style={{ 
+        maxWidth: '450px',
+        width: '100%',
+        padding: '40px',
+        background: 'white',
+        borderRadius: '16px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+      }}>
+        {/* Logo/Title */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ 
+            fontSize: '4rem', 
+            marginBottom: '1rem',
+            background: 'linear-gradient(135deg, #E53935 0%, #FF5252 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            🩸
+          </div>
+          <h1 style={{ 
+            color: '#212121', 
+            fontSize: '2rem', 
+            marginBottom: '0.5rem',
+            fontWeight: 'bold' 
+          }}>
+            {isSuperAdminSignup ? '👑 ' + t('superAdminSignup') : '🔐 ' + t('loginTitle')}
+          </h1>
+          <p style={{ color: '#757575', fontSize: '1rem' }}>
+            {language === 'bn' 
+              ? isSuperAdminSignup 
+                ? 'সুপার অ্যাডমিন অ্যাকাউন্ট তৈরি করুন'
+                : 'আপনার অ্যাকাউন্টে লগ ইন করুন'
+              : isSuperAdminSignup
+                ? 'Create super admin account'
+                : 'Sign in to your account'
+            }
+          </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
+        {error && (
+          <div style={{
             padding: '1rem',
-            backgroundColor: '#e53935',
-            color: 'white',
-            border: 'none',
+            backgroundColor: '#fee',
+            color: '#c33',
             borderRadius: '8px',
-            fontSize: '1.1rem',
-            fontWeight: 'bold',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1
-          }}
-        >
-          {loading ? t('loading') : isSuperAdminSignup ? t('superAdminSignup') : t('loginBtn')}
-        </button>
-      </form>
+            marginBottom: '1.5rem',
+            border: '1px solid #fcc',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
 
-      <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-        <button
-          type="button"
-          onClick={() => setIsSuperAdminSignup(!isSuperAdminSignup)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#2196f3',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            cursor: 'pointer'
-          }}
-        >
-          {isSuperAdminSignup ? t('login') : t('superAdminSignup')}
-        </button>
+        <form onSubmit={isSuperAdminSignup ? handleSuperAdminSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: '600',
+              color: '#212121',
+              fontSize: '0.9rem'
+            }}>
+              {t('email')}
+            </label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="input"
+              placeholder={language === 'bn' ? 'আপনার ইমেইল' : 'your@email.com'}
+            />
+          </div>
+
+          <div>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: '600',
+              color: '#212121',
+              fontSize: '0.9rem'
+            }}>
+              {t('password')}
+            </label>
+            <input
+              type="password"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="input"
+              placeholder={language === 'bn' ? 'আপনার পাসওয়ার্ড' : '••••••••'}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary"
+            style={{
+              width: '100%',
+              padding: '16px',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              marginTop: '0.5rem'
+            }}
+          >
+            {loading ? t('loading') : isSuperAdminSignup ? t('superAdminSignup') : t('loginBtn')}
+          </button>
+        </form>
+
+        {allowSuperAdminSignup && (
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => setIsSuperAdminSignup(!isSuperAdminSignup)}
+              style={{
+                padding: '10px 20px',
+                background: 'transparent',
+                color: '#E53935',
+                border: '2px solid #E53935',
+                borderRadius: '8px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#E53935';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#E53935';
+              }}
+            >
+              {isSuperAdminSignup ? t('login') : t('superAdminSignup')}
+            </button>
+          </div>
+        )}
+
+        {!isSuperAdminSignup && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.95rem' }}>
+            <span style={{ color: '#757575' }}>
+              {t('noAccount')}{' '}
+            </span>
+            <a 
+              href="/register" 
+              style={{ 
+                color: '#E53935', 
+                textDecoration: 'none',
+                fontWeight: '600',
+                transition: 'color 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#C62828';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = '#E53935';
+              }}
+            >
+              {t('registerLink')}
+            </a>
+          </div>
+        )}
       </div>
-
-      {!isSuperAdminSignup && (
-        <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-          <a href="/register" style={{ color: '#2196f3', textDecoration: 'none' }}>
-            {t('noAccount')} {t('registerLink')}
-          </a>
-        </div>
-      )}
     </div>
   );
 }

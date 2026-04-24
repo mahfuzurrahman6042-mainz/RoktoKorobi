@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
+    // Apply rate limiting: 100 requests per minute per IP
+    const identifier = getClientIdentifier(request);
+    const { success } = await rateLimit(identifier, 100, 60 * 1000);
+    
+    if (!success) {
+      return NextResponse.json({ 
+        error: 'Too many requests. Please try again later.' 
+      }, { status: 429 });
+    }
+
+    const { searchParams } = new URL(request.url);
     const sectionId = searchParams.get('sectionId');
     const language = searchParams.get('language') || 'en';
 
     let query = supabase
       .from('illustrations')
-      .select('*')
+      .select('id, title, description, image_url, section_id, language, created_at')
       .eq('status', 'approved');
 
     if (sectionId) {

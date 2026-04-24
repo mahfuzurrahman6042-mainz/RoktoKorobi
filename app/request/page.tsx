@@ -3,21 +3,48 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/lib/LanguageContext';
+import OfflineMap from '@/components/OfflineMap';
 
 export default function RequestPage() {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
     patientName: '',
     bloodGroup: '',
-    hospital: '',
-    location: '',
-    urgency: 'normal',
+    hospitalName: '',
+    hospitalAddress: '',
+    hospitalCity: '',
+    hospitalDistrict: '',
+    urgency: 'medium',
     contact: '',
     units: '1',
   });
+  const [location, setLocation] = useState({ latitude: null as number | null, longitude: null as number | null });
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const handleGetLocation = () => {
+    setLocating(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          setLocating(false);
+        },
+        (error) => {
+          setError('Unable to get location. Please enable location services.');
+          setLocating(false);
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by your browser.');
+      setLocating(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +58,16 @@ export default function RequestPage() {
           {
             patient_name: formData.patientName,
             blood_group: formData.bloodGroup,
-            hospital: formData.hospital,
-            location: formData.location,
+            hospital_name: formData.hospitalName,
+            hospital_address: formData.hospitalAddress,
+            hospital_city: formData.hospitalCity,
+            hospital_district: formData.hospitalDistrict,
+            hospital_latitude: location.latitude,
+            hospital_longitude: location.longitude,
             urgency: formData.urgency,
             contact: formData.contact,
             units_needed: parseInt(formData.units),
-            status: 'active',
+            status: 'pending',
           },
         ]);
 
@@ -46,12 +77,15 @@ export default function RequestPage() {
       setFormData({
         patientName: '',
         bloodGroup: '',
-        hospital: '',
-        location: '',
-        urgency: 'normal',
+        hospitalName: '',
+        hospitalAddress: '',
+        hospitalCity: '',
+        hospitalDistrict: '',
+        urgency: 'medium',
         contact: '',
         units: '1',
       });
+      setLocation({ latitude: null, longitude: null });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request submission failed');
     } finally {
@@ -144,8 +178,8 @@ export default function RequestPage() {
           <input
             type="text"
             required
-            value={formData.hospital}
-            onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
+            value={formData.hospitalName}
+            onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
             style={{
               width: '100%',
               padding: '0.75rem',
@@ -158,13 +192,12 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            {t('location')}
+            Hospital Address
           </label>
           <input
             type="text"
-            required
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            value={formData.hospitalAddress}
+            onChange={(e) => setFormData({ ...formData, hospitalAddress: e.target.value })}
             style={{
               width: '100%',
               padding: '0.75rem',
@@ -174,6 +207,108 @@ export default function RequestPage() {
             }}
           />
         </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            City
+          </label>
+          <input
+            type="text"
+            required
+            value={formData.hospitalCity}
+            onChange={(e) => setFormData({ ...formData, hospitalCity: e.target.value })}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '1rem'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            District
+          </label>
+          <input
+            type="text"
+            required
+            value={formData.hospitalDistrict}
+            onChange={(e) => setFormData({ ...formData, hospitalDistrict: e.target.value })}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '1rem'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            Hospital Location (GPS)
+          </label>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              type="text"
+              readOnly
+              value={location.latitude && location.longitude ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}` : 'Not set'}
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                backgroundColor: '#f5f5f5'
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleGetLocation}
+              disabled={locating}
+              style={{
+                padding: '0.75rem 1rem',
+                backgroundColor: locating ? '#999' : '#2196f3',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                cursor: locating ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {locating ? 'Locating...' : '📍 Get Location'}
+            </button>
+          </div>
+          <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem' }}>
+            Click to get hospital GPS coordinates (optional but recommended)
+          </p>
+        </div>
+
+        {location.latitude && location.longitude && (
+          <div style={{ marginTop: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              Hospital Location on Map
+            </label>
+            <OfflineMap
+              center={[location.latitude, location.longitude]}
+              zoom={15}
+              height="300px"
+              markers={[
+                {
+                  id: 'hospital',
+                  lat: location.latitude,
+                  lng: location.longitude,
+                  title: formData.hospitalName || 'Hospital Location',
+                  description: formData.hospitalAddress || 'Hospital address',
+                  type: 'hospital'
+                }
+              ]}
+              showUserLocation={true}
+            />
+          </div>
+        )}
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
@@ -191,8 +326,9 @@ export default function RequestPage() {
               fontSize: '1rem'
             }}
           >
-            <option value="normal">Normal (within 24 hours)</option>
-            <option value="urgent">Urgent (within 6 hours)</option>
+            <option value="low">Low (within 24 hours)</option>
+            <option value="medium">Medium (within 12 hours)</option>
+            <option value="high">High (within 6 hours)</option>
             <option value="critical">Critical (Immediately)</option>
           </select>
         </div>

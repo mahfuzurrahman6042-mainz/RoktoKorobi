@@ -70,7 +70,7 @@ export function useOfflineQueue() {
           item.retries++;
         }
       } catch (error) {
-        console.error('Queue processing error:', error);
+        // Silent fail - queue processing error
       }
     }
     

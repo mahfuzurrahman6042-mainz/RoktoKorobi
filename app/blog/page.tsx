@@ -68,81 +68,110 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">{t('loading')}</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p style={{ color: '#757575', fontSize: '1.1rem' }}>{t('loading')}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-red-600">
-            {language === 'bn' ? 'ব্লগ এবং সংবাদ' : 'Blog & News'}
+    <div style={{ background: '#f5f5f5', minHeight: '100vh', padding: '80px 20px 40px' }}>
+      <div className="container">
+        {/* Hero Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #E53935 0%, #FF5252 100%)',
+          padding: '60px 40px',
+          borderRadius: '16px',
+          marginBottom: '3rem',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            📰 {language === 'bn' ? 'ব্লগ এবং সংবাদ' : 'Blog & News'}
           </h1>
-          <Link
-            href="/"
-            className="text-red-600 hover:text-red-800 font-medium"
-          >
-            {t('back')}
-          </Link>
+          <p style={{ fontSize: '1.2rem', opacity: 0.95 }}>
+            {language === 'bn'
+              ? 'সংস্থা এবং ক্লাব থেকে রক্তদান সংবাদ ও ইভেন্ট দেখুন'
+              : 'View blood donation news and events from organizations and clubs'}
+          </p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="card" style={{
+            background: '#fee',
+            color: '#c33',
+            border: '1px solid #fcc',
+            marginBottom: '2rem'
+          }}>
             {error}
           </div>
         )}
 
         {posts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600">
-              {language === 'bn' 
-                ? 'এখনো কোনো পোস্ট নেই। পরে আবার চেক করুন!' 
-                : 'No posts yet. Check back later!'}
+          <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📝</div>
+            <h3 style={{ color: '#212121', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+              {language === 'bn' ? 'কোন পোস্ট নেই' : 'No posts yet'}
+            </h3>
+            <p style={{ color: '#757575' }}>
+              {language === 'bn' ? 'পরে আবার চেক করুন!' : 'Check back later!'}
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
             {posts.map((post) => (
-              <article
+              <Link
                 key={post.id}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                href={`/blog/${post.id}`}
+                style={{ textDecoration: 'none' }}
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
+                <article className="card" style={{ padding: '0', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, #9C27B0 0%, #BA68C8 100%)',
+                    padding: '20px',
+                    color: 'white'
+                  }}>
                     {post.organization && (
-                      <span className="inline-block bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full mb-2">
+                      <span className="badge" style={{
+                        background: 'rgba(255,255,255,0.2)',
+                        color: 'white',
+                        marginBottom: '0.5rem',
+                        display: 'inline-block'
+                      }}>
                         {post.organization}
                       </span>
                     )}
-                    <h2 className="text-xl font-semibold text-gray-800">
+                    <h2 style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: 0, lineHeight: '1.4' }}>
                       {getTitle(post)}
                     </h2>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {formatDate(post.created_at)}
-                  </span>
-                </div>
-                
-                <p className="text-gray-600 mb-4 line-clamp-3">
-                  {getContent(post).substring(0, 200)}
-                  {getContent(post).length > 200 ? '...' : ''}
-                </p>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
-                    {language === 'bn' ? 'লেখক: ' : 'By: '}{post.author_name}
-                  </span>
-                  <Link
-                    href={`/blog/${post.id}`}
-                    className="text-red-600 hover:text-red-800 font-medium"
-                  >
-                    {language === 'bn' ? 'আরো পড়ুন →' : 'Read more →'}
-                  </Link>
-                </div>
-              </article>
+
+                  <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <p style={{ color: '#757575', lineHeight: '1.6', marginBottom: '1rem', flex: 1 }}>
+                      {getContent(post).substring(0, 150)}
+                      {getContent(post).length > 150 ? '...' : ''}
+                    </p>
+
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      paddingTop: '1rem',
+                      borderTop: '1px solid #e0e0e0'
+                    }}>
+                      <span style={{ color: '#757575', fontSize: '0.9rem' }}>
+                        {language === 'bn' ? 'লেখক: ' : 'By: '}{post.author_name}
+                      </span>
+                      <span style={{ color: '#9C27B0', fontSize: '0.85rem', fontWeight: '600' }}>
+                        {formatDate(post.created_at)}
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              </Link>
             ))}
           </div>
         )}

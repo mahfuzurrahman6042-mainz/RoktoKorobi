@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/LanguageContext';
 import Link from 'next/link';
+import { authenticatedFetch } from '@/lib/fetch';
 
 interface Illustration {
   id: string;
@@ -23,12 +24,19 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
+    fetchCurrentUser();
     fetchIllustration();
   }, [params.id]);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch('/api/auth/session');
+      const result = await response.json();
+      setUser(result.user);
+    } catch (err) {
+      setUser(null);
+    }
+  };
 
   const fetchIllustration = async () => {
     try {
@@ -48,8 +56,7 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
   };
 
   const checkFavorite = async (illustrationId: string) => {
-    const userData = localStorage.getItem('user');
-    if (!userData) return;
+    if (!user) return;
     
     try {
       const response = await fetch('/api/user-favorites', {
@@ -63,7 +70,7 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
       const data = await response.json();
       setIsFavorited(data.favorited);
     } catch (err) {
-      console.error('Failed to check favorite:', err);
+      // Silent fail
     }
   };
 
@@ -74,17 +81,13 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
     }
 
     try {
-      const response = await fetch(`/api/illustrations/${params.id}/favorite`, {
+      const response = await authenticatedFetch(`/api/illustrations/${params.id}/favorite`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-data': JSON.stringify(user)
-        },
       });
       const data = await response.json();
       setIsFavorited(data.favorited);
     } catch (err) {
-      console.error('Failed to toggle favorite:', err);
+      // Silent fail
     }
   };
 

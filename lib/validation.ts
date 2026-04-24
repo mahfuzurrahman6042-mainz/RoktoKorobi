@@ -1,9 +1,14 @@
 // Input validation utilities
 
 export function sanitizeInput(input: string): string {
-  // Remove potentially dangerous characters
+  // More comprehensive sanitization
   return input
     .replace(/[<>]/g, '') // Remove < and >
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove on* event handlers
+    .replace(/data:/gi, '') // Remove data: protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .replace(/&#/g, '') // Remove HTML entities
     .trim();
 }
 
@@ -34,7 +39,8 @@ export function validatePassword(password: string): { valid: boolean; message: s
   if (!/[0-9]/.test(password)) {
     return { valid: false, message: 'Password must contain at least one number' };
   }
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+  // Use safer special characters
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
     return { valid: false, message: 'Password must contain at least one special character' };
   }
   return { valid: true, message: '' };

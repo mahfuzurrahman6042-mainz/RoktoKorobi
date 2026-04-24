@@ -5,19 +5,24 @@ import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/lib/LanguageContext';
 import { hashPassword } from '@/lib/auth';
 import { sanitizeInput, validateEmail, validatePhone, validatePassword, validateAge, validateWeight } from '@/lib/validation';
+import { geocodeDonorArea } from '@/lib/geolocation-utils';
+import PrivacyPolicyConsent from '@/components/PrivacyPolicyConsent';
 
 export default function RegisterPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     bloodGroup: '',
-    age: '',
+    dateOfBirth: '',
+    district: '',
     location: '',
     weight: '',
     wantsToBeDonor: false,
     password: '',
+    ageConfirmed: false,
+    privacyConsent: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,8 +59,14 @@ export default function RegisterPage() {
       return;
     }
 
-    const age = parseInt(formData.age);
-    if (!validateAge(age)) {
+    // Calculate age from date of birth
+    const dob = new Date(formData.dateOfBirth);
+    const today = new Date();
+    const age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const finalAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate()) ? age - 1 : age;
+
+    if (!validateAge(finalAge)) {
       setError('Age must be between 13 and 100');
       setLoading(false);
       return;
@@ -69,8 +80,42 @@ export default function RegisterPage() {
     }
 
     // Validate donor eligibility
-    if (formData.wantsToBeDonor && age < 18) {
+    if (formData.wantsToBeDonor && finalAge < 18) {
       setError(t('ageWarning'));
+      setLoading(false);
+      return;
+    }
+
+    // Validate age confirmation
+    if (!formData.ageConfirmed) {
+      setError('You must confirm that you are 18 years or older');
+      setLoading(false);
+      return;
+    }
+
+    // Validate privacy consent
+    if (!formData.privacyConsent) {
+      setError('You must agree to the Privacy Policy to continue');
+      setLoading(false);
+      return;
+    }
+
+    // Soft deduplication check - check if user already exists by phone or email
+    const { data: existingUser, error: checkError } = await supabase
+      .from('profiles')
+      .select('id, phone, email')
+      .or(`phone.eq.${sanitizedPhone},email.eq.${sanitizedEmail}`)
+      .limit(1);
+
+    if (existingUser && existingUser.length > 0) {
+      const existing = existingUser[0];
+      if (existing.phone === sanitizedPhone) {
+        setError('A user with this phone number already exists');
+      } else if (existing.email === sanitizedEmail) {
+        setError('A user with this email already exists');
+      } else {
+        setError('An account with these details already exists');
+      }
       setLoading(false);
       return;
     }
@@ -78,6 +123,20 @@ export default function RegisterPage() {
     try {
       // Hash password before storing
       const hashedPassword = await hashPassword(formData.password);
+
+      // Geocode donor's area if they want to be a donor
+      let areaLat = null;
+      let areaLon = null;
+      let areaName = null;
+
+      if (formData.wantsToBeDonor && finalAge >= 18 && sanitizedLocation) {
+        const locationCoords = await geocodeDonorArea(sanitizedLocation);
+        if (locationCoords) {
+          areaLat = locationCoords.lat;
+          areaLon = locationCoords.lon;
+          areaName = sanitizedLocation;
+        }
+      }
 
       const { error: insertError } = await supabase
         .from('profiles')
@@ -87,16 +146,60 @@ export default function RegisterPage() {
             email: sanitizedEmail,
             phone: sanitizedPhone,
             blood_group: formData.bloodGroup,
-            age: age,
+            date_of_birth: formData.dateOfBirth,
+            age: finalAge,
+            district: formData.district,
             location: sanitizedLocation,
             weight: weight,
-            is_donor: formData.wantsToBeDonor && age >= 18,
+            is_donor: formData.wantsToBeDonor && finalAge >= 18,
             password: hashedPassword,
             role: 'user', // Default role
+            area_name: areaName,
+            area_lat: areaLat,
+            area_lon: areaLon,
+            is_available: true,
+            total_donations: 0,
+            privacy_consent: true,
+            age_declaration: true,
           },
         ]);
 
       if (insertError) throw insertError;
+
+      // Increment donor count in stats if user wants to be a donor
+      if (formData.wantsToBeDonor && finalAge >= 18) {
+        try {
+          await fetch('/api/stats/increment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'donor' }),
+          });
+        } catch (statsError) {
+          // Don't fail registration if stats update fails, just continue
+        }
+
+        // Increment district count
+        try {
+          await fetch('/api/stats/increment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'district' }),
+          });
+        } catch (statsError) {
+          // Don't fail registration if stats update fails, just continue
+        }
+      }
+
+      // Send verification email
+      try {
+        await fetch('/api/auth/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: sanitizedEmail }),
+        });
+      } catch (emailError) {
+        // Don't fail registration if email fails, just continue
+      }
 
       setSuccess(true);
       setFormData({
@@ -104,11 +207,14 @@ export default function RegisterPage() {
         email: '',
         phone: '',
         bloodGroup: '',
-        age: '',
+        dateOfBirth: '',
+        district: '',
         location: '',
         weight: '',
         wantsToBeDonor: false,
         password: '',
+        ageConfirmed: false,
+        privacyConsent: false,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -254,15 +360,34 @@ export default function RegisterPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            {t('age')}
+            {t('dateOfBirth') || 'Date of Birth'}
           </label>
           <input
-            type="number"
+            type="date"
             required
-            min="13"
-            max="65"
-            value={formData.age}
-            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+            value={formData.dateOfBirth}
+            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+            max={new Date().toISOString().split('T')[0]}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '1rem'
+            }}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+            {t('district') || 'District'}
+          </label>
+          <input
+            type="text"
+            required
+            value={formData.district}
+            onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+            placeholder={language === 'bn' ? 'জেলা লিখুন' : 'Enter your district'}
             style={{
               width: '100%',
               padding: '0.75rem',
@@ -283,7 +408,14 @@ export default function RegisterPage() {
             />
             {t('registerAs')} {t('donor')}
           </label>
-          {formData.wantsToBeDonor && parseInt(formData.age) < 18 && (
+          {formData.wantsToBeDonor && formData.dateOfBirth && (() => {
+              const dob = new Date(formData.dateOfBirth);
+              const today = new Date();
+              const age = today.getFullYear() - dob.getFullYear();
+              const monthDiff = today.getMonth() - dob.getMonth();
+              const finalAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate()) ? age - 1 : age;
+              return finalAge < 18;
+            })() && (
             <div style={{ color: '#f44336', fontSize: '0.9rem', marginTop: '0.25rem' }}>
               ⚠️ {t('ageWarning')}
             </div>
@@ -328,6 +460,14 @@ export default function RegisterPage() {
             }}
           />
         </div>
+
+        <PrivacyPolicyConsent
+          language={language === 'bn' ? 'bn' : 'en'}
+          onConsentChange={(consented) => setFormData({ ...formData, privacyConsent: consented })}
+          showAgeDeclaration={true}
+          onAgeDeclarationChange={(declared) => setFormData({ ...formData, ageConfirmed: declared })}
+          required={true}
+        />
 
         <button
           type="submit"

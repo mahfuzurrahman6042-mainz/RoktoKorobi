@@ -1,8 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { parseSessionCookie, verifySessionToken } from '@/lib/auth';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { parseCSRFCookie, validateCSRFToken } from '@/lib/csrf';
+import { validateFileContent, calculateChecksum, stripExifData, scanForMalware } from '@/lib/file-validation';
+import { logSecurityEvent } from '@/lib/audit-log';
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting: 10 uploads per hour per user
+    const identifier = getClientIdentifier(request);
+    const { success } = await rateLimit(identifier, 10, 60 * 60 * 1000);
+    
+    if (!success) {
+      return NextResponse.json({ 
+        error: 'Too many upload attempts. Please try again later.' 
+      }, { status: 429 });
+    }
+
+    // Check request size (max 10MB for file uploads)
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Request too large' }, { status: 413 });
+    }
+
+    // Validate CSRF token
+    const cookieHeader = request.headers.get('cookie');
+    const csrfCookieToken = parseCSRFCookie(cookieHeader);
+    const csrfHeaderToken = request.headers.get('x-csrf-token');
+    
+    if (!validateCSRFToken(csrfCookieToken, csrfHeaderToken)) {
+      return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const title = formData.get('title') as string;
@@ -26,13 +59,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed' }, { status: 400 });
     }
 
-    // Get user from localStorage (in production, use proper auth)
-    const userStr = request.headers.get('x-user-data');
-    if (!userStr) {
+    // Enhanced validation: Check file content (magic bytes)
+    const isValidContent = await validateFileContent(file, file.type);
+    if (!isValidContent) {
+      return NextResponse.json({ error: 'File content does not match declared type' }, { status: 400 });
+    }
+
+    // Enhanced validation: Scan for malware
+    const isClean = await scanForMalware(file);
+    if (!isClean) {
+      return NextResponse.json({ error: 'File rejected by security scan' }, { status: 400 });
+    }
+
+    // Enhanced validation: Strip EXIF data
+    const cleanedFile = await stripExifData(file);
+
+    // Enhanced validation: Calculate checksum for integrity
+    const checksum = await calculateChecksum(cleanedFile);
+
+    // Validate session from httpOnly cookie
+    const sessionToken = parseSessionCookie(cookieHeader);
+    
+    if (!sessionToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = JSON.parse(userStr);
+    const user = await verifySessionToken(sessionToken);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Check permissions
     if (user.role !== 'super_admin' && !(user.role === 'admin' && user.can_upload_illustrations)) {
@@ -40,13 +95,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Upload file to Supabase Storage
-    const fileExt = file.name.split('.').pop();
+    const fileExt = cleanedFile.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('illustrations')
-      .upload(filePath, file, {
+      .from('roktokorobi-chitro')
+      .upload(filePath, cleanedFile, {
         upsert: true,
       });
 
@@ -56,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('illustrations')
+      .from('roktokorobi-chitro')
       .getPublicUrl(filePath);
 
     // Determine status
@@ -73,6 +128,7 @@ export async function POST(request: NextRequest) {
         uploaded_by: user.id,
         status,
         language,
+        file_checksum: checksum,
       })
       .select()
       .single();
@@ -81,9 +137,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create illustration' }, { status: 500 });
     }
 
+    // Log successful upload
+    await logSecurityEvent(
+      'ILLUSTRATION_UPLOADED',
+      'illustration',
+      insertData.id,
+      user.id,
+      user.email,
+      request.headers.get('x-forwarded-for') || 'unknown',
+      true,
+      `Uploaded illustration: ${title}`
+    );
+
     return NextResponse.json({ success: true, illustration: insertData }, { status: 200 });
   } catch (error) {
-    console.error('Upload error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

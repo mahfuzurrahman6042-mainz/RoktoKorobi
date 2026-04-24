@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/LanguageContext';
 import Link from 'next/link';
+import { authenticatedFetch } from '@/lib/fetch';
 
 interface BlogPost {
   id: string;
@@ -28,29 +29,40 @@ export default function OrgAdvocateDashboard() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role !== 'org_advocate' && user.role !== 'admin' && user.role !== 'super_admin') {
+    fetchCurrentUser();
+  }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch('/api/auth/session');
+      const result = await response.json();
+      setCurrentUser(result.user);
+    } catch (err) {
+      setCurrentUser(null);
       router.push('/');
-      return;
     }
-    fetchMyPosts();
-  }, [router]);
+  };
 
   const fetchMyPosts = async () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!currentUser) return;
     const { data } = await supabase
       .from('blog_posts')
       .select('id, title, title_bn, is_published, created_at')
-      .eq('author_id', user.id)
+      .eq('author_id', currentUser.id)
       .order('created_at', { ascending: false });
     setPosts(data || []);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      await authenticatedFetch('/api/auth/logout', { method: 'POST' });
+      router.push('/');
+    } catch (err) {
+      router.push('/');
+    }
   };
 
   const handleCreatePost = async (e: React.FormEvent) => {
@@ -58,7 +70,7 @@ export default function OrgAdvocateDashboard() {
     setLoading(true);
     setMessage('');
 
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!currentUser) return;
 
     try {
       const { error } = await supabase.from('blog_posts').insert({
@@ -66,8 +78,8 @@ export default function OrgAdvocateDashboard() {
         title_bn: formData.title_bn || null,
         content: formData.content,
         content_bn: formData.content_bn || null,
-        author_id: user.id,
-        author_name: user.name,
+        author_id: currentUser.id,
+        author_name: currentUser.name,
         organization: formData.organization || null,
         is_published: true,
       });

@@ -63,81 +63,131 @@ export default function IllustrationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">{t('loading')}</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+          <p style={{ color: '#757575', fontSize: '1.1rem' }}>{t('loading')}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-red-600">
-            {language === 'bn' ? 'রক্তকরবী চিত্রকথন' : 'RoktoKorobi Chitrokothon'}
+    <div style={{ background: '#f5f5f5', minHeight: '100vh', padding: '80px 20px 40px' }}>
+      <div className="container">
+        {/* Hero Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #FF5722 0%, #FF7043 100%)',
+          padding: '60px 40px',
+          borderRadius: '16px',
+          marginBottom: '3rem',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            🎨 {language === 'bn' ? 'রক্তকরবী চিত্রকথন' : 'RoktoKorobi Chitrokothon'}
           </h1>
-          <Link
-            href="/"
-            className="text-red-600 hover:text-red-800 font-medium"
-          >
-            {t('back')}
-          </Link>
+          <p style={{ fontSize: '1.2rem', opacity: 0.95 }}>
+            {language === 'bn'
+              ? 'রক্তদান সচেতনতা বৃদ্ধির জন্য তৈরি চিত্রকল্প দেখুন'
+              : 'View illustrations created to raise blood donation awareness'}
+          </p>
         </div>
 
-        <p className="text-gray-600 mb-8">
-          {language === 'bn' 
-            ? 'রক্তদান সচেতনতা বৃদ্ধির জন্য তৈরি করা চিত্রকল্প দেখুন' 
-            : 'View illustrations created to raise blood donation awareness'}
-        </p>
-
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="card" style={{
+            background: '#fee',
+            color: '#c33',
+            border: '1px solid #fcc',
+            marginBottom: '2rem'
+          }}>
             {error}
           </div>
         )}
 
         {illustrations.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-600">
-              {language === 'bn' 
-                ? 'এখনো কোনো চিত্র নেই। পরে আবার চেক করুন!' 
-                : 'No illustrations yet. Check back later!'}
+          <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎨</div>
+            <h3 style={{ color: '#212121', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+              {language === 'bn' ? 'কোন চিত্র নেই' : 'No illustrations yet'}
+            </h3>
+            <p style={{ color: '#757575' }}>
+              {language === 'bn' ? 'পরে আবার চেক করুন!' : 'Check back later!'}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
             {illustrations.map((illustration) => (
-              <div
+              <Link
                 key={illustration.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                href={`/illustrations/${illustration.id}`}
+                style={{ textDecoration: 'none' }}
               >
-                <div className="aspect-video bg-gray-200">
-                  <img
-                    src={illustration.image_url}
-                    alt={getTitle(illustration)}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                    {getTitle(illustration)}
-                  </h2>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {getDescription(illustration)}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      {formatDate(illustration.created_at)}
-                    </span>
-                    <Link
-                      href={`/illustrations/${illustration.id}`}
-                      className="text-red-600 hover:text-red-800 text-sm font-medium"
-                    >
-                      {language === 'bn' ? 'দেখুন →' : 'View →'}
-                    </Link>
+                <div className="card" style={{ padding: '0', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ 
+                    aspectRatio: '16/9',
+                    background: '#e0e0e0',
+                    overflow: 'hidden'
+                  }}>
+                    <img
+                      src={illustration.image_url}
+                      alt={getTitle(illustration)}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.3s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <h2 style={{ 
+                      fontSize: '1.3rem', 
+                      fontWeight: 'bold', 
+                      color: '#212121',
+                      marginBottom: '0.75rem',
+                      lineHeight: '1.4'
+                    }}>
+                      {getTitle(illustration)}
+                    </h2>
+                    <p style={{ 
+                      color: '#757575', 
+                      fontSize: '0.95rem',
+                      lineHeight: '1.6',
+                      marginBottom: '1rem',
+                      flex: 1,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}>
+                      {getDescription(illustration)}
+                    </p>
+
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      paddingTop: '1rem',
+                      borderTop: '1px solid #e0e0e0'
+                    }}>
+                      <span style={{ color: '#757575', fontSize: '0.85rem' }}>
+                        {formatDate(illustration.created_at)}
+                      </span>
+                      <span style={{ color: '#FF5722', fontSize: '0.9rem', fontWeight: '600' }}>
+                        {language === 'bn' ? 'দেখুন →' : 'View →'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
