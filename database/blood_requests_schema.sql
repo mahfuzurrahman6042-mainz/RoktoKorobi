@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS blood_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   requester_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   donor_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  accepted_donor_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   
   -- Patient and hospital information
   patient_name VARCHAR(100) NOT NULL,
@@ -26,6 +27,10 @@ CREATE TABLE IF NOT EXISTS blood_requests (
   
   -- Request status
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'in_progress', 'fulfilled', 'cancelled')),
+  
+  -- Contact information
+  contact VARCHAR(20) NOT NULL,
+  units_needed INTEGER DEFAULT 1 CHECK (units_needed > 0 AND units_needed <= 10),
   
   -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
