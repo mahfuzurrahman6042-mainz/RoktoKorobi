@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useLanguage } from '@/lib/LanguageContext';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -20,18 +19,24 @@ interface BlogPost {
 
 export default function BlogPage() {
   const [mounted, setMounted] = useState(false);
-  const { t, language } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     setMounted(true);
+    const savedLanguage = localStorage.getItem('roktokorobi-language') as 'en' | 'bn';
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'bn')) {
+      setLanguage(savedLanguage);
+    }
   }, []);
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (mounted) {
+      fetchPosts();
+    }
+  }, [mounted]);
 
   const fetchPosts = async () => {
     try {
@@ -78,7 +83,7 @@ export default function BlogPage() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-          <p style={{ color: '#757575', fontSize: '1.1rem' }}>{t('loading')}</p>
+          <p style={{ color: '#757575', fontSize: '1.1rem' }}>Loading...</p>
         </div>
       </div>
     );
