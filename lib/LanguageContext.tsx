@@ -32,8 +32,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translations[language][key] || translations.en[key] || key;
   };
 
-  if (!mounted) return null;
-
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
