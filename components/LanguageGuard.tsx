@@ -8,7 +8,9 @@ export default function LanguageGuard({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('roktokorobi-language');
-    if (!savedLanguage && window.location.pathname !== '/language') {
+    // Allow register and login pages without language selection
+    const publicPaths = ['/language', '/register', '/login'];
+    if (!savedLanguage && !publicPaths.includes(window.location.pathname)) {
       router.push('/language');
     }
   }, [router]);
