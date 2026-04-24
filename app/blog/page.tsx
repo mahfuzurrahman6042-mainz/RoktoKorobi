@@ -17,10 +17,15 @@ interface BlogPost {
 }
 
 export default function BlogPage() {
+  const [mounted, setMounted] = useState(false);
   const { t, language } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -66,7 +71,7 @@ export default function BlogPage() {
     return post.content;
   };
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
