@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/lib/LanguageContext';
 import Link from 'next/link';
 import { authenticatedFetch } from '@/lib/fetch';
 
@@ -16,7 +15,25 @@ interface Illustration {
 }
 
 export default function IllustrationDetailPage({ params }: { params: { id: string } }) {
-  const { t, language } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      title: { en: 'Illustration Details', bn: 'চিত্রকথন বিবরণ' },
+      loading: { en: 'Loading...', bn: 'লোড হচ্ছে...' },
+      error: { en: 'Failed to load illustration', bn: 'চিত্রকথন লোড করতে ব্যর্থ' },
+      favorite: { en: 'Favorite', bn: 'প্রিয়' },
+      back: { en: 'Back to Gallery', bn: 'গ্যালারিতে ফিরে যান' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+  }, []);
   const [illustration, setIllustration] = useState<Illustration | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

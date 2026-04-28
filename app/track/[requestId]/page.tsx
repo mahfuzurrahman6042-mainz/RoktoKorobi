@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/lib/LanguageContext';
 import OfflineMap from '@/components/OfflineMap';
+import DonationConfirmation from '@/components/DonationConfirmation';
 import { startDonorTracking, stopDonorTracking, isTrackingActive } from '@/lib/donor-tracking';
+import { subscribeToDonorLocation, unsubscribeFromDonorLocation } from '@/lib/realtime-tracking';
 
 interface DonorLocation {
   donorId: string;
@@ -15,7 +16,37 @@ interface DonorLocation {
 }
 
 export default function TrackDonorPage({ params }: { params: Promise<{ requestId: string }> }) {
-  const { t } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [requestStatus, setRequestStatus] = useState<string>('pending');
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      title: { en: 'Track Donor', bn: 'রক্তদাতা ট্র্যাক করুন' },
+      loading: { en: 'Loading...', bn: 'লোড হচ্ছে...' },
+      error: { en: 'Failed to load tracking data', bn: 'ট্র্যাকিং ডেটা লোড করতে ব্যর্থ' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+    fetchCurrentUser();
+  }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch('/api/auth/session');
+      const result = await response.json();
+      setCurrentUser(result.user);
+    } catch (err) {
+      setCurrentUser(null);
+    }
+  };
+
   const [requestId, setRequestId] = useState<string>('');
   const [donorLocation, setDonorLocation] = useState<DonorLocation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +54,7 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
   const [isTracking, setIsTracking] = useState(false);
   const [arrivalDetected, setArrivalDetected] = useState(false);
   const [hospitalLocation, setHospitalLocation] = useState<[number, number] | null>(null);
+  const [realtimeChannel, setRealtimeChannel] = useState<any>(null);
 
   useEffect(() => {
     params.then(p => setRequestId(p.requestId));
@@ -46,6 +78,9 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
           setHospitalLocation([requestData.hospital_latitude, requestData.hospital_longitude]);
         }
 
+        // Set request status
+        setRequestStatus(requestData.status || 'pending');
+
         // If donor accepted, fetch their live location
         if (requestData.accepted_donor_id) {
           fetchDonorLocation(requestData.accepted_donor_id);
@@ -62,16 +97,46 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
     fetchRequestDetails();
   }, [requestId]);
 
-  // Poll for donor location updates every 5 seconds
+  // Subscribe to real-time donor location updates
   useEffect(() => {
     if (!donorLocation?.donorId) return;
 
-    const interval = setInterval(() => {
-      fetchDonorLocation(donorLocation.donorId);
-    }, 5000);
+    const channel = subscribeToDonorLocation(donorLocation.donorId, (location) => {
+      setDonorLocation({
+        donorId: location.donor_id,
+        lat: location.lat,
+        lng: location.lng,
+        timestamp: location.updated_at,
+        bloodGroup: donorLocation.bloodGroup,
+        status: donorLocation.status,
+      });
 
-    return () => clearInterval(interval);
-  }, [donorLocation?.donorId]);
+      // Check if donor arrived at hospital (within 200 meters)
+      if (hospitalLocation && location.lat && location.lng) {
+        const distance = calculateDistance(
+          location.lat,
+          location.lng,
+          hospitalLocation[0],
+          hospitalLocation[1]
+        );
+        if (distance < 200 && !arrivalDetected) {
+          setArrivalDetected(true);
+          // Mark donor as arrived
+          fetch('/api/donor/arrive', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ donorId: location.donor_id, requestId })
+          });
+        }
+      }
+    });
+
+    setRealtimeChannel(channel);
+
+    return () => {
+      unsubscribeFromDonorLocation(channel);
+    };
+  }, [donorLocation?.donorId, hospitalLocation, arrivalDetected, requestId]);
 
   const fetchDonorLocation = async (donorId: string) => {
     try {
@@ -262,6 +327,19 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
             routeTo={hospitalLocation || undefined}
             showUserLocation={true}
           />
+
+          {/* Donation Confirmation Section */}
+          {arrivalDetected && currentUser && (
+            <div style={{ marginTop: '2rem' }}>
+              <DonationConfirmation
+                donationId={requestId}
+                role={currentUser.is_donor ? 'donor' : 'recipient'}
+                onConfirm={() => {
+                  setRequestStatus('completed');
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 

@@ -1,13 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/lib/LanguageContext';
 import OfflineMap from '@/components/OfflineMap';
 import Link from 'next/link';
 import { getGPSLocation, geocode, getDistanceMeters } from '@/lib/geolocation-utils';
 
 export default function NavigationPage() {
-  const { t, language } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      title: { en: 'Navigation', bn: 'নেভিগেশন' },
+      donorMode: { en: 'Donor Mode', bn: 'রক্তদাতা মোড' },
+      recipientMode: { en: 'Recipient Mode', bn: 'প্রাপক মোড' },
+      getLocation: { en: 'Get My Location', bn: 'আমার অবস্থান পান' },
+      searchHospital: { en: 'Search Hospital', bn: 'হাসপাতাল অনুসন্ধান' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+  }, []);
   const [mode, setMode] = useState<'donor' | 'recipient'>('donor');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHospital, setSelectedHospital] = useState<any>(null);

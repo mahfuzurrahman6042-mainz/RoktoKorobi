@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useLanguage } from '@/lib/LanguageContext';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -18,7 +17,24 @@ interface BlogPost {
 }
 
 export default function BlogPostPage() {
-  const { t, language } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      title: { en: 'Blog Post', bn: 'ব্লগ পোস্ট' },
+      loading: { en: 'Loading...', bn: 'লোড হচ্ছে...' },
+      error: { en: 'Failed to load blog post', bn: 'ব্লগ পোস্ট লোড করতে ব্যর্থ' },
+      back: { en: 'Back to Blog', bn: 'ব্লগে ফিরে যান' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+  }, []);
   const params = useParams();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);

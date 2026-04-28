@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { parseCSRFCookie, validateCSRFToken } from '@/lib/csrf';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,18 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate CSRF token
+    const cookieHeader = request.headers.get('cookie');
+    const cookieToken = parseCSRFCookie(cookieHeader);
+    const headerToken = request.headers.get('x-csrf-token') || (await request.json()).csrfToken;
+    
+    if (!validateCSRFToken(cookieToken, headerToken)) {
+      return NextResponse.json(
+        { error: 'Invalid CSRF token' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { donorId, donationId } = body;
 

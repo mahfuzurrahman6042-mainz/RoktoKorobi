@@ -1,11 +1,14 @@
 // Donor live location tracking utilities
-// Uses watchPosition for real-time GPS updates
+// Uses watchPosition for real-time GPS updates with Supabase Realtime
+
+import { supabase } from './supabase';
 
 let watchId: number | null = null;
 
 /**
  * Start donor GPS tracking with watchPosition
  * Sends location updates to backend every time position changes
+ * Uses Supabase Realtime for live updates to recipients
  */
 export async function startDonorTracking(
   donorId: string,
@@ -22,18 +25,20 @@ export async function startDonorTracking(
     async (pos) => {
       const { latitude: lat, longitude: lng } = pos.coords;
 
-      // Send to backend
+      // Send to backend (Supabase will broadcast via Realtime)
       try {
-        await fetch('/api/donor-location/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            donorId,
+        const { error } = await supabase
+          .from('donor_live_location')
+          .upsert({
+            donor_id: donorId,
             lat,
             lng,
-            timestamp: Date.now()
-          })
-        });
+            updated_at: new Date().toISOString()
+          });
+
+        if (error) {
+          console.error('Failed to update location:', error);
+        }
       } catch (e) {
         console.error('Failed to send location:', e);
       }

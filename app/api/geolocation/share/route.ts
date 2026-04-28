@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifySessionToken } from '@/lib/auth';
+import { parseCSRFCookie, validateCSRFToken } from '@/lib/csrf';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -18,6 +19,17 @@ export async function POST(request: NextRequest) {
     const userId = await verifySessionToken(sessionToken);
     if (!userId) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+    }
+
+    // Validate CSRF token
+    const cookieToken = parseCSRFCookie(cookieHeader);
+    const headerToken = request.headers.get('x-csrf-token') || (await request.json()).csrfToken;
+    
+    if (!validateCSRFToken(cookieToken, headerToken)) {
+      return NextResponse.json(
+        { error: 'Invalid CSRF token' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

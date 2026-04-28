@@ -4,14 +4,15 @@ import { serialize, parse } from 'cookie';
 
 const SALT_ROUNDS = 10;
 const SESSION_IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes of inactivity
-
-// Critical: JWT_SECRET must be set
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable must be set');
-}
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const COOKIE_NAME = 'roktokorobi-session';
+
+// Lazy load JWT_SECRET to avoid client-side errors
+function getJWT_SECRET(): Uint8Array {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable must be set');
+  }
+  return new TextEncoder().encode(process.env.JWT_SECRET);
+}
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS);
@@ -39,14 +40,14 @@ export async function createSessionToken(user: UserSession): Promise<string> {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(JWT_SECRET);
+    .sign(getJWT_SECRET());
   
   return token;
 }
 
 export async function verifySessionToken(token: string): Promise<UserSession | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJWT_SECRET());
     const session = payload as unknown as UserSession;
     
     // Check if session has been idle for too long
@@ -97,7 +98,7 @@ export async function refreshSessionActivity(user: UserSession): Promise<string>
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(JWT_SECRET);
+    .sign(getJWT_SECRET());
   
   return token;
 }

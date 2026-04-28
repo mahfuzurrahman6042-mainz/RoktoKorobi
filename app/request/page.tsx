@@ -1,12 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useLanguage } from '@/lib/LanguageContext';
 import OfflineMap from '@/components/OfflineMap';
 
 export default function RequestPage() {
-  const { t } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      requestBlood: { en: 'Request Blood', bn: 'রক্তের প্রয়োজন' },
+      patientName: { en: 'Patient Name', bn: 'রোগীর নাম' },
+      bloodGroup: { en: 'Blood Group', bn: 'রক্তের গ্রুপ' },
+      bloodGroupRequired: { en: 'Blood Group Required', bn: 'প্রয়োজনীয় রক্তের গ্রুপ' },
+      hospitalName: { en: 'Hospital Name', bn: 'হাসপাতালের নাম' },
+      hospitalAddress: { en: 'Hospital Address', bn: 'হাসপাতালের ঠিকানা' },
+      hospitalCity: { en: 'Hospital City', bn: 'হাসপাতালের শহর' },
+      hospitalDistrict: { en: 'Hospital District', bn: 'হাসপাতালের জেলা' },
+      hospitalLocation: { en: 'Hospital Location', bn: 'হাসপাতালের অবস্থান' },
+      urgency: { en: 'Urgency', bn: 'জরুরিতা' },
+      phone: { en: 'Phone Number', bn: 'ফোন নম্বর' },
+      unitsNeeded: { en: 'Units Needed', bn: 'প্রয়োজনীয় ইউনিট' },
+      submitRequest: { en: 'Submit Request', bn: 'অনুরোধ জমা দিন' },
+      success: { en: 'Blood request submitted successfully!', bn: 'রক্তের অনুরোধ সফলভাবে জমা হয়েছে!' },
+      loading: { en: 'Submitting...', bn: 'জমা দিচ্ছে...' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+  }, []);
   const [formData, setFormData] = useState({
     patientName: '',
     bloodGroup: '',
@@ -18,6 +45,8 @@ export default function RequestPage() {
     contact: '',
     units: '1',
   });
+  const [gpsLocation, setGpsLocation] = useState('Not set');
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [location, setLocation] = useState({ latitude: null as number | null, longitude: null as number | null });
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -25,25 +54,34 @@ export default function RequestPage() {
   const [success, setSuccess] = useState(false);
 
   const handleGetLocation = () => {
-    setLocating(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-          setLocating(false);
-        },
-        (error) => {
-          setError('Unable to get location. Please enable location services.');
-          setLocating(false);
-        }
-      );
-    } else {
-      setError('Geolocation is not supported by your browser.');
-      setLocating(false);
+    if (!navigator.geolocation) { 
+      alert('Geolocation is not supported by your browser.'); 
+      return; 
     }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setGpsCoords({ lat: latitude, lng: longitude });
+        setGpsLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        setLocation({ latitude, longitude });
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED: 
+            alert('Location permission denied.'); 
+            break;
+          case error.POSITION_UNAVAILABLE: 
+            alert('Location information is unavailable.'); 
+            break;
+          case error.TIMEOUT: 
+            alert('Location request timed out.'); 
+            break;
+          default: 
+            alert('An unknown error occurred.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,8 +100,8 @@ export default function RequestPage() {
             hospital_address: formData.hospitalAddress,
             hospital_city: formData.hospitalCity,
             hospital_district: formData.hospitalDistrict,
-            hospital_latitude: location.latitude,
-            hospital_longitude: location.longitude,
+            hospital_latitude: gpsCoords?.lat || location.latitude,
+            hospital_longitude: gpsCoords?.lng || location.longitude,
             urgency: formData.urgency,
             contact: formData.contact,
             units_needed: parseInt(formData.units),
@@ -86,6 +124,8 @@ export default function RequestPage() {
         units: '1',
       });
       setLocation({ latitude: null, longitude: null });
+      setGpsLocation('Not set');
+      setGpsCoords(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request submission failed');
     } finally {
@@ -192,7 +232,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Hospital Address
+            {t('hospitalAddress')}
           </label>
           <input
             type="text"
@@ -210,7 +250,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            City
+            {t('hospitalCity')}
           </label>
           <input
             type="text"
@@ -229,7 +269,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            District
+            {t('hospitalDistrict')}
           </label>
           <input
             type="text"
@@ -248,13 +288,13 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Hospital Location (GPS)
+            {t('hospitalLocation')}
           </label>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
               readOnly
-              value={location.latitude && location.longitude ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}` : 'Not set'}
+              value={gpsLocation}
               style={{
                 flex: 1,
                 padding: '0.75rem',
@@ -354,7 +394,7 @@ export default function RequestPage() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Units Needed
+            {t('unitsNeeded')}
           </label>
           <input
             type="number"

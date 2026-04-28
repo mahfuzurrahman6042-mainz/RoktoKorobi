@@ -23,89 +23,29 @@ export default function LanguageSelector() {
 
   const selectLanguage = (lang: 'en' | 'bn') => {
     localStorage.setItem('roktokorobi-language', lang);
-    // Small delay to ensure localStorage is set before navigation
     setTimeout(() => {
       router.push('/register');
     }, 100);
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#f5f5f5',
-      padding: '2rem'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '3rem',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        textAlign: 'center',
-        maxWidth: '500px',
-        width: '100%'
-      }}>
-        <h1 style={{
-          color: '#e53935',
-          fontSize: '2.5rem',
-          marginBottom: '1rem',
-          margin: 0
-        }}>
-          🩸 RoktoKorobi
-        </h1>
-        <p style={{
-          fontSize: '1.2rem',
-          color: '#666',
-          marginBottom: '2rem'
-        }}>
-          Choose your language / আপনার ভাষা নির্বাচন করুন
-        </p>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem'
-        }}>
-          <button
-            onClick={() => selectLanguage('en')}
-            style={{
-              padding: '1.5rem 2rem',
-              fontSize: '1.2rem',
-              backgroundColor: '#2196f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              transition: 'transform 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            English
-          </button>
-          
-          <button
-            onClick={() => selectLanguage('bn')}
-            style={{
-              padding: '1.5rem 2rem',
-              fontSize: '1.2rem',
-              backgroundColor: '#4caf50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              transition: 'transform 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            বাংলা (Bangla)
-          </button>
+    <div id="lang-select">
+      <svg className="ls-drop" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 0C8.954 0 0 8.954 0 20c0 11.046 8.954 20 20 20s20-8.954 20-20C40 8.954 31.046 0 20 0zm0 36c-8.837 0-16-7.163-16-16S11.163 4 20 4s16 7.163 16 16-7.163 16-16 16z" fill="#C0152A"/>
+        <path d="M20 8c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12S26.627 8 20 8zm0 20c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#E8324A"/>
+        <circle cx="20" cy="20" r="4" fill="#FDFAF4"/>
+      </svg>
+      <p className="ls-title">Select your language / আপনার ভাষা নির্বাচন করুন</p>
+      <div className="ls-cards">
+        <div className="ls-card" onClick={() => selectLanguage('en')}>
+          <span className="ls-card-flag">🇬🇧</span>
+          <span className="ls-card-name">English</span>
+          <span className="ls-card-sub">ইংরেজি</span>
+        </div>
+        <div className="ls-card" onClick={() => selectLanguage('bn')}>
+          <span className="ls-card-flag">🇧🇩</span>
+          <span className="ls-card-name">বাংলা</span>
+          <span className="ls-card-sub">Bangla</span>
         </div>
       </div>
     </div>

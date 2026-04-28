@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import PolicyText from './PolicyText';
 import { privacyPolicyContent } from '../lib/privacyPolicyContent';
+import Link from 'next/link';
 
 interface PrivacyPolicyConsentProps {
   language: 'en' | 'bn';
@@ -37,7 +38,18 @@ export default function PrivacyPolicyConsent({
 
   const labels = {
     en: {
-      consentLabel: 'I have read, understood, and agree to the Privacy Policy',
+      consentLabel: (
+        <>
+          I have read, understood, and agree to the{' '}
+          <Link href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
+            Privacy Policy
+          </Link>{' '}
+          and{' '}
+          <Link href="/terms" className="text-blue-600 hover:text-blue-800 underline">
+            Terms of Service
+          </Link>
+        </>
+      ),
       consentRequired: 'Consent is required to continue',
       viewPolicy: 'View Privacy Policy',
       hidePolicy: 'Hide Privacy Policy',
@@ -45,7 +57,19 @@ export default function PrivacyPolicyConsent({
       ageRequired: 'Age declaration is required to continue',
     },
     bn: {
-      consentLabel: 'আমি গোপনীয়তা নীতি পড়েছি, বুঝেছি এবং এতে সম্মত আছি',
+      consentLabel: (
+        <>
+          আমি{' '}
+          <Link href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
+            গোপনীয়তা নীতি
+          </Link>{' '}
+          এবং{' '}
+          <Link href="/terms" className="text-blue-600 hover:text-blue-800 underline">
+            শর্তাবলী
+          </Link>{' '}
+          পড়েছি, বুঝেছি এবং এতে সম্মত আছি
+        </>
+      ),
       consentRequired: 'এগিয়ে যেতে সম্মতি প্রয়োজন',
       viewPolicy: 'গোপনীয়তা নীতি দেখুন',
       hidePolicy: 'গোপনীয়তা নীতি লুকান',
@@ -83,7 +107,7 @@ export default function PrivacyPolicyConsent({
           required={required}
         />
         <label htmlFor="privacy-consent" className="text-sm text-gray-700">
-          {t.consentLabel}
+          {typeof t.consentLabel === 'string' ? t.consentLabel : t.consentLabel}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       </div>

@@ -37,6 +37,23 @@
       "description": "Request blood urgently",
       "url": "/request",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Blood Requests",
+      "short_name": "Requests",
+      "description": "View pending blood requests",
+      "url": "/blood-requests",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Leaderboard",
+      "short_name": "Leaderboard",
+      "description": "View top blood donors",
+      "url": "/leaderboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "related_applications": []
 }

@@ -2,13 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLanguage } from '@/lib/LanguageContext';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { sanitizeInput, validateEmail, validatePassword } from '@/lib/validation';
 import { hashPassword, verifyPassword } from '@/lib/auth';
 
 export default function LoginPage() {
-  const { t, language } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      title: { en: 'Login', bn: 'লগ ইন' },
+      email: { en: 'Email', bn: 'ইমেইল' },
+      password: { en: 'Password', bn: 'পাসওয়ার্ড' },
+      login: { en: 'Login', bn: 'লগ ইন' },
+      noAccount: { en: "Don't have an account?", bn: 'অ্যাকাউন্ট নেই?' },
+      register: { en: 'Register', bn: 'রেজিস্টার' },
+      superAdminSignup: { en: 'Super Admin Signup', bn: 'সুপার অ্যাডমিন সাইনআপ' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+  }, []);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -170,43 +190,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
-      padding: '20px'
-    }}>
-      <div className="card" style={{ 
-        maxWidth: '450px',
-        width: '100%',
-        padding: '40px',
-        background: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-      }}>
-        {/* Logo/Title */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ 
-            fontSize: '4rem', 
-            marginBottom: '1rem',
-            background: 'linear-gradient(135deg, #E53935 0%, #FF5252 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            🩸
-          </div>
-          <h1 style={{ 
-            color: '#212121', 
-            fontSize: '2rem', 
-            marginBottom: '0.5rem',
-            fontWeight: 'bold' 
-          }}>
-            {isSuperAdminSignup ? '👑 ' + t('superAdminSignup') : '🔐 ' + t('loginTitle')}
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <svg className="auth-logo" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 0C8.954 0 0 8.954 0 20c0 11.046 8.954 20 20 20s20-8.954 20-20C40 8.954 31.046 0 20 0zm0 36c-8.837 0-16-7.163-16-16S11.163 4 20 4s16 7.163 16 16-7.163 16-16 16z" fill="#C0152A"/>
+            <path d="M20 8c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12S26.627 8 20 8zm0 20c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z" fill="#E8324A"/>
+            <circle cx="20" cy="20" r="4" fill="#FDFAF4"/>
+          </svg>
+          <h1 className="auth-title">
+            {isSuperAdminSignup 
+              ? (language === 'bn' ? '👑 সুপার অ্যাডমিন সাইনআপ' : '👑 Super Admin Signup')
+              : (language === 'bn' ? '🔐 লগ ইন' : '🔐 Login')
+            }
           </h1>
-          <p style={{ color: '#757575', fontSize: '1rem' }}>
+          <p className="auth-sub">
             {language === 'bn' 
               ? isSuperAdminSignup 
                 ? 'সুপার অ্যাডমিন অ্যাকাউন্ট তৈরি করুন'
@@ -219,56 +217,32 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div style={{
-            padding: '1rem',
-            backgroundColor: '#fee',
-            color: '#c33',
-            borderRadius: '8px',
-            marginBottom: '1.5rem',
-            border: '1px solid #fcc',
-            fontSize: '0.9rem'
-          }}>
+          <div className="auth-alert error">
             {error}
           </div>
         )}
 
-        <form onSubmit={isSuperAdminSignup ? handleSuperAdminSignup : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '600',
-              color: '#212121',
-              fontSize: '0.9rem'
-            }}>
-              {t('email')}
-            </label>
+        <form onSubmit={isSuperAdminSignup ? handleSuperAdminSignup : handleLogin} className="auth-form">
+          <div className="form-row">
+            <label className="form-label">{t('email')}</label>
             <input
               type="email"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="input"
+              className="form-input"
               placeholder={language === 'bn' ? 'আপনার ইমেইল' : 'your@email.com'}
             />
           </div>
 
-          <div>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '600',
-              color: '#212121',
-              fontSize: '0.9rem'
-            }}>
-              {t('password')}
-            </label>
+          <div className="form-row">
+            <label className="form-label">{t('password')}</label>
             <input
               type="password"
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="input"
+              className="form-input"
               placeholder={language === 'bn' ? 'আপনার পাসওয়ার্ড' : '••••••••'}
             />
           </div>
@@ -276,42 +250,28 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary"
-            style={{
-              width: '100%',
-              padding: '16px',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              marginTop: '0.5rem'
-            }}
+            className="auth-submit"
           >
             {loading ? t('loading') : isSuperAdminSignup ? t('superAdminSignup') : t('loginBtn')}
           </button>
         </form>
 
         {allowSuperAdminSignup && (
-          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '24px', textAlign: 'center' }}>
             <button
               type="button"
               onClick={() => setIsSuperAdminSignup(!isSuperAdminSignup)}
+              className="auth-link"
               style={{
                 padding: '10px 20px',
                 background: 'transparent',
-                color: '#E53935',
-                border: '2px solid #E53935',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
+                color: 'var(--blood)',
+                border: '2px solid var(--blood)',
+                borderRadius: '10px',
+                fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = '#E53935';
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#E53935';
               }}
             >
               {isSuperAdminSignup ? t('login') : t('superAdminSignup')}
@@ -320,27 +280,13 @@ export default function LoginPage() {
         )}
 
         {!isSuperAdminSignup && (
-          <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.95rem' }}>
-            <span style={{ color: '#757575' }}>
+          <div className="auth-footer">
+            <p>
               {t('noAccount')}{' '}
-            </span>
-            <a 
-              href="/register" 
-              style={{ 
-                color: '#E53935', 
-                textDecoration: 'none',
-                fontWeight: '600',
-                transition: 'color 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.color = '#C62828';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.color = '#E53935';
-              }}
-            >
-              {t('registerLink')}
-            </a>
+              <Link href="/register" className="auth-link">
+                {t('registerLink')}
+              </Link>
+            </p>
           </div>
         )}
       </div>

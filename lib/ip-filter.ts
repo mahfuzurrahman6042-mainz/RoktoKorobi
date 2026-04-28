@@ -22,7 +22,8 @@ async function loadFiltersFromDatabase() {
       .eq('is_active', true);
 
     if (error) {
-      console.warn('Failed to load IP filters from database:', error);
+      // Table doesn't exist or other error - use env vars only
+      console.warn('IP filters table not found, using environment variables only');
       return;
     }
 

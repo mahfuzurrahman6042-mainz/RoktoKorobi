@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     const filePath = `${fileName}`;
 
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('roktokorobi-chitro')
+      .from('Roktokorobi Chitrokothon')
       .upload(filePath, cleanedFile, {
         upsert: true,
       });
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('roktokorobi-chitro')
+      .from('Roktokorobi Chitrokothon')
       .getPublicUrl(filePath);
 
     // Determine status

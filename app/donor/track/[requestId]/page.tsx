@@ -1,13 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/lib/LanguageContext';
 import OfflineMap from '@/components/OfflineMap';
 import { startDonorTracking, stopDonorTracking, isTrackingActive } from '@/lib/donor-tracking';
 import { supabase } from '@/lib/supabase';
 
 export default function DonorTrackPage({ params }: { params: Promise<{ requestId: string }> }) {
-  const { t } = useLanguage();
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [mounted, setMounted] = useState(false);
+
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      title: { en: 'Track to Hospital', bn: 'হাসপাতালে ট্র্যাক করুন' },
+      loading: { en: 'Loading...', bn: 'লোড হচ্ছে...' },
+      startTracking: { en: 'Start Tracking', bn: 'ট্র্যাকিং শুরু করুন' },
+      stopTracking: { en: 'Stop Tracking', bn: 'ট্র্যাকিং বন্ধ করুন' },
+      confirmArrival: { en: 'Confirm Arrival', bn: 'আগমন নিশ্চিত করুন' },
+    };
+    return translations[key]?.[language] || key;
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    const savedLang = localStorage.getItem('language') || 'en';
+    setLanguage(savedLang as 'en' | 'bn');
+  }, []);
   const [requestId, setRequestId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

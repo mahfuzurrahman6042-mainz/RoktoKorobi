@@ -29,12 +29,12 @@ export const translations = {
     
     // Register page
     registerTitle: 'Register',
-    registerAs: 'Register As',
+    registerAs: 'Register as a',
     user: 'User',
     donor: 'Donor',
     fullName: 'Full Name',
     email: 'Email',
-    phone: 'Phone Number',
+    phoneNumber: 'Phone Number',
     bloodGroup: 'Blood Group',
     age: 'Age',
     location: 'Location',
@@ -69,12 +69,18 @@ export const translations = {
     requestBlood: 'Request Blood',
     patientName: 'Patient Name',
     hospitalName: 'Hospital Name',
+    hospitalAddress: 'Hospital Address',
+    hospitalCity: 'Hospital City',
+    hospitalDistrict: 'Hospital District',
+    hospitalLocation: 'Hospital Location',
     bloodGroupRequired: 'Blood Group Required',
     urgency: 'Urgency',
     urgencyLow: 'Low',
     urgencyMedium: 'Medium',
     urgencyHigh: 'High',
     urgencyCritical: 'Critical',
+    phone: 'Phone Number',
+    unitsNeeded: 'Units Needed',
     submitRequest: 'Submit Request',
     
     // Eligibility page
@@ -253,7 +259,7 @@ export const translations = {
     
     // Register page
     registerTitle: 'নিবন্ধন',
-    registerAs: 'নিবন্ধন হিসেবে',
+    registerAs: 'রক্তদাতা হিসেবে নিবন্ধন করুন',
     user: 'ব্যবহারকারী',
     donor: 'দাতা',
     fullName: 'পূর্ণ নাম',
@@ -293,12 +299,17 @@ export const translations = {
     requestBlood: 'রক্তের অনুরোধ',
     patientName: 'রোগীর নাম',
     hospitalName: 'হাসপাতালের নাম',
+    hospitalAddress: 'হাসপাতালের ঠিকানা',
+    hospitalCity: 'হাসপাতালের শহর',
+    hospitalDistrict: 'হাসপাতালের জেলা',
+    hospitalLocation: 'হাসপাতালের অবস্থান',
     bloodGroupRequired: 'প্রয়োজনীয় রক্তের গ্রুপ',
     urgency: 'জরুরি',
     urgencyLow: 'কম',
     urgencyMedium: 'মাঝারি',
     urgencyHigh: 'উচ্চ',
     urgencyCritical: 'সংকটজনক',
+    unitsNeeded: 'প্রয়োজনীয় ইউনিট',
     submitRequest: 'অনুরোধ জমা দিন',
     
     // Eligibility page
