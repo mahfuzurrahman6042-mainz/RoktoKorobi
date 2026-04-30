@@ -122,7 +122,6 @@ export class DeploymentManager {
       COMPRESSION_ENABLED: this.config.security.compressionEnabled.toString(),
       SESSION_TIMEOUT: this.config.security.sessionTimeout.toString(),
       CACHING_ENABLED: this.config.performance.cachingEnabled.toString(),
-      COMPRESSION_ENABLED: this.config.performance.compressionEnabled.toString(),
       BUNDLE_OPTIMIZATION: this.config.performance.bundleOptimization.toString(),
       STORAGE_BUCKET_NAME: this.config.storage.bucketName,
       MAX_FILE_SIZE: this.config.storage.maxFileSize.toString(),
