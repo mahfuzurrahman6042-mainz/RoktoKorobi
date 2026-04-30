@@ -1,7 +1,7 @@
 {
   "name": "roktokorobi",
   "version": "22.0.0",
-  "description": "RoktoKorobi Blood Donation Management System",
+  "description": "RoktoKorobi - Blood Donation Management System - Fixed Build",
   "private": true,
   "scripts": {
     "dev": "next dev",
