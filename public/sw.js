@@ -4,7 +4,14 @@ const urlsToCache = [
   '/manifest.json',
   '/donors',
   '/request',
-  '/profile'
+  '/profile',
+  '/blood-requests',
+  '/leaderboard',
+  '/api/donors/nearby',
+  '/api/hospitals',
+  '/api/stats',
+  '/api/blood-requests',
+  '/api/user/location-consent'
 ];
 
 self.addEventListener('install', (event) => {

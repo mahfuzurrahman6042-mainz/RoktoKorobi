@@ -109,7 +109,7 @@ export default function LeafletMap({
         try {
           mapInstance.invalidateSize();
         } catch (error) {
-          console.error('Error invalidating map size:', error);
+          // Error handled silently - map size invalidation failed
         }
       }
     }, 100);

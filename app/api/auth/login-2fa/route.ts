@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { createSessionToken, createSessionCookie } from '@/lib/auth';
 import { verify2FACode, hashBackupCode } from '@/lib/2fa';
 import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
-import { generateCSRFToken, createCSRFCookie } from '@/lib/csrf';
+import { generateCSRFToken, createCSRFCookie, validateCSRFToken, parseCSRFCookie } from '@/lib/csrf';
 import { logSecurityEvent } from '@/lib/audit-log';
 import crypto from 'crypto';
 
@@ -17,6 +17,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: 'Too many 2FA attempts. Please try again later.' 
       }, { status: 429 });
+    }
+
+    // Validate CSRF token
+    const cookieHeader = request.headers.get('cookie');
+    const headerToken = request.headers.get('x-csrf-token');
+    const cookieToken = parseCSRFCookie(cookieHeader);
+    
+    if (!validateCSRFToken(cookieToken, headerToken)) {
+      return NextResponse.json({ 
+        error: 'Invalid CSRF token' 
+      }, { status: 403 });
     }
 
     const body = await request.json();

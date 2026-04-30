@@ -52,8 +52,8 @@ export async function stripExifData(file: File): Promise<File> {
     const buffer = await file.arrayBuffer();
     
     // Use sharp to strip EXIF data while preserving image quality
-    // rotate() auto-orients the image based on EXIF orientation
-    // toBuffer() outputs the image without EXIF metadata
+    // rotate() auto-orients image based on EXIF orientation
+    // toBuffer() outputs image without EXIF metadata
     const processedBuffer = await sharp(Buffer.from(buffer))
       .rotate()
       .toBuffer();
@@ -61,8 +61,8 @@ export async function stripExifData(file: File): Promise<File> {
     // Convert Buffer to Uint8Array for File constructor
     return new File([new Uint8Array(processedBuffer)], file.name, { type: file.type });
   } catch (error) {
-    console.error('Error stripping EXIF data:', error);
-    // If sharp fails, return original file (log the error)
+    // Error stripping EXIF data
+    // If sharp fails, return original file
     return file;
   }
 }
@@ -70,7 +70,6 @@ export async function stripExifData(file: File): Promise<File> {
 export async function scanForMalware(file: File): Promise<boolean> {
   // If no API key is configured, skip scanning (for development)
   if (!process.env.VIRUSTOTAL_API_KEY) {
-    console.warn('VIRUSTOTAL_API_KEY not configured. Malware scanning is disabled. Allowing all files.');
     return true;
   }
 
@@ -86,7 +85,7 @@ export async function scanForMalware(file: File): Promise<boolean> {
     });
 
     if (!uploadResponse.ok) {
-      console.error('VirusTotal upload failed:', uploadResponse.status);
+      // VirusTotal upload failed
       // On API error, allow file (fail-open for availability)
       return true;
     }
@@ -109,7 +108,7 @@ export async function scanForMalware(file: File): Promise<boolean> {
       );
 
       if (!analysisResponse.ok) {
-        console.error('VirusTotal analysis check failed:', analysisResponse.status);
+        // VirusTotal analysis check failed - allow file
         return true;
       }
 
@@ -125,12 +124,10 @@ export async function scanForMalware(file: File): Promise<boolean> {
       attempts++;
     }
 
-    // If analysis doesn't complete in time, allow file (fail-open for availability)
-    console.warn('VirusTotal analysis timed out. Allowing file.');
+    // If analysis doesn't complete in time, allow file for availability
     return true;
   } catch (error) {
-    console.error('Error scanning file with VirusTotal:', error);
-    // On network error, allow file (fail-open for availability)
+    // Error scanning file with VirusTotal - allow file for availability
     return true;
   }
 }

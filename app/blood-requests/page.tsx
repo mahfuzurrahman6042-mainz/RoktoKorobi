@@ -18,6 +18,14 @@ interface BloodRequest {
   created_at: string;
 }
 
+interface Donor {
+  id: string;
+  name: string;
+  blood_group: string;
+  location: string;
+  phone: string;
+}
+
 export default function BloodRequestsPage() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [mounted, setMounted] = useState(false);
@@ -30,12 +38,20 @@ export default function BloodRequestsPage() {
     district: '',
     urgency: ''
   });
+  const [stats, setStats] = useState({
+    total: 0,
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0
+  });
+  const [matchingDonors, setMatchingDonors] = useState<Record<string, Donor[]>>({});
   const router = useRouter();
 
   const t = (key: string) => {
     const translations: Record<string, Record<string, string>> = {
-      title: { en: 'Blood Requests', bn: 'রক্তের অনুরোধ' },
-      subtitle: { en: 'View and accept blood donation requests', bn: 'রক্তদানের অনুরোধ দেখুন এবং গ্রহণ করুন' },
+      title: { en: 'Blood Requests Dashboard', bn: 'রক্তের অনুরোধ ড্যাশবোর্ড' },
+      subtitle: { en: 'View and accept blood donation requests sorted by urgency', bn: 'জরুরি অনুযায়ী রক্তদানের অনুরোধ দেখুন এবং গ্রহণ করুন' },
       loading: { en: 'Loading requests...', bn: 'অনুরোধ লোড হচ্ছে...' },
       noRequests: { en: 'No pending requests found', bn: 'কোন মুলতুবি অনুরোধ পাওয়া যায়নি' },
       patientName: { en: 'Patient Name', bn: 'রোগীর নাম' },
@@ -55,6 +71,16 @@ export default function BloodRequestsPage() {
       high: { en: 'High', bn: 'উচ্চ' },
       critical: { en: 'Critical', bn: 'সংকটজনক' },
       viewMap: { en: 'View on Map', bn: 'ম্যাপে দেখুন' },
+      statistics: { en: 'Statistics', bn: 'পরিসংখ্যান' },
+      totalRequests: { en: 'Total Requests', bn: 'মোট অনুরোধ' },
+      criticalRequests: { en: 'Critical', bn: 'সংকটজনক' },
+      highRequests: { en: 'High', bn: 'উচ্চ' },
+      mediumRequests: { en: 'Medium', bn: 'মাঝারি' },
+      lowRequests: { en: 'Low', bn: 'কম' },
+      sortByUrgency: { en: 'Sort by Urgency', bn: 'জরুরি অনুযায়ী সাজান' },
+      sortByDate: { en: 'Sort by Date', bn: 'তারিখ অনুযায়ী সাজান' },
+      availableDonors: { en: 'Available Donors', bn: 'উপলব্ধ দাতা' },
+      findDonors: { en: 'Find Donors', bn: 'দাতা খুঁজুন' },
     };
     return translations[key]?.[language] || key;
   };
@@ -94,6 +120,17 @@ export default function BloodRequestsPage() {
 
       if (error) throw error;
       setRequests(data || []);
+      
+      // Calculate statistics
+      if (data) {
+        setStats({
+          total: data.length,
+          critical: data.filter(r => r.urgency === 'critical').length,
+          high: data.filter(r => r.urgency === 'high').length,
+          medium: data.filter(r => r.urgency === 'medium').length,
+          low: data.filter(r => r.urgency === 'low').length
+        });
+      }
     } catch (err) {
       console.error('Failed to fetch requests:', err);
     } finally {
@@ -118,6 +155,18 @@ export default function BloodRequestsPage() {
       filtered = filtered.filter(r => r.urgency === filters.urgency);
     }
 
+    // Sort by urgency (critical first, then high, medium, low)
+    const urgencyOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+    filtered.sort((a, b) => {
+      const urgencyA = urgencyOrder[a.urgency as keyof typeof urgencyOrder] ?? 999;
+      const urgencyB = urgencyOrder[b.urgency as keyof typeof urgencyOrder] ?? 999;
+      if (urgencyA !== urgencyB) {
+        return urgencyA - urgencyB;
+      }
+      // If same urgency, sort by date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
     setFilteredRequests(filtered);
   };
 
@@ -128,7 +177,7 @@ export default function BloodRequestsPage() {
       return;
     }
 
-    if (!currentUser.is_donor) {
+    if (!currentUser.is_donor && currentUser.role !== 'super_admin') {
       alert('Only donors can accept blood requests');
       return;
     }
@@ -163,6 +212,22 @@ export default function BloodRequestsPage() {
     }
   };
 
+  const fetchMatchingDonors = async (requestId: string, bloodGroup: string, district: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('donors')
+        .select('*')
+        .eq('blood_group', bloodGroup)
+        .ilike('location', `%${district}%`)
+        .limit(5);
+
+      if (error) throw error;
+      setMatchingDonors(prev => ({ ...prev, [requestId]: data || [] }));
+    } catch (err) {
+      console.error('Failed to fetch matching donors:', err);
+    }
+  };
+
   if (!mounted) return null;
 
   return (
@@ -174,6 +239,65 @@ export default function BloodRequestsPage() {
         <p style={{ color: '#666', fontSize: '1.1rem' }}>{t('subtitle')}</p>
       </div>
 
+      {/* Statistics */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+        gap: '1rem',
+        marginBottom: '2rem'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{stats.total}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>{t('totalRequests')}</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+          color: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{stats.critical}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>{t('criticalRequests')}</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+          color: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{stats.high}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>{t('highRequests')}</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          color: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{stats.medium}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>{t('mediumRequests')}</div>
+        </div>
+        <div style={{
+          background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+          color: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{stats.low}</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>{t('lowRequests')}</div>
+        </div>
+      </div>
+
       {/* Filters */}
       <div style={{
         background: 'white',
@@ -183,7 +307,7 @@ export default function BloodRequestsPage() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
         <h3 style={{ marginBottom: '1rem' }}>{t('filter')}</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
           <select
             value={filters.bloodGroup}
             onChange={(e) => setFilters({ ...filters, bloodGroup: e.target.value })}
@@ -312,6 +436,47 @@ export default function BloodRequestsPage() {
                   <strong>{t('contact')}:</strong>
                   <p style={{ margin: '0.25rem 0 0 0', color: '#666' }}>{request.contact}</p>
                 </div>
+              </div>
+
+              {/* Matching Donors */}
+              <div style={{ marginBottom: '1rem' }}>
+                <button
+                  onClick={() => fetchMatchingDonors(request.id, request.blood_group, request.hospital_district)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#1976d2',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = '#1565c0'}
+                  onMouseOut={(e) => e.currentTarget.style.background = '#1976d2'}
+                >
+                  {t('findDonors')} ({request.blood_group})
+                </button>
+                {matchingDonors[request.id] && matchingDonors[request.id].length > 0 && (
+                  <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#f5f5f5', borderRadius: '8px' }}>
+                    <strong style={{ fontSize: '0.85rem', color: '#666' }}>{t('availableDonors')}:</strong>
+                    <div style={{ marginTop: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {matchingDonors[request.id].map((donor, idx) => (
+                        <span key={idx} style={{
+                          background: '#e3f2fd',
+                          color: '#1976d2',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '12px',
+                          fontSize: '0.85rem',
+                          fontWeight: '500'
+                        }}>
+                          {donor.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: '1rem' }}>

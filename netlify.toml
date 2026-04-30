@@ -1,0 +1,48 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NEXT_PUBLIC_SUPABASE_URL = "https://your-project.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-anon-key"
+  SUPABASE_SERVICE_ROLE_KEY = "your-service-key"
+  JWT_SECRET = "your-jwt-secret"
+  ALLOWED_ORIGINS = "https://roktokorobi.com,https://www.roktokorobi.com"
+  RATE_LIMITING_ENABLED = "true"
+  MONITORING_ENABLED = "true"
+  CSRF_PROTECTION_ENABLED = "true"
+  HELMET_ENABLED = "true"
+  COMPRESSION_ENABLED = "true"
+  SESSION_TIMEOUT = "30"
+  CACHING_ENABLED = "true"
+  BUNDLE_OPTIMIZATION = "true"
+  STORAGE_BUCKET_NAME = "roktokorobi-chitro"
+  MAX_FILE_SIZE = "5242880"
+  ALLOWED_FILE_TYPES = "image/jpeg,image/png,image/gif,image/webp"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; frame-ancestors 'none';"
+
+[[headers]]
+  for = "/api/*"
+  [headers]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; frame-ancestors 'none';"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

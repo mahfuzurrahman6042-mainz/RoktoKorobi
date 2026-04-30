@@ -37,10 +37,10 @@ export async function startDonorTracking(
           });
 
         if (error) {
-          console.error('Failed to update location:', error);
+          // Failed to update location
         }
       } catch (e) {
-        console.error('Failed to send location:', e);
+        // Failed to send location
       }
 
       // Check geofence arrival (200 meters)
@@ -55,7 +55,7 @@ export async function startDonorTracking(
       }
     },
     (err) => {
-      console.error('GPS error:', err.message);
+      // GPS error occurred
       throw new Error('GPS error: ' + err.message);
     },
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
@@ -76,7 +76,7 @@ export function stopDonorTracking(donorId: string): void {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ donorId })
-  }).catch(err => console.error('Failed to clear location:', err));
+  }).catch(err => { /* Failed to clear location */ });
 }
 
 /**

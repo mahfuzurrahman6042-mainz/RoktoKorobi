@@ -66,16 +66,39 @@ export default function SuperAdminDashboard() {
   const t = (key: string) => {
     const translations: Record<string, Record<string, string>> = {
       title: { en: 'Super Admin Dashboard', bn: 'সুপার অ্যাডমিন ড্যাশবোর্ড' },
+      superAdminDashboard: { en: 'Super Admin Dashboard', bn: 'সুপার অ্যাডমিন ড্যাশবোর্ড' },
       users: { en: 'Users', bn: 'ব্যবহারকারী' },
       messages: { en: 'Messages', bn: 'বার্তা' },
       blogs: { en: 'Blogs', bn: 'ব্লগ' },
       illustrations: { en: 'Illustrations', bn: 'চিত্রকথন' },
       comments: { en: 'Comments', bn: 'মন্তব্য' },
       selfClaim: { en: 'Self-Claim Signup', bn: 'স্ব-দাবি সাইনআপ' },
+      disableSelfClaim: { en: 'Disable Self-Claim Signup', bn: 'স্ব-দাবি সাইনআপ নিষ্ক্রিয় করুন' },
+      assignRoles: { en: 'Assign Roles', bn: 'ভূমিকা নির্ধারণ করুন' },
+      selectUser: { en: 'Select User', bn: 'ব্যবহারকারী নির্বাচন করুন' },
+      selectRole: { en: 'Select Role', bn: 'ভূমিকা নির্বাচন করুন' },
+      noMessages: { en: 'No Messages', bn: 'কোন বার্তা নেই' },
+      logout: { en: 'Logout', bn: 'লগআউট' },
+      dashboard: { en: 'User List', bn: 'ব্যবহারকারী তালিকা' },
+      assign: { en: 'Assign', bn: 'নির্ধারণ করুন' },
+      delete: { en: 'Ban', bn: 'নিষিদ্ধ করুন' },
       enable: { en: 'Enable', bn: 'সক্রিয় করুন' },
       disable: { en: 'Disable', bn: 'নিষ্ক্রিয় করুন' },
     };
     return translations[key]?.[language] || key;
+  };
+
+  // Format role for display
+  const formatRole = (role: string): string => {
+    const roleMap: Record<string, string> = {
+      super_admin: 'Super Admin',
+      admin: 'Admin',
+      org_advocate: 'Organizational Advocate',
+      user: 'User',
+      banned: 'Banned',
+      donor: 'Donor'
+    };
+    return roleMap[role] || role;
   };
 
   useEffect(() => {
@@ -120,6 +143,7 @@ export default function SuperAdminDashboard() {
         return;
       }
       fetchData();
+      loadSelfClaimSetting();
     } catch (err) {
       router.push('/');
     }
@@ -144,6 +168,23 @@ export default function SuperAdminDashboard() {
       // Silent fail
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSelfClaimSetting = async () => {
+    try {
+      const { data } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'self_claim_super_admin')
+        .maybeSingle();
+      
+      if (data) {
+        setSelfClaimEnabled(data.value);
+      }
+    } catch (err) {
+      // Default to true if settings table doesn't exist
+      console.log('Could not load self-claim setting');
     }
   };
 
@@ -425,12 +466,62 @@ export default function SuperAdminDashboard() {
               {language === 'bn' ? 'সম্পূর্ণ সিস্টেম নিয়ন্ত্রণ এবং ব্যবহারকারী ব্যবস্থাপনা' : 'Full system control and user management'}
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="btn-logout"
-          >
-            {t('logout')}
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {/* Navigation to main website */}
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => router.push('/')}
+                style={{
+                  padding: '8px 16px',
+                  background: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 500
+                }}
+              >
+                🏠 {language === 'bn' ? 'হোম' : 'Home'}
+              </button>
+              <button
+                onClick={() => router.push('/blood-requests')}
+                style={{
+                  padding: '8px 16px',
+                  background: '#E53935',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 500
+                }}
+              >
+                🩸 {language === 'bn' ? 'রক্ত অনুরোধ' : 'Blood Requests'}
+              </button>
+              <button
+                onClick={() => router.push('/donors')}
+                style={{
+                  padding: '8px 16px',
+                  background: '#2196F3',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 500
+                }}
+              >
+                🔍 {language === 'bn' ? 'দাতা খুঁজুন' : 'Find Donors'}
+              </button>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="btn-logout"
+            >
+              {t('logout')}
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -496,7 +587,7 @@ export default function SuperAdminDashboard() {
                 <option value="">{language === 'bn' ? 'ব্যবহারকারী নির্বাচন করুন' : t('selectUser')}</option>
                 {users.filter(u => u.role !== 'super_admin').map(user => (
                   <option key={user.id} value={user.id}>
-                    {user.name} ({user.email}) - {user.role}
+                    {user.name} ({user.email}) - {formatRole(user.role)}
                   </option>
                 ))}
               </select>
@@ -553,7 +644,7 @@ export default function SuperAdminDashboard() {
                     fontSize: '0.85rem',
                     fontWeight: 700
                   }}>
-                    {user.role.toUpperCase()}
+                    {formatRole(user.role)}
                   </span>
 
                   {user.role !== 'super_admin' && user.role !== 'banned' && (
@@ -790,9 +881,26 @@ export default function SuperAdminDashboard() {
 
         {/* Illustration Management */}
         <div>
-          <h2 className="section-title">
-            {language === 'bn' ? 'চিত্রকথন ব্যবস্থাপনা' : 'Illustration Management'} ({illustrations.length})
-          </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 className="section-title" style={{ margin: 0 }}>
+              {language === 'bn' ? 'চিত্রকথন ব্যবস্থাপনা' : 'Illustration Management'} ({illustrations.length})
+            </h2>
+            <button
+              onClick={() => router.push('/illustrations/upload')}
+              className="btn-primary"
+              style={{
+                background: '#E53935',
+                color: 'white',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              {language === 'bn' ? '+ চিত্র আপলোড করুন' : '+ Upload Illustration'}
+            </button>
+          </div>
           {illustrations.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🎨</div>

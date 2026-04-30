@@ -16,7 +16,7 @@ async function getCountryCodeFromIP(ip: string): Promise<string> {
 
   // If no API key is configured, allow all (for development)
   if (!process.env.IPSTACK_API_KEY) {
-    console.warn('IPSTACK_API_KEY not configured. Geolocation is disabled. Allowing all countries.');
+    // IPSTACK_API_KEY not configured. Geolocation is disabled. Allowing all countries.
     const countryCode = 'UNKNOWN';
     countryCodeCache.set(ip, countryCode);
     return countryCode;
@@ -28,7 +28,7 @@ async function getCountryCodeFromIP(ip: string): Promise<string> {
     const data = await response.json();
     
     if (data.error) {
-      console.error('Geolocation API error:', data.error);
+      // Geolocation API error occurred
       // On API error, allow all (fail-open for availability)
       const countryCode = 'UNKNOWN';
       countryCodeCache.set(ip, countryCode);
@@ -39,7 +39,7 @@ async function getCountryCodeFromIP(ip: string): Promise<string> {
     countryCodeCache.set(ip, countryCode);
     return countryCode;
   } catch (error) {
-    console.error('Error fetching geolocation:', error);
+    // Error fetching geolocation
     // On network error, allow all (fail-open for availability)
     const countryCode = 'UNKNOWN';
     countryCodeCache.set(ip, countryCode);

@@ -29,14 +29,14 @@ export async function cleanupOldBloodRequests() {
       .lt('created_at', cutoffDate.toISOString());
 
     if (error) {
-      console.error('Error cleaning up old blood requests:', error);
+      // Error cleaning up old blood requests
       return { success: false, error: error.message };
     }
 
-    console.log(`Cleaned up blood requests older than ${CLEANUP_CONFIG.COMPLETED_REQUESTS_DAYS} days`);
+    // Cleaned up blood requests
     return { success: true };
   } catch (error) {
-    console.error('Error in cleanupOldBloodRequests:', error);
+    // Error in cleanupOldBloodRequests
     return { success: false, error: 'Internal error' };
   }
 }
@@ -58,17 +58,17 @@ export async function cleanupOldLogs() {
     if (error) {
       // If table doesn't exist, that's okay
       if (error.code === '42P01') {
-        console.log('Audit logs table does not exist, skipping log cleanup');
+        // Audit logs table does not exist, skipping log cleanup
         return { success: true, skipped: true };
       }
-      console.error('Error cleaning up old logs:', error);
+      // Error cleaning up old logs
       return { success: false, error: error.message };
     }
 
-    console.log(`Cleaned up logs older than ${CLEANUP_CONFIG.OLD_LOGS_DAYS} days`);
+    // Cleaned up logs
     return { success: true };
   } catch (error) {
-    console.error('Error in cleanupOldLogs:', error);
+    // Error in cleanupOldLogs
     return { success: false, error: 'Internal error' };
   }
 }

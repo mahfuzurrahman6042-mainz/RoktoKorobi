@@ -31,7 +31,7 @@ export async function getMapboxRoute(
     );
 
     if (!response.ok) {
-      console.error('Mapbox API error:', response.status);
+      // Mapbox API error occurred
       return null;
     }
 
@@ -58,7 +58,7 @@ export async function getMapboxRoute(
       instructions,
     };
   } catch (error) {
-    console.error('Mapbox routing error:', error);
+    // Mapbox routing error occurred
     return null;
   }
 }
@@ -76,7 +76,7 @@ export async function getOSRMRoute(
     );
 
     if (!response.ok) {
-      console.error('OSRM API error:', response.status);
+      // OSRM API error occurred
       return null;
     }
 
@@ -101,7 +101,7 @@ export async function getOSRMRoute(
       instructions,
     };
   } catch (error) {
-    console.error('OSRM routing error:', error);
+    // OSRM routing error occurred
     return null;
   }
 }
@@ -124,6 +124,6 @@ export async function getRoute(
   }
 
   // Fallback to OSRM
-  console.log('Falling back to OSRM routing');
+  // Falling back to OSRM routing
   return await getOSRMRoute(from, to);
 }

@@ -231,174 +231,82 @@ export default function DonorsPage() {
   return (
     <>
       {/* NAV */}
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '24px 60px',
-        background: 'rgba(250,248,244,0.85)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${styles.mist}`,
-      }}>
-        <Link href="/" style={{
-          fontFamily: 'Cormorant Garamond, serif',
-          fontSize: '1.5rem', fontWeight: 600, letterSpacing: '0.04em',
-          color: styles.ink, textDecoration: 'none',
-        }}>
-          Rokto<span style={{ color: styles.crimson }}>Korobi</span>
+      <nav className="donors-nav">
+        <Link href="/" className="nav-logo-link">
+          Rokto<span className="nav-logo-accent">Korobi</span>
         </Link>
-        <ul style={{ listStyle: 'none', display: 'flex', gap: '40px', margin: 0, padding: 0 }}>
-          <li><Link href="#search" style={{ fontSize: '0.78rem', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: styles.stone, textDecoration: 'none', transition: 'color 0.25s' }}>Find Donors</Link></li>
-          <li><Link href="#how" style={{ fontSize: '0.78rem', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: styles.stone, textDecoration: 'none', transition: 'color 0.25s' }}>How It Works</Link></li>
-          <li><Link href="/register" style={{ fontSize: '0.78rem', fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: styles.stone, textDecoration: 'none', transition: 'color 0.25s' }}>Register</Link></li>
+        <ul className="nav-links-list">
+          <li><Link href="#search" className="nav-link">Find Donors</Link></li>
+          <li><Link href="#how" className="nav-link">How It Works</Link></li>
+          <li><Link href="/register" className="nav-link">Register</Link></li>
         </ul>
-        <Link href="/register" style={{
-          fontSize: '0.78rem', fontWeight: 500, letterSpacing: '0.1em',
-          textTransform: 'uppercase', color: styles.crimson, textDecoration: 'none',
-          border: `1px solid ${styles.crimson}`, padding: '9px 22px',
-          transition: 'all 0.25s',
-        }}>
+        <Link href="/register" className="nav-cta-link">
           Become a Donor
         </Link>
       </nav>
 
       {/* HERO */}
-      <section style={{
-        minHeight: '100vh',
-        display: 'grid', placeItems: 'center',
-        padding: '140px 60px 80px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          content: '',
-          position: 'absolute', top: 0, right: 0,
-          width: '45vw', height: '100%',
-          background: 'linear-gradient(135deg, #E8E4DC 0%, #DDD8CE 100%)',
-          clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)',
-          zIndex: 0,
-        }}></div>
+      <section className="hero-section">
+        <div className="hero-bg"></div>
 
-        <div style={{
-          position: 'relative', zIndex: 1,
-          maxWidth: '1100px', width: '100%',
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center',
-        }}>
-          <div style={{ animation: 'fadeUp 0.9s ease both' }}>
-            <p style={{ fontSize: '0.72rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: styles.crimson, marginBottom: '22px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ display: 'block', width: '32px', height: '1px', background: styles.crimson }}></span>
+        <div className="hero-content">
+          <div className="hero-text">
+            <p className="hero-tag">
+              <span className="tag-line"></span>
               Blood Donation Platform
             </p>
-            <h1 style={{
-              fontFamily: 'Cormorant Garamond, serif',
-              fontSize: 'clamp(3rem, 5vw, 5.5rem)',
-              fontWeight: 300, lineHeight: 1.08,
-              color: styles.ink, marginBottom: '28px',
-            }}>
+            <h1 className="hero-title">
               {t('findDonors')}<br/>
-              <em style={{ fontStyle: 'italic', color: styles.crimson }}>{t('saveLife')}</em><br/>
+              <em className="hero-title-accent">{t('saveLife')}</em><br/>
               {t('today')}
             </h1>
-            <p style={{ fontSize: '0.95rem', fontWeight: 300, lineHeight: 1.8, color: styles.stone, maxWidth: '380px', marginBottom: '48px' }}>
+            <p className="hero-subtitle">
               {t('subtitle')}
             </p>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Link href="#search" style={{
-                background: styles.crimson, color: '#fff',
-                fontFamily: 'Jost, sans-serif', fontSize: '0.78rem',
-                fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase',
-                border: 'none', padding: '15px 36px', cursor: 'pointer',
-                transition: 'all 0.3s', textDecoration: 'none', display: 'inline-block',
-              }}>
+            <div className="hero-actions">
+              <Link href="#search" className="hero-btn-primary">
                 {t('findDonorsBtn')}
               </Link>
-              <Link href="/register" style={{
-                fontSize: '0.78rem', fontWeight: 400, letterSpacing: '0.1em',
-                textTransform: 'uppercase', color: styles.ink, textDecoration: 'none',
-                display: 'flex', alignItems: 'center', gap: '8px', transition: 'gap 0.25s',
-              }}>
+              <Link href="/register" className="hero-btn-secondary">
                 {t('registerDonor')}
               </Link>
             </div>
           </div>
 
           {/* HERO VISUAL */}
-          <div style={{ animation: 'fadeUp 0.9s 0.2s ease both', position: 'relative', width: '100%', height: '420px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="hero-visual">
             {/* Live Map badge */}
-            <div style={{
-              position: 'absolute', top: '8%', left: '-10%',
-              background: 'rgba(250,248,244,0.95)',
-              border: `1px solid ${styles.mist}`,
-              backdropFilter: 'blur(8px)',
-              padding: '14px 20px',
-              display: 'flex', alignItems: 'center', gap: '14px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-              minWidth: '190px',
-              animation: 'floatA 5s ease-in-out infinite',
-            }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FEF3F2', color: styles.crimson, fontSize: '1rem' }}>
-                🗺️
-              </div>
+            <div className="hero-badge hero-badge-map">
+              <div className="badge-icon">🗺️</div>
               <div>
-                <strong style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: styles.ink, marginBottom: '2px' }}>Live Map</strong>
-                <span style={{ fontSize: '0.72rem', fontWeight: 300, letterSpacing: '0.06em', color: styles.stone }}>GPS Tracking</span>
+                <strong>Live Map</strong>
+                <span>GPS Tracking</span>
               </div>
             </div>
 
             {/* Central pin */}
-            <div style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `1px solid ${styles.mist}`, animation: 'ringPulse 3s ease-in-out infinite' }}></div>
-              <div style={{ position: 'absolute', inset: '-28px', borderRadius: '50%', border: '1px solid #E0DBD3', animation: 'ringPulse 3s ease-in-out infinite 0.4s' }}></div>
-              <div style={{ position: 'absolute', inset: '-58px', borderRadius: '50%', border: '1px solid #EAE6DF', animation: 'ringPulse 3s ease-in-out infinite 0.8s' }}></div>
-              <div style={{
-                width: '64px', height: '64px', borderRadius: '50%',
-                background: styles.crimson,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 0 8px rgba(155,28,28,0.08), 0 0 0 16px rgba(155,28,28,0.04)',
-                position: 'relative', zIndex: 2, fontSize: '28px',
-              }}>
-                📍
-              </div>
+            <div className="hero-pin">
+              <div className="pin-ring pin-ring-1"></div>
+              <div className="pin-ring pin-ring-2"></div>
+              <div className="pin-ring pin-ring-3"></div>
+              <div className="pin-center">📍</div>
             </div>
 
             {/* Emergency badge */}
-            <div style={{
-              position: 'absolute', top: '-4%', right: '-6%',
-              background: 'rgba(250,248,244,0.95)',
-              border: `1px solid ${styles.mist}`,
-              backdropFilter: 'blur(8px)',
-              padding: '14px 20px',
-              display: 'flex', alignItems: 'center', gap: '14px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-              minWidth: '190px',
-              animation: 'floatB 5s ease-in-out infinite 1s',
-            }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFF7ED', color: '#C2410C', fontSize: '1rem' }}>
-                📞
-              </div>
+            <div className="hero-badge hero-badge-emergency">
+              <div className="badge-icon">📞</div>
               <div>
-                <strong style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: styles.ink, marginBottom: '2px' }}>Emergency</strong>
-                <span style={{ fontSize: '0.72rem', fontWeight: 300, letterSpacing: '0.06em', color: styles.stone }}>24/7 Support</span>
+                <strong>Emergency</strong>
+                <span>24/7 Support</span>
               </div>
             </div>
 
             {/* Verified badge */}
-            <div style={{
-              position: 'absolute', bottom: '8%', right: '-8%',
-              background: 'rgba(250,248,244,0.95)',
-              border: `1px solid ${styles.mist}`,
-              backdropFilter: 'blur(8px)',
-              padding: '14px 20px',
-              display: 'flex', alignItems: 'center', gap: '14px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-              minWidth: '190px',
-              animation: 'floatA 5s ease-in-out infinite 2s',
-            }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0FDF4', color: '#15803D', fontSize: '1rem' }}>
-                ✓
-              </div>
+            <div className="hero-badge hero-badge-verified">
+              <div className="badge-icon">✓</div>
               <div>
-                <strong style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: styles.ink, marginBottom: '2px' }}>Verified</strong>
-                <span style={{ fontSize: '0.72rem', fontWeight: 300, letterSpacing: '0.06em', color: styles.stone }}>All Donors</span>
+                <strong>Verified</strong>
+                <span>All Donors</span>
               </div>
             </div>
           </div>
@@ -406,26 +314,18 @@ export default function DonorsPage() {
       </section>
 
       {/* SEARCH */}
-      <section style={{ padding: '80px 60px', background: styles.ink, position: 'relative' }} id="search">
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <p style={{ fontSize: '0.7rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: styles.stone, marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <section className="search-section" id="search">
+        <div className="search-container">
+          <p className="search-header">
             Find Blood Donors
-            <span style={{ flex: 1, height: '1px', background: '#222' }}></span>
+            <span className="header-line"></span>
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr auto auto', gap: '16px', alignItems: 'end' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: styles.stone, marginBottom: '10px' }}>{t('bloodGroup')}</label>
+          <div className="search-form">
+            <div className="search-field">
+              <label>{t('bloodGroup')}</label>
               <select
                 value={filters.bloodGroup}
                 onChange={(e) => setFilters({ ...filters, bloodGroup: e.target.value })}
-                style={{
-                  width: '100%',
-                  background: 'transparent', border: '1px solid #2A2A2A',
-                  color: '#E8E4DC', fontFamily: 'Jost, sans-serif',
-                  fontSize: '0.9rem', fontWeight: 300,
-                  padding: '14px 18px',
-                  outline: 'none', transition: 'border-color 0.25s',
-                }}
               >
                 <option value="">All Blood Groups</option>
                 <option value="O+">O+</option>
@@ -438,45 +338,19 @@ export default function DonorsPage() {
                 <option value="AB-">AB-</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: styles.stone, marginBottom: '10px' }}>{t('location')}</label>
+            <div className="search-field search-field-location">
+              <label>{t('location')}</label>
               <input
                 type="text"
                 value={filters.location}
                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
                 placeholder="Enter city, district or area…"
-                style={{
-                  width: '100%',
-                  background: 'transparent', border: '1px solid #2A2A2A',
-                  color: '#E8E4DC', fontFamily: 'Jost, sans-serif',
-                  fontSize: '0.9rem', fontWeight: 300,
-                  padding: '14px 18px',
-                  outline: 'none', transition: 'border-color 0.25s',
-                }}
               />
             </div>
-            <button
-              onClick={applyFilters}
-              style={{
-                background: styles.crimson, color: '#fff',
-                fontFamily: 'Jost, sans-serif', fontSize: '0.78rem',
-                fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase',
-                border: 'none', padding: '14px 32px', cursor: 'pointer',
-                transition: 'background 0.25s', whiteSpace: 'nowrap',
-              }}
-            >
+            <button className="search-btn" onClick={applyFilters}>
               {t('search')}
             </button>
-            <button
-              onClick={() => setShowMap(!showMap)}
-              style={{
-                background: 'transparent', color: '#E8E4DC',
-                fontFamily: 'Jost, sans-serif', fontSize: '0.78rem',
-                fontWeight: 400, letterSpacing: '0.1em', textTransform: 'uppercase',
-                border: '1px solid #2A2A2A', padding: '14px 24px', cursor: 'pointer',
-                transition: 'all 0.25s', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '8px',
-              }}
-            >
+            <button className="map-toggle-btn" onClick={() => setShowMap(!showMap)}>
               {showMap ? '📋 List' : '⊞ Map'}
             </button>
           </div>
@@ -484,47 +358,34 @@ export default function DonorsPage() {
       </section>
 
       {/* RESULTS */}
-      <section style={{ padding: '0 60px 80px', maxWidth: '1220px', margin: '0 auto' }} id="results">
-        <div style={{ maxWidth: '1100px', margin: '0 auto', paddingTop: '64px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '48px', borderBottom: `1px solid ${styles.mist}`, paddingBottom: '24px' }}>
-            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 300, color: styles.ink, margin: 0 }}>{t('availableDonors')}</h2>
-            <span style={{ fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: styles.stone }}>
-              {filteredDonors.length} {t('resultsShown')}
-            </span>
+      <section className="results-section" id="results">
+        <div className="results-container">
+          <div className="results-header">
+            <h2>{t('availableDonors')}</h2>
+            <span>{filteredDonors.length} {t('resultsShown')}</span>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <div style={{ fontSize: '1.4rem', color: styles.stone }}>{t('loading')}</div>
+            <div className="loading-state">
+              <div>{t('loading')}</div>
             </div>
           ) : filteredDonors.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <div style={{ width: '64px', height: '64px', margin: '0 auto 32px', border: `1px solid ${styles.mist}`, borderRadius: '50%', display: 'grid', placeItems: 'center', color: styles.stone, fontSize: '1.4rem' }}>◎</div>
-              <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 300, color: styles.ink, marginBottom: '12px' }}>{t('searchForDonors')}</h3>
-              <p style={{ fontSize: '0.88rem', fontWeight: 300, color: styles.stone, lineHeight: 1.7 }}>{t('searchDesc')}</p>
+            <div className="empty-state">
+              <div className="empty-icon">◎</div>
+              <h3>{t('searchForDonors')}</h3>
+              <p>{t('searchDesc')}</p>
             </div>
           ) : showMap ? (
-            <div style={{ padding: '20px', background: styles.parchment, borderRadius: '16px' }}>
+            <div className="map-container">
               {/* Hospital Search Bar */}
-              <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div className="hospital-search-bar">
                 <input
                   type="text"
                   value={hospitalSearch}
                   onChange={(e) => setHospitalSearch(e.target.value)}
                   placeholder={t('hospitalPlaceholder')}
-                  style={{
-                    flex: 1,
-                    background: '#fff', border: '1px solid #ddd',
-                    color: styles.ink, fontFamily: 'Jost, sans-serif',
-                    fontSize: '0.9rem', fontWeight: 300,
-                    padding: '12px 16px',
-                    outline: 'none', transition: 'border-color 0.25s',
-                    borderRadius: '8px',
-                  }}
                 />
-                <span style={{ fontSize: '0.85rem', color: styles.stone }}>
-                  {filteredHospitals.length} {t('bloodBank')}
-                </span>
+                <span>{filteredHospitals.length} {t('bloodBank')}</span>
               </div>
 
               <OfflineMap
@@ -562,21 +423,21 @@ export default function DonorsPage() {
                   }
                 }}
               />
-              <p style={{ marginTop: '16px', fontSize: '0.9rem', color: styles.stone, textAlign: 'center' }}>
+              <p className="map-stats">
                 🩸 {filteredDonors.filter(d => d.latitude && d.longitude).length} donors • 🏥 {filteredHospitals.filter(h => h.latitude && h.longitude).length} hospitals
               </p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: styles.mist }}>
+            <div className="donors-grid">
               {filteredDonors.map((donor) => (
-                <div key={donor.id} style={{ background: styles.parchment, padding: '36px 32px', transition: 'background 0.25s', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.background = styles.smoke} onMouseLeave={(e) => e.currentTarget.style.background = styles.parchment}>
-                  <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.8rem', fontWeight: 300, color: styles.crimson, lineHeight: 1, marginBottom: '20px' }}>{donor.blood_group}</div>
-                  <div style={{ fontSize: '1rem', fontWeight: 400, color: styles.ink, marginBottom: '6px' }}>{donor.name}</div>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 300, color: styles.stone, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '6px' }}>📍 {donor.location}</div>
-                  <div style={{ display: 'inline-block', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: styles.crimson, border: `1px solid ${styles.crimson}`, padding: '4px 12px', marginBottom: '16px' }}>{t('available')}</div>
-                  <a href={`tel:${donor.phone}`} style={{ float: 'right', fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: styles.stone, textDecoration: 'none', padding: '4px 0', borderBottom: `1px solid ${styles.mist}`, transition: 'color 0.2s, border-color 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.color = styles.crimson; e.currentTarget.style.borderColor = styles.crimson; }} onMouseLeave={(e) => { e.currentTarget.style.color = styles.stone; e.currentTarget.style.borderColor = styles.mist; }}>{t('contact')}</a>
+                <div key={donor.id} className="donor-card">
+                  <div className="donor-blood-group">{donor.blood_group}</div>
+                  <div className="donor-name">{donor.name}</div>
+                  <div className="donor-location">📍 {donor.location}</div>
+                  <div className="donor-available">{t('available')}</div>
+                  <a href={`tel:${donor.phone}`} className="donor-contact">{t('contact')}</a>
                   {currentUser && (
-                    <button onClick={() => { setSelectedDonor(donor); setMessageModalOpen(true); }} style={{ display: 'block', width: '100%', marginTop: '16px', padding: '12px', background: '#2196F3', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer' }}>💬 {t('sendMessage')}</button>
+                    <button onClick={() => { setSelectedDonor(donor); setMessageModalOpen(true); }} className="donor-message-btn">💬 {t('sendMessage')}</button>
                   )}
                 </div>
               ))}
@@ -586,59 +447,58 @@ export default function DonorsPage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section style={{ padding: '80px 60px', background: styles.smoke }} id="how">
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '60px' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: styles.stone, marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <section className="how-section" id="how">
+        <div className="how-container">
+          <div className="how-header">
+            <p>
               {t('process')}
-              <span style={{ flex: 1, height: '1px', background: styles.mist }}></span>
+              <span></span>
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: styles.mist }}>
-            <div style={{ background: styles.smoke, padding: '48px 40px' }}>
-              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '4rem', fontWeight: 300, color: styles.crimson, lineHeight: 1, marginBottom: '24px' }}>01</div>
-              <div style={{ fontSize: '1rem', fontWeight: 500, color: styles.ink, marginBottom: '12px' }}>{t('step1Title')}</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 300, color: styles.stone, lineHeight: 1.75 }}>{t('step1Desc')}</div>
+          <div className="how-grid">
+            <div className="how-card">
+              <div className="how-number">01</div>
+              <div className="how-title">{t('step1Title')}</div>
+              <div className="how-desc">{t('step1Desc')}</div>
             </div>
-            <div style={{ background: styles.smoke, padding: '48px 40px' }}>
-              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '4rem', fontWeight: 300, color: styles.crimson, lineHeight: 1, marginBottom: '24px' }}>02</div>
-              <div style={{ fontSize: '1rem', fontWeight: 500, color: styles.ink, marginBottom: '12px' }}>{t('step2Title')}</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 300, color: styles.stone, lineHeight: 1.75 }}>{t('step2Desc')}</div>
+            <div className="how-card">
+              <div className="how-number">02</div>
+              <div className="how-title">{t('step2Title')}</div>
+              <div className="how-desc">{t('step2Desc')}</div>
             </div>
-            <div style={{ background: styles.smoke, padding: '48px 40px' }}>
-              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '4rem', fontWeight: 300, color: styles.crimson, lineHeight: 1, marginBottom: '24px' }}>03</div>
-              <div style={{ fontSize: '1rem', fontWeight: 500, color: styles.ink, marginBottom: '12px' }}>{t('step3Title')}</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 300, color: styles.stone, lineHeight: 1.75 }}>{t('step3Desc')}</div>
+            <div className="how-card">
+              <div className="how-number">03</div>
+              <div className="how-title">{t('step3Title')}</div>
+              <div className="how-desc">{t('step3Desc')}</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: styles.ink, color: '#555', padding: '48px 60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', color: '#888' }}>Rokto<span style={{ color: styles.crimson }}>Korobi</span></div>
-        <div style={{ display: 'flex', gap: '32px' }}>
-          <Link href="#" style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#555', textDecoration: 'none', transition: 'color 0.2s' }}>{t('privacyPolicy')}</Link>
-          <Link href="#" style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#555', textDecoration: 'none', transition: 'color 0.2s' }}>{t('termsOfService')}</Link>
-          <Link href="#" style={{ fontSize: '0.72rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#555', textDecoration: 'none', transition: 'color 0.2s' }}>{t('aboutUs')}</Link>
+      <footer className="donors-footer">
+        <div className="footer-logo">Rokto<span>Korobi</span></div>
+        <div className="footer-links">
+          <Link href="#">{t('privacyPolicy')}</Link>
+          <Link href="#">{t('termsOfService')}</Link>
+          <Link href="#">{t('aboutUs')}</Link>
         </div>
-        <div style={{ fontSize: '0.72rem', color: '#333' }}>{t('copyright')}</div>
+        <div className="footer-copyright">{t('copyright')}</div>
       </footer>
 
       {/* Message Modal */}
       {messageModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: 'white', padding: '32px', borderRadius: '16px', maxWidth: '500px', width: '100%' }}>
-            <h2 style={{ fontSize: '1.5rem', color: styles.ink, marginBottom: '1.5rem' }}>💬 {t('sendMessage')}</h2>
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h2>💬 {t('sendMessage')}</h2>
             <textarea
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               placeholder={t('messagePlaceholder')}
-              style={{ width: '100%', minHeight: '150px', marginBottom: '1.5rem', padding: '14px', border: '1px solid #ddd', borderRadius: '8px', resize: 'vertical', fontFamily: 'inherit' }}
             />
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-              <button onClick={() => { setMessageModalOpen(false); setMessageText(''); setSelectedDonor(null); }} style={{ padding: '12px 24px', background: '#9E9E9E', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>{t('cancel')}</button>
-              <button onClick={handleSendMessage} disabled={!messageText.trim()} style={{ padding: '12px 24px', background: '#2196F3', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', opacity: !messageText.trim() ? 0.6 : 1 }}>{t('send')}</button>
+            <div className="modal-actions">
+              <button onClick={() => { setMessageModalOpen(false); setMessageText(''); setSelectedDonor(null); }}>{t('cancel')}</button>
+              <button onClick={handleSendMessage} disabled={!messageText.trim()}>{t('send')}</button>
             </div>
           </div>
         </div>
@@ -646,45 +506,45 @@ export default function DonorsPage() {
 
       {/* Hospital Details Modal */}
       {hospitalModalOpen && selectedHospital && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: 'white', padding: '32px', borderRadius: '16px', maxWidth: '500px', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '20px' }}>
+        <div className="modal-overlay">
+          <div className="modal-card modal-card-hospital">
+            <div className="modal-header">
               <div>
-                <h2 style={{ fontSize: '1.5rem', color: styles.ink, marginBottom: '8px', margin: 0 }}>🏥 {selectedHospital.name}</h2>
+                <h2>🏥 {selectedHospital.name}</h2>
                 {selectedHospital.blood_bank_available && (
-                  <span style={{ display: 'inline-block', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: styles.crimson, border: `1px solid ${styles.crimson}`, padding: '4px 12px', borderRadius: '4px' }}>{t('bloodBank')}</span>
+                  <span className="blood-bank-badge">{t('bloodBank')}</span>
                 )}
               </div>
-              <button onClick={() => { setHospitalModalOpen(false); setSelectedHospital(null); }} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: styles.stone }}>×</button>
+              <button onClick={() => { setHospitalModalOpen(false); setSelectedHospital(null); }}>×</button>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <p style={{ fontSize: '0.85rem', color: styles.stone, marginBottom: '4px', margin: 0 }}>{t('address')}</p>
-              <p style={{ fontSize: '1rem', color: styles.ink, marginBottom: '12px', margin: 0 }}>{selectedHospital.address}</p>
-              <p style={{ fontSize: '0.85rem', color: styles.stone, marginBottom: '4px', margin: 0 }}>{selectedHospital.city}, {selectedHospital.district}</p>
+            <div className="modal-body">
+              <p className="modal-label">{t('address')}</p>
+              <p>{selectedHospital.address}</p>
+              <p className="modal-sublabel">{selectedHospital.city}, {selectedHospital.district}</p>
             </div>
 
             {selectedHospital.phone && (
-              <div style={{ marginBottom: '20px' }}>
-                <p style={{ fontSize: '0.85rem', color: styles.stone, marginBottom: '4px', margin: 0 }}>{t('phone')}</p>
-                <a href={`tel:${selectedHospital.phone}`} style={{ fontSize: '1.1rem', color: styles.crimson, textDecoration: 'none', fontWeight: 500 }}>{selectedHospital.phone}</a>
+              <div className="modal-body">
+                <p className="modal-label">{t('phone')}</p>
+                <a href={`tel:${selectedHospital.phone}`}>{selectedHospital.phone}</a>
               </div>
             )}
 
             {selectedHospital.blood_groups_available && selectedHospital.blood_groups_available.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <p style={{ fontSize: '0.85rem', color: styles.stone, marginBottom: '8px', margin: 0 }}>{t('bloodGroups')}</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="modal-body">
+                <p className="modal-label">{t('bloodGroups')}</p>
+                <div className="blood-groups">
                   {selectedHospital.blood_groups_available.map((group) => (
-                    <span key={group} style={{ background: '#FEF3F2', color: styles.crimson, padding: '6px 12px', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 500 }}>{group}</span>
+                    <span key={group}>{group}</span>
                   ))}
                 </div>
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="hospital-actions">
               {selectedHospital.phone && (
-                <a href={`tel:${selectedHospital.phone}`} style={{ flex: 1, background: styles.crimson, color: 'white', padding: '14px 24px', borderRadius: '8px', textAlign: 'center', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, display: 'block' }}>
+                <a href={`tel:${selectedHospital.phone}`}>
                   📞 {t('call')}
                 </a>
               )}
@@ -693,7 +553,6 @@ export default function DonorsPage() {
                   href={`https://www.google.com/maps/dir/?api=1&destination=${selectedHospital.latitude},${selectedHospital.longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ flex: 1, background: '#2196F3', color: 'white', padding: '14px 24px', borderRadius: '8px', textAlign: 'center', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, display: 'block' }}
                 >
                   🗺️ {t('getDirections')}
                 </a>
@@ -703,7 +562,7 @@ export default function DonorsPage() {
         </div>
       )}
 
-      {/* Animations */}
+      {/* Animations & Styles */}
       <style jsx global>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(24px); }
@@ -720,6 +579,895 @@ export default function DonorsPage() {
         @keyframes floatB {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(6px); }
+        }
+
+        /* Navigation */
+        .donors-nav {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 24px 60px;
+          background: rgba(250,248,244,0.85);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid #E8E4DC;
+        }
+        .nav-logo-link {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.5rem;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          color: #0E0E0E;
+          text-decoration: none;
+        }
+        .nav-logo-accent {
+          color: #9B1C1C;
+        }
+        .nav-links-list {
+          list-style: none;
+          display: flex;
+          gap: 40px;
+          margin: 0;
+          padding: 0;
+        }
+        .nav-link {
+          font-size: 0.78rem;
+          font-weight: 400;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #8C8680;
+          text-decoration: none;
+          transition: color 0.25s;
+        }
+        .nav-cta-link {
+          font-size: 0.78rem;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #9B1C1C;
+          text-decoration: none;
+          border: 1px solid #9B1C1C;
+          padding: 9px 22px;
+          transition: all 0.25s;
+        }
+
+        /* Hero */
+        .hero-section {
+          min-height: 100vh;
+          display: grid;
+          place-items: center;
+          padding: 140px 60px 80px;
+          position: relative;
+          overflow: hidden;
+        }
+        .hero-bg {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 45vw;
+          height: 100%;
+          background: linear-gradient(135deg, #E8E4DC 0%, #DDD8CE 100%);
+          clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+          z-index: 0;
+        }
+        .hero-content {
+          position: relative;
+          z-index: 1;
+          max-width: 1100px;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 80px;
+          align-items: center;
+        }
+        .hero-text {
+          animation: fadeUp 0.9s ease both;
+        }
+        .hero-tag {
+          font-size: 0.72rem;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #9B1C1C;
+          margin-bottom: 22px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .tag-line {
+          display: block;
+          width: 32px;
+          height: 1px;
+          background: #9B1C1C;
+        }
+        .hero-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(3rem, 5vw, 5.5rem);
+          font-weight: 300;
+          line-height: 1.08;
+          color: #0E0E0E;
+          margin: 0 0 28px 0;
+        }
+        .hero-title-accent {
+          font-style: italic;
+          color: #9B1C1C;
+        }
+        .hero-subtitle {
+          font-size: 0.95rem;
+          font-weight: 300;
+          line-height: 1.8;
+          color: #8C8680;
+          max-width: 380px;
+          margin: 0 0 48px 0;
+        }
+        .hero-actions {
+          display: flex;
+          gap: 16px;
+          align-items: center;
+        }
+        .hero-btn-primary {
+          background: #9B1C1C;
+          color: #fff;
+          font-family: 'Jost, sans-serif';
+          font-size: 0.78rem;
+          font-weight: 500;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          border: none;
+          padding: 15px 36px;
+          cursor: pointer;
+          transition: all 0.3s;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .hero-btn-secondary {
+          font-size: 0.78rem;
+          font-weight: 400;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #0E0E0E;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: gap 0.25s;
+        }
+        .hero-visual {
+          animation: fadeUp 0.9s 0.2s ease both;
+          position: relative;
+          width: 100%;
+          height: 420px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .hero-badge {
+          position: absolute;
+          background: rgba(250,248,244,0.95);
+          border: 1px solid #E8E4DC;
+          backdrop-filter: blur(8px);
+          padding: 14px 20px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+          min-width: 190px;
+        }
+        .hero-badge-map {
+          top: 8%;
+          left: -10%;
+          animation: floatA 5s ease-in-out infinite;
+        }
+        .hero-badge-emergency {
+          top: -4%;
+          right: -6%;
+          animation: floatB 5s ease-in-out infinite 1s;
+        }
+        .hero-badge-verified {
+          bottom: 8%;
+          right: -8%;
+          animation: floatA 5s ease-in-out infinite 2s;
+        }
+        .badge-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1rem;
+        }
+        .hero-badge-map .badge-icon {
+          background: #FEF3F2;
+          color: #9B1C1C;
+        }
+        .hero-badge-emergency .badge-icon {
+          background: #FFF7ED;
+          color: #C2410C;
+        }
+        .hero-badge-verified .badge-icon {
+          background: #F0FDF4;
+          color: #15803D;
+        }
+        .hero-badge strong {
+          display: block;
+          font-size: 0.85rem;
+          font-weight: 500;
+          color: #0E0E0E;
+          margin-bottom: 2px;
+        }
+        .hero-badge span {
+          font-size: 0.72rem;
+          font-weight: 300;
+          letter-spacing: 0.06em;
+          color: #8C8680;
+        }
+        .hero-pin {
+          position: relative;
+          width: 140px;
+          height: 140px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .pin-ring {
+          position: absolute;
+          border-radius: 50%;
+          border: 1px solid #E8E4DC;
+        }
+        .pin-ring-1 {
+          inset: 0;
+          animation: ringPulse 3s ease-in-out infinite;
+        }
+        .pin-ring-2 {
+          inset: -28px;
+          border-color: #E0DBD3;
+          animation: ringPulse 3s ease-in-out infinite 0.4s;
+        }
+        .pin-ring-3 {
+          inset: -58px;
+          border-color: #EAE6DF;
+          animation: ringPulse 3s ease-in-out infinite 0.8s;
+        }
+        .pin-center {
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
+          background: #9B1C1C;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 0 8px rgba(155,28,28,0.08), 0 0 0 16px rgba(155,28,28,0.04);
+          position: relative;
+          z-index: 2;
+          font-size: 28px;
+        }
+
+        /* Search Section */
+        .search-section {
+          padding: 80px 60px;
+          background: #0E0E0E;
+          position: relative;
+        }
+        .search-container {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .search-header {
+          font-size: 0.7rem;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #8C8680;
+          margin-bottom: 40px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .header-line {
+          flex: 1;
+          height: 1px;
+          background: #222;
+        }
+        .search-form {
+          display: grid;
+          grid-template-columns: 1fr 1.4fr auto auto;
+          gap: 16px;
+          align-items: end;
+        }
+        .search-field {
+          display: flex;
+          flex-direction: column;
+        }
+        .search-field label {
+          display: block;
+          font-size: 0.68rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #8C8680;
+          margin-bottom: 10px;
+        }
+        .search-field select,
+        .search-field input {
+          width: 100%;
+          background: transparent;
+          border: 1px solid #2A2A2A;
+          color: #E8E4DC;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.9rem;
+          font-weight: 300;
+          padding: 14px 18px;
+          outline: none;
+          transition: border-color 0.25s;
+        }
+        .search-btn {
+          background: #9B1C1C;
+          color: #fff;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.78rem;
+          font-weight: 500;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          border: none;
+          padding: 14px 32px;
+          cursor: pointer;
+          transition: background 0.25s;
+          white-space: nowrap;
+        }
+        .map-toggle-btn {
+          background: transparent;
+          color: #E8E4DC;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.78rem;
+          font-weight: 400;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          border: 1px solid #2A2A2A;
+          padding: 14px 24px;
+          cursor: pointer;
+          transition: all 0.25s;
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        /* Results Section */
+        .results-section {
+          padding: 0 60px 80px;
+          max-width: 1220px;
+          margin: 0 auto;
+        }
+        .results-container {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding-top: 64px;
+        }
+        .results-header {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          margin-bottom: 48px;
+          border-bottom: 1px solid #E8E4DC;
+          padding-bottom: 24px;
+        }
+        .results-header h2 {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 2rem;
+          font-weight: 300;
+          color: #0E0E0E;
+          margin: 0;
+        }
+        .results-header span {
+          font-size: 0.72rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #8C8680;
+        }
+        .loading-state,
+        .empty-state {
+          text-align: center;
+          padding: 80px 0;
+        }
+        .empty-icon {
+          width: 64px;
+          height: 64px;
+          margin: 0 auto 32px;
+          border: 1px solid #E8E4DC;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          color: #8C8680;
+          font-size: 1.4rem;
+        }
+        .empty-state h3 {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 2rem;
+          font-weight: 300;
+          color: #0E0E0E;
+          margin: 0 0 12px 0;
+        }
+        .empty-state p {
+          font-size: 0.88rem;
+          font-weight: 300;
+          color: #8C8680;
+          line-height: 1.7;
+        }
+        .map-container {
+          padding: 20px;
+          background: #FAF8F4;
+          border-radius: 16px;
+        }
+        .hospital-search-bar {
+          margin-bottom: 16px;
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+        .hospital-search-bar input {
+          flex: 1;
+          background: #fff;
+          border: 1px solid #ddd;
+          color: #0E0E0E;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.9rem;
+          font-weight: 300;
+          padding: 12px 16px;
+          outline: none;
+          transition: border-color 0.25s;
+          border-radius: 8px;
+        }
+        .hospital-search-bar span {
+          font-size: 0.85rem;
+          color: #8C8680;
+        }
+        .map-stats {
+          margin-top: 16px;
+          font-size: 0.9rem;
+          color: #8C8680;
+          text-align: center;
+        }
+        .donors-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1px;
+          background: #E8E4DC;
+        }
+        .donor-card {
+          background: #FAF8F4;
+          padding: 36px 32px;
+          transition: background 0.25s;
+          cursor: pointer;
+        }
+        .donor-card:hover {
+          background: #F5F3EF;
+        }
+        .donor-blood-group {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 2.8rem;
+          font-weight: 300;
+          color: #9B1C1C;
+          line-height: 1;
+          margin-bottom: 20px;
+        }
+        .donor-name {
+          font-size: 1rem;
+          font-weight: 400;
+          color: #0E0E0E;
+          margin-bottom: 6px;
+        }
+        .donor-location {
+          font-size: 0.8rem;
+          font-weight: 300;
+          color: #8C8680;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .donor-available {
+          display: inline-block;
+          font-size: 0.65rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #9B1C1C;
+          border: 1px solid #9B1C1C;
+          padding: 4px 12px;
+          margin-bottom: 16px;
+        }
+        .donor-contact {
+          float: right;
+          font-size: 0.65rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #8C8680;
+          text-decoration: none;
+          padding: 4px 0;
+          border-bottom: 1px solid #E8E4DC;
+          transition: color 0.2s, border-color 0.2s;
+        }
+        .donor-contact:hover {
+          color: #9B1C1C;
+          border-color: #9B1C1C;
+        }
+        .donor-message-btn {
+          display: block;
+          width: 100%;
+          margin-top: 16px;
+          padding: 12px;
+          background: #2196F3;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        /* How It Works */
+        .how-section {
+          padding: 80px 60px;
+          background: #F5F3EF;
+        }
+        .how-container {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .how-header {
+          margin-bottom: 60px;
+        }
+        .how-header p {
+          font-size: 0.7rem;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #8C8680;
+          margin-bottom: 40px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .how-header p span {
+          flex: 1;
+          height: 1px;
+          background: #E8E4DC;
+        }
+        .how-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1px;
+          background: #E8E4DC;
+        }
+        .how-card {
+          background: #F5F3EF;
+          padding: 48px 40px;
+        }
+        .how-number {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 4rem;
+          font-weight: 300;
+          color: #9B1C1C;
+          line-height: 1;
+          margin-bottom: 24px;
+        }
+        .how-title {
+          font-size: 1rem;
+          font-weight: 500;
+          color: #0E0E0E;
+          margin-bottom: 12px;
+        }
+        .how-desc {
+          font-size: 0.85rem;
+          font-weight: 300;
+          color: #8C8680;
+          line-height: 1.75;
+        }
+
+        /* Footer */
+        .donors-footer {
+          background: #0E0E0E;
+          color: #555;
+          padding: 48px 60px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .footer-logo {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.3rem;
+          color: #888;
+        }
+        .footer-logo span {
+          color: #9B1C1C;
+        }
+        .footer-links {
+          display: flex;
+          gap: 32px;
+        }
+        .footer-links a {
+          font-size: 0.72rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #555;
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+        .footer-copyright {
+          font-size: 0.72rem;
+          color: #333;
+        }
+
+        /* Modals */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+        }
+        .modal-card {
+          background: white;
+          padding: 32px;
+          border-radius: 16px;
+          max-width: 500px;
+          width: 100%;
+        }
+        .modal-card h2 {
+          font-size: 1.5rem;
+          color: #0E0E0E;
+          margin-bottom: 1.5rem;
+        }
+        .modal-card textarea {
+          width: 100%;
+          min-height: 150px;
+          margin-bottom: 1.5rem;
+          padding: 14px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          resize: vertical;
+          font-family: inherit;
+        }
+        .modal-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: flex-end;
+        }
+        .modal-actions button {
+          padding: 12px 24px;
+          border: none;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: bold;
+          cursor: pointer;
+        }
+        .modal-actions button:first-child {
+          background: #9E9E9E;
+          color: white;
+        }
+        .modal-actions button:last-child {
+          background: #2196F3;
+          color: white;
+        }
+        .modal-actions button:last-child:disabled {
+          opacity: 0.6;
+        }
+        .modal-card-hospital {
+          max-width: 500px;
+        }
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: start;
+          margin-bottom: 20px;
+        }
+        .modal-header h2 {
+          font-size: 1.5rem;
+          color: #0E0E0E;
+          margin: 0 0 8px 0;
+        }
+        .blood-bank-badge {
+          display: inline-block;
+          font-size: 0.75rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #9B1C1C;
+          border: 1px solid #9B1C1C;
+          padding: 4px 12px;
+          border-radius: 4px;
+        }
+        .modal-header button {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #8C8680;
+        }
+        .modal-body {
+          margin-bottom: 20px;
+        }
+        .modal-label {
+          font-size: 0.85rem;
+          color: #8C8680;
+          margin-bottom: 4px;
+          margin: 0;
+        }
+        .modal-body > p {
+          font-size: 1rem;
+          color: #0E0E0E;
+          margin: 0 0 12px 0;
+        }
+        .modal-sublabel {
+          font-size: 0.85rem;
+          color: #8C8680;
+          margin: 0;
+        }
+        .modal-body a {
+          font-size: 1.1rem;
+          color: #9B1C1C;
+          text-decoration: none;
+          font-weight: 500;
+        }
+        .blood-groups {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .blood-groups span {
+          background: #FEF3F2;
+          color: #9B1C1C;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+        .hospital-actions {
+          display: flex;
+          gap: 12px;
+        }
+        .hospital-actions a {
+          flex: 1;
+          background: #9B1C1C;
+          color: white;
+          padding: 14px 24px;
+          border-radius: 8px;
+          text-align: center;
+          text-decoration: none;
+          font-size: 0.9rem;
+          font-weight: 500;
+          display: block;
+        }
+        .hospital-actions a:last-child {
+          background: #2196F3;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+          .donors-nav {
+            padding: 16px 24px;
+          }
+          .nav-links-list {
+            gap: 24px;
+          }
+          .search-section {
+            padding: 60px 24px;
+          }
+          .search-form {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+          }
+          .search-form button:last-child {
+            grid-column: span 2;
+          }
+          .results-section {
+            padding: 0 24px 60px;
+          }
+          .how-section {
+            padding: 60px 24px;
+          }
+          .donors-footer {
+            padding: 40px 24px;
+            flex-wrap: wrap;
+            gap: 20px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .donors-nav {
+            padding: 12px 16px;
+          }
+          .nav-logo-link {
+            font-size: 1.2rem;
+          }
+          .nav-links-list {
+            display: none;
+          }
+          .nav-cta-link {
+            padding: 8px 14px;
+            font-size: 0.7rem;
+          }
+          
+          .hero-section {
+            padding: 100px 16px 60px;
+            min-height: auto;
+          }
+          .hero-content {
+            grid-template-columns: 1fr;
+            gap: 40px;
+          }
+          .hero-visual {
+            height: 300px;
+            order: -1;
+          }
+          .hero-badge {
+            display: none;
+          }
+          
+          .search-section {
+            padding: 40px 16px;
+          }
+          .search-form {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .search-form button:last-child {
+            grid-column: span 1;
+          }
+          
+          .results-section {
+            padding: 0 16px 40px;
+          }
+          .donors-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .how-section {
+            padding: 40px 16px;
+          }
+          .how-grid {
+            grid-template-columns: 1fr;
+          }
+          .how-card {
+            padding: 32px 24px;
+          }
+          
+          .donors-footer {
+            padding: 32px 16px;
+            flex-direction: column;
+            text-align: center;
+            gap: 24px;
+          }
+          .footer-copyright {
+            order: -1;
+          }
+          
+          .modal-card {
+            max-width: calc(100vw - 32px);
+            margin: 16px;
+            padding: 24px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-title {
+            font-size: 2.2rem;
+          }
+          .results-header {
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+          }
+          .hospital-actions {
+            flex-direction: column;
+          }
         }
       `}</style>
     </>

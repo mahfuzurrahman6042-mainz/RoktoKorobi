@@ -34,9 +34,9 @@ export function subscribeToDonorLocation(
     )
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('Subscribed to donor location updates');
+        // Subscribed to donor location updates
       } else if (status === 'CHANNEL_ERROR') {
-        console.error('Failed to subscribe to donor location');
+        // Failed to subscribe to donor location
       }
     });
 
@@ -78,7 +78,7 @@ export function subscribeToAllDonorLocations(
     )
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('Subscribed to all donor locations');
+        // Subscribed to all donor locations
       }
     });
 

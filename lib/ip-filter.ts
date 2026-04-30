@@ -23,7 +23,7 @@ async function loadFiltersFromDatabase() {
 
     if (error) {
       // Table doesn't exist or other error - use env vars only
-      console.warn('IP filters table not found, using environment variables only');
+      // IP filters table not found, using environment variables only
       return;
     }
 
@@ -38,7 +38,7 @@ async function loadFiltersFromDatabase() {
       cacheLoaded = true;
     }
   } catch (error) {
-    console.warn('Error loading IP filters from database:', error);
+    // Error loading IP filters from database
   }
 }
 
@@ -83,7 +83,7 @@ export async function addToBlacklist(ip: string, createdBy?: string): Promise<bo
       });
 
     if (error) {
-      console.error('Failed to add IP to blacklist in database:', error);
+      // Failed to add IP to blacklist in database
       return false;
     }
 
@@ -91,7 +91,7 @@ export async function addToBlacklist(ip: string, createdBy?: string): Promise<bo
     cachedBlacklist.add(ip);
     return true;
   } catch (error) {
-    console.error('Error adding IP to blacklist:', error);
+    // Error adding IP to blacklist
     return false;
   }
 }
@@ -108,7 +108,7 @@ export async function addToWhitelist(ip: string, createdBy?: string): Promise<bo
       });
 
     if (error) {
-      console.error('Failed to add IP to whitelist in database:', error);
+      // Failed to add IP to whitelist in database
       return false;
     }
 
@@ -116,7 +116,7 @@ export async function addToWhitelist(ip: string, createdBy?: string): Promise<bo
     cachedWhitelist.add(ip);
     return true;
   } catch (error) {
-    console.error('Error adding IP to whitelist:', error);
+    // Error adding IP to whitelist
     return false;
   }
 }
@@ -131,7 +131,7 @@ export async function removeFromBlacklist(ip: string): Promise<boolean> {
       .eq('filter_type', 'blacklist');
 
     if (error) {
-      console.error('Failed to remove IP from blacklist in database:', error);
+      // Failed to remove IP from blacklist in database
       return false;
     }
 
@@ -139,7 +139,7 @@ export async function removeFromBlacklist(ip: string): Promise<boolean> {
     cachedBlacklist.delete(ip);
     return true;
   } catch (error) {
-    console.error('Error removing IP from blacklist:', error);
+    // Error removing IP from blacklist
     return false;
   }
 }
@@ -154,7 +154,7 @@ export async function removeFromWhitelist(ip: string): Promise<boolean> {
       .eq('filter_type', 'whitelist');
 
     if (error) {
-      console.error('Failed to remove IP from whitelist in database:', error);
+      // Failed to remove IP from whitelist in database
       return false;
     }
 
@@ -162,7 +162,7 @@ export async function removeFromWhitelist(ip: string): Promise<boolean> {
     cachedWhitelist.delete(ip);
     return true;
   } catch (error) {
-    console.error('Error removing IP from whitelist:', error);
+    // Error removing IP from whitelist
     return false;
   }
 }

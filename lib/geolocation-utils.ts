@@ -21,7 +21,7 @@ export async function geocode(placeName: string): Promise<{ lat: number; lon: nu
       lon: parseFloat(data[0].lon)
     };
   } catch (err) {
-    console.error('Geocoding failed:', err);
+    // Geocoding failed
     throw err;
   }
 }
@@ -46,7 +46,7 @@ export async function geocodeDonorArea(areaName: string): Promise<{ lat: number;
       lon: parseFloat(data[0].lon)
     };
   } catch (err) {
-    console.error('Geocoding failed:', err);
+    // Geocoding failed
     return null;
   }
 }
@@ -76,7 +76,7 @@ export async function getRoute(
     
     return { coords, distance, duration: duration.toString() };
   } catch (err) {
-    console.error('Route calculation failed:', err);
+    // Route calculation failed
     // Fallback: draw straight line
     return {
       coords: [[startLat, startLon], [endLat, endLon]],

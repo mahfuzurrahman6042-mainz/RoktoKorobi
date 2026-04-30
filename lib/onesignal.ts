@@ -19,7 +19,7 @@ export interface NotificationData {
  */
 export function initOneSignal(appId: string) {
   if (typeof window === 'undefined' || !window.OneSignal) {
-    console.warn('OneSignal not loaded');
+    // OneSignal not loaded
     return;
   }
 
@@ -78,10 +78,10 @@ export async function sendNotificationToUser(
     });
 
     if (!response.ok) {
-      console.error('Failed to send notification:', response.status);
+      // Failed to send notification
     }
   } catch (error) {
-    console.error('OneSignal error:', error);
+    // OneSignal error occurred
   }
 }
 
@@ -113,10 +113,10 @@ export async function sendBroadcastNotification(
     });
 
     if (!response.ok) {
-      console.error('Failed to send broadcast:', response.status);
+      // Failed to send broadcast
     }
   } catch (error) {
-    console.error('OneSignal error:', error);
+    // OneSignal error occurred
   }
 }
 

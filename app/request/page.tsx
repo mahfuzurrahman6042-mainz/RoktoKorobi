@@ -89,27 +89,67 @@ export default function RequestPage() {
     setLoading(true);
     setError('');
 
+    // Validate form data
+    const units = parseInt(formData.units);
+    if (isNaN(units) || units < 1 || units > 10) {
+      setError('Units needed must be between 1 and 10');
+      setLoading(false);
+      return;
+    }
+
+    // Calculate needed by date based on urgency
+    const neededBy = new Date();
+    switch (formData.urgency) {
+      case 'critical':
+        neededBy.setHours(neededBy.getHours() + 1);
+        break;
+      case 'high':
+        neededBy.setHours(neededBy.getHours() + 6);
+        break;
+      case 'medium':
+        neededBy.setHours(neededBy.getHours() + 12);
+        break;
+      case 'low':
+        neededBy.setDate(neededBy.getDate() + 1);
+        break;
+    }
+
     try {
+      const requestData = {
+        patient_name: formData.patientName.trim(),
+        patient_age: 0, // Will be calculated or should be added to form
+        blood_group: formData.bloodGroup,
+        units_needed: units,
+        hospital_name: formData.hospitalName.trim(),
+        hospital_address: formData.hospitalAddress.trim(),
+        district: formData.hospitalDistrict.trim(),
+        location: `${formData.hospitalAddress}, ${formData.hospitalCity}, ${formData.hospitalDistrict}`,
+        contact_person: formData.patientName.trim(),
+        contact_phone: formData.contact.trim(),
+        urgency_level: formData.urgency,
+        status: 'pending',
+        needed_by: neededBy.toISOString(),
+        request_date: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        notes: `Requested via RoktoKorobi app. Urgency: ${formData.urgency}`
+      };
+
+      // Add location coordinates if available
+      if (location.latitude && location.longitude) {
+        Object.assign(requestData, {
+          area_lat: location.latitude,
+          area_lon: location.longitude,
+          area_name: `${formData.hospitalName} - ${formData.hospitalAddress}`
+        });
+      }
+
       const { error: insertError } = await supabase
         .from('blood_requests')
-        .insert([
-          {
-            patient_name: formData.patientName,
-            blood_group: formData.bloodGroup,
-            hospital_name: formData.hospitalName,
-            hospital_address: formData.hospitalAddress,
-            hospital_city: formData.hospitalCity,
-            hospital_district: formData.hospitalDistrict,
-            hospital_latitude: gpsCoords?.lat || location.latitude,
-            hospital_longitude: gpsCoords?.lng || location.longitude,
-            urgency: formData.urgency,
-            contact: formData.contact,
-            units_needed: parseInt(formData.units),
-            status: 'pending',
-          },
-        ]);
+        .insert([requestData]);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        throw insertError;
+      }
 
       setSuccess(true);
       setFormData({

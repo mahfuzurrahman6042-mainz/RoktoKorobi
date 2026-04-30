@@ -55,6 +55,7 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
   const [arrivalDetected, setArrivalDetected] = useState(false);
   const [hospitalLocation, setHospitalLocation] = useState<[number, number] | null>(null);
   const [realtimeChannel, setRealtimeChannel] = useState<any>(null);
+  const [requestData, setRequestData] = useState<any>(null);
 
   useEffect(() => {
     params.then(p => setRequestId(p.requestId));
@@ -73,6 +74,7 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
         if (!response.ok) throw new Error('Failed to fetch request');
         
         const requestData = await response.json();
+        setRequestData(requestData);
         
         if (requestData.hospital_latitude && requestData.hospital_longitude) {
           setHospitalLocation([requestData.hospital_latitude, requestData.hospital_longitude]);
@@ -334,6 +336,7 @@ export default function TrackDonorPage({ params }: { params: Promise<{ requestId
               <DonationConfirmation
                 donationId={requestId}
                 role={currentUser.is_donor ? 'donor' : 'recipient'}
+                donationData={requestData}
                 onConfirm={() => {
                   setRequestStatus('completed');
                 }}

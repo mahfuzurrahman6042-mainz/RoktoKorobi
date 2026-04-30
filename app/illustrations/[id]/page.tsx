@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { authenticatedFetch } from '@/lib/fetch';
 
@@ -14,7 +14,8 @@ interface Illustration {
   created_at: string;
 }
 
-export default function IllustrationDetailPage({ params }: { params: { id: string } }) {
+export default function IllustrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const [mounted, setMounted] = useState(false);
 
@@ -43,7 +44,7 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
   useEffect(() => {
     fetchCurrentUser();
     fetchIllustration();
-  }, [params.id]);
+  }, [id]);
 
   const fetchCurrentUser = async () => {
     try {
@@ -60,7 +61,7 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
       const response = await fetch(`/api/illustrations?sectionId=1&language=${language}`);
       if (!response.ok) throw new Error('Failed to fetch illustration');
       const data = await response.json();
-      const found = data.illustrations?.find((ill: Illustration) => ill.id === params.id);
+      const found = data.illustrations?.find((ill: Illustration) => ill.id === id);
       if (found) {
         setIllustration(found);
         checkFavorite(found.id);
@@ -98,7 +99,7 @@ export default function IllustrationDetailPage({ params }: { params: { id: strin
     }
 
     try {
-      const response = await authenticatedFetch(`/api/illustrations/${params.id}/favorite`, {
+      const response = await authenticatedFetch(`/api/illustrations/${id}/favorite`, {
         method: 'POST',
       });
       const data = await response.json();

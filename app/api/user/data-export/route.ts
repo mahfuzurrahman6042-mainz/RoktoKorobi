@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { verifySessionToken } from '@/lib/auth';
+import { parseCSRFCookie, validateCSRFToken } from '@/lib/csrf';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,6 +10,15 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate CSRF token
+    const cookieHeader = request.headers.get('cookie');
+    const csrfCookieToken = parseCSRFCookie(cookieHeader);
+    const csrfHeaderToken = request.headers.get('x-csrf-token');
+    
+    if (!validateCSRFToken(csrfCookieToken, csrfHeaderToken)) {
+      return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 });
+    }
+
     // Verify session
     const sessionToken = request.cookies.get('session_token')?.value;
     if (!sessionToken) {

@@ -26,7 +26,7 @@ export default function Footer() {
   };
 
   return (
-    <footer style={{
+    <footer role="contentinfo" aria-label="Site footer" style={{
       background: '#1B5E6B',
       color: 'white',
       padding: '2rem 1rem',
@@ -40,7 +40,7 @@ export default function Footer() {
         alignItems: 'center',
         gap: '1rem',
       }}>
-        <div style={{
+        <nav aria-label="Footer navigation" style={{
           display: 'flex',
           gap: '2rem',
           flexWrap: 'wrap',
@@ -48,6 +48,7 @@ export default function Footer() {
         }}>
           <Link
             href="/privacy"
+            aria-label={t('privacy')}
             style={{
               color: 'white',
               textDecoration: 'none',
@@ -61,6 +62,7 @@ export default function Footer() {
           </Link>
           <Link
             href="/terms"
+            aria-label={t('terms')}
             style={{
               color: 'white',
               textDecoration: 'none',
@@ -74,6 +76,7 @@ export default function Footer() {
           </Link>
           <Link
             href="/about"
+            aria-label={t('about')}
             style={{
               color: 'white',
               textDecoration: 'none',
@@ -85,7 +88,7 @@ export default function Footer() {
           >
             {t('about')}
           </Link>
-        </div>
+        </nav>
         <p style={{
           fontSize: '0.85rem',
           opacity: 0.8,

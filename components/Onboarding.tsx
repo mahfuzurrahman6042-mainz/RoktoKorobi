@@ -92,15 +92,21 @@ export default function Onboarding({ onComplete = () => {}, language = 'en' }: O
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 9999
+      zIndex: 9999,
+      padding: '16px'
     }}>
       <div style={{
         background: 'white',
         padding: '2rem',
         borderRadius: '16px',
         maxWidth: '500px',
-        width: '90%',
-        textAlign: 'center'
+        width: '100%',
+        textAlign: 'center',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        position: 'relative',
+        zIndex: 10000,
+        pointerEvents: 'auto'
       }}>
         {step === 0 ? (
           <>
@@ -142,9 +148,29 @@ export default function Onboarding({ onComplete = () => {}, language = 'en' }: O
         </div>
 
         {/* Buttons */}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', justifyContent: 'center' }}>
+          <button
+            onClick={handleNext}
+            type="button"
+            style={{
+              padding: '1rem 2rem',
+              background: '#E53935',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              fontWeight: '600',
+              minHeight: '48px',
+              pointerEvents: 'auto',
+              touchAction: 'manipulation'
+            }}
+          >
+            {step === steps.length ? t('getStarted') : t('next')}
+          </button>
           <button
             onClick={handleSkip}
+            type="button"
             style={{
               padding: '0.75rem 1.5rem',
               background: 'transparent',
@@ -152,24 +178,13 @@ export default function Onboarding({ onComplete = () => {}, language = 'en' }: O
               border: '1px solid #ddd',
               borderRadius: '8px',
               fontSize: '1rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              minHeight: '44px',
+              pointerEvents: 'auto',
+              touchAction: 'manipulation'
             }}
           >
             {t('skip')}
-          </button>
-          <button
-            onClick={handleNext}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#E53935',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              cursor: 'pointer'
-            }}
-          >
-            {step === steps.length ? t('getStarted') : t('next')}
           </button>
         </div>
       </div>

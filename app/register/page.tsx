@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { hashPassword } from '@/lib/auth';
-import { sanitizeInput, validateEmail, validatePhone, validatePassword, validateAge, validateWeight } from '@/lib/validation';
+import { validateEmail, validatePhone, validatePassword, validateAge, validateWeight, sanitizeInput } from '@/lib/validation';
+import { validateRegistrationForm as enhancedValidateRegistrationForm } from '@/lib/enhanced-validation';
 import { geocodeDonorArea } from '@/lib/geolocation-utils';
 import PrivacyPolicyConsent from '@/components/PrivacyPolicyConsent';
 
@@ -85,32 +86,6 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
 
-    // Sanitize inputs
-    const sanitizedName = sanitizeInput(formData.name);
-    const sanitizedEmail = sanitizeInput(formData.email);
-    const sanitizedPhone = sanitizeInput(formData.phone);
-    const sanitizedLocation = sanitizeInput(formData.location);
-
-    // Validate inputs
-    if (!validateEmail(sanitizedEmail)) {
-      setError('Invalid email address');
-      setLoading(false);
-      return;
-    }
-
-    if (!validatePhone(sanitizedPhone)) {
-      setError('Invalid phone number');
-      setLoading(false);
-      return;
-    }
-
-    const passwordValidation = validatePassword(formData.password);
-    if (!passwordValidation.valid) {
-      setError(passwordValidation.message);
-      setLoading(false);
-      return;
-    }
-
     // Calculate age from date of birth
     const dob = new Date(formData.dateOfBirth);
     const today = new Date();
@@ -118,18 +93,21 @@ export default function RegisterPage() {
     const monthDiff = today.getMonth() - dob.getMonth();
     const finalAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate()) ? age - 1 : age;
 
-    if (!validateAge(finalAge)) {
-      setError('Age must be between 13 and 100');
+    // Enhanced validation using new validation library
+    const enhancedValidation = enhancedValidateRegistrationForm({...formData, area: formData.location});
+    if (!enhancedValidation.isValid) {
+      setError(enhancedValidation.errors.join(', '));
       setLoading(false);
       return;
     }
 
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeInput(formData.email);
+    const sanitizedPhone = sanitizeInput(formData.phone);
+    const sanitizedName = sanitizeInput(formData.name);
+    const sanitizedDistrict = sanitizeInput(formData.district);
+    const sanitizedLocation = sanitizeInput(formData.location);
     const weight = parseInt(formData.weight);
-    if (!validateWeight(weight)) {
-      setError('Weight must be between 30 and 200 kg');
-      setLoading(false);
-      return;
-    }
 
     // Validate donor eligibility
     if (formData.wantsToBeDonor && finalAge < 18) {
@@ -155,9 +133,15 @@ export default function RegisterPage() {
     // Soft deduplication check - check if user already exists by phone or email
     const { data: existingUser, error: checkError } = await supabase
       .from('profiles')
-      .select('id, phone, email')
+      .select('id, phone, email, name')
       .or(`phone.eq.${sanitizedPhone},email.eq.${sanitizedEmail}`)
       .limit(1);
+
+    if (checkError) {
+      setError('Database error occurred. Please try again.');
+      setLoading(false);
+      return;
+    }
 
     if (existingUser && existingUser.length > 0) {
       const existing = existingUser[0];
@@ -199,20 +183,19 @@ export default function RegisterPage() {
             phone: sanitizedPhone,
             blood_group: formData.bloodGroup,
             date_of_birth: formData.dateOfBirth,
-            age: finalAge,
             district: formData.district,
             location: sanitizedLocation,
             weight: weight,
             is_donor: formData.wantsToBeDonor && finalAge >= 18,
-            password: hashedPassword,
-            role: 'user', // Default role
+            password_hash: hashedPassword,
+            role: 'user',
             area_name: areaName,
             area_lat: areaLat,
             area_lon: areaLon,
             is_available: true,
             total_donations: 0,
-            privacy_consent: true,
-            age_declaration: true,
+            privacy_consent: formData.privacyConsent,
+            age_declaration: formData.ageConfirmed,
           },
         ]);
 
@@ -458,7 +441,7 @@ export default function RegisterPage() {
             disabled={loading}
             className="auth-submit"
           >
-            {loading ? t('loading') : t('registerBtn')}
+            {loading ? t('loading') : t('register')}
           </button>
         </form>
 

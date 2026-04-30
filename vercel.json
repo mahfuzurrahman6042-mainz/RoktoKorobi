@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "name": "roktokorobi",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "env": {
+    "RATE_LIMITING_ENABLED": "true",
+    "MONITORING_ENABLED": "true",
+    "CSRF_PROTECTION_ENABLED": "true",
+    "HELMET_ENABLED": "true",
+    "COMPRESSION_ENABLED": "true",
+    "STORAGE_BUCKET_NAME": "roktokorobi-chitro",
+    "MAX_FILE_SIZE": "5242880",
+    "ALLOWED_FILE_TYPES": "image/jpeg,image/png,image/gif,image/webp"
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options", 
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:; frame-ancestors 'none';"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
+}
