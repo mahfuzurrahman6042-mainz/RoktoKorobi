@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>রক্তকরবী — সাক্ষ্য ও অভিজ্ঞতা</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700;900&family=DM+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET & ROOT ── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0a0a;
+  --bg2:#120e0e;
+  --surface:#1a1212;
+  --surface2:#221818;
+  --surface3:#2a1e1e;
+  --red:#dc2626;
+  --red2:#ef4444;
+  --red-light:rgba(220,38,38,.12);
+  --red-xlight:rgba(220,38,38,.06);
+  --red-dark:#b91c1c;
+  --red-glow:rgba(220,38,38,.35);
+  --gold:#c9a84c;
+  --gold2:#e8c87a;
+  --gold-light:rgba(201,168,76,.12);
+  --cream:#f5ede0;
+  --cream2:#e8d5b7;
+  --text:#f0e8e0;
+  --text2:#c4a99a;
+  --text3:#7a5f58;
+  --border:rgba(220,38,38,.15);
+  --border2:rgba(201,168,76,.1);
+  --font-bn:'Hind Siliguri',sans-serif;
+  --font-serif:'Noto Serif Bengali',serif;
+  --font-display:'Cormorant Garamond',serif;
+  --font-mono:'DM Mono',monospace;
+  --radius:20px;
+  --radius-sm:12px;
+}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}
+@keyframes pulse-ring{0%{transform:scale(.7);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.18)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes shimmer{0%{background-position:-400% 0}100%{background-position:400% 0}}
+@keyframes cardReveal{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
+@keyframes starPop{0%{transform:scale(0) rotate(-30deg);opacity:0}70%{transform:scale(1.3) rotate(5deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes inkDrop{0%{clip-path:circle(0% at 50% 50%);opacity:0}100%{clip-path:circle(100% at 50% 50%);opacity:1}}
+@keyframes borderGlow{0%,100%{border-color:rgba(220,38,38,.2)}50%{border-color:rgba(220,38,38,.55)}}
+@keyframes particleFloat{0%{transform:translateY(0) translateX(0) rotate(0);opacity:.7}50%{opacity:1}100%{transform:translateY(-120px) translateX(30px) rotate(360deg);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ripple{0%{transform:scale(0);opacity:.4}100%{transform:scale(4);opacity:0}}
+@keyframes quoteSlide{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes successPop{0%{opacity:0;transform:scale(.8)}60%{transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 20px rgba(220,38,38,.1)}50%{box-shadow:0 0 40px rgba(220,38,38,.3),0 0 80px rgba(220,38,38,.1)}}
+
+/* ── BG ── */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-bn);
+  overflow-x:hidden;
+  min-height:100vh;
+  position:relative;
+}
+
+/* Atmospheric BG */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80vw 70vh at 15% 10%, rgba(220,38,38,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60vw 50vh at 85% 85%, rgba(201,168,76,.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50vw 60vh at 50% 50%, rgba(180,30,30,.04) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* Blood pattern texture overlay */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23dc2626' fill-opacity='0.015'%3E%3Cpath d='M30 5C30 5 18 17 18 24C18 30.6 23.4 36 30 36C36.6 36 42 30.6 42 24C42 17 30 5 30 5Z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.6;
+}
+
+/* Floating particles */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{
+  position:absolute;width:4px;height:6px;
+  background:var(--red);border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  opacity:0;animation:particleFloat linear infinite;
+}
+
+/* ── LAYOUT ── */
+.page-wrapper{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 1.5rem 6rem}
+
+/* ── HEADER ── */
+.site-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.5rem 0 0;
+  animation:fadeUp .5s ease both;
+}
+.logo{display:flex;align-items:center;gap:.7rem;font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--red);text-decoration:none;letter-spacing:-.01em}
+.logo svg{width:36px;height:42px;filter:drop-shadow(0 4px 12px rgba(220,38,38,.5))}
+.logo-sub{font-size:.65rem;color:var(--text3);font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;margin-top:.1rem}
+.back-btn{
+  display:flex;align-items:center;gap:.5rem;
+  background:var(--surface2);border:1.5px solid var(--border);
+  color:var(--text2);padding:.5rem 1.1rem;border-radius:50px;
+  font-size:.82rem;font-weight:600;font-family:var(--font-bn);
+  text-decoration:none;transition:all .25s;
+}
+.back-btn:hover{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 4px 20px rgba(220,38,38,.3)}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;padding:4rem 0 3.5rem;
+  animation:fadeUp .7s .1s ease both;
+  position:relative;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);border:1px solid var(--border2);
+  background:var(--gold-light);padding:.4rem 1rem;border-radius:50px;
+  margin-bottom:1.5rem;
+}
+.hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 2s ease infinite}
+.hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:700;
+  line-height:1.05;
+  letter-spacing:-.02em;
+  margin-bottom:1rem;
+  background:linear-gradient(135deg, var(--cream) 0%, var(--cream2) 40%, var(--red2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero h1 em{font-style:italic;color:var(--red)}
+.hero-sub{
+  font-family:var(--font-bn);font-size:1rem;color:var(--text2);
+  max-width:480px;margin:0 auto;line-height:1.8;
+}
+
+/* Blood deco hero */
+.hero-blood{
+  position:absolute;
+  top:1rem;left:50%;transform:translateX(-50%);
+  width:220px;height:220px;
+  pointer-events:none;z-index:-1;
+}
+.hero-blood .pr{
+  position:absolute;inset:0;margin:auto;
+  width:100px;height:100px;border-radius:50%;
+  border:1px solid rgba(220,38,38,.3);
+  animation:pulse-ring 3s ease-out infinite;
+}
+.hero-blood .pr2{animation-delay:1s;border-color:rgba(201,168,76,.2)}
+.hero-blood .pr3{animation-delay:2s}
+
+/* ── STATS ── */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+  margin-bottom:4rem;
+  animation:fadeUp .7s .2s ease both;
+}
+.stat-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1.2rem;text-align:center;
+  position:relative;overflow:hidden;transition:transform .25s;
+}
+.stat-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--red),transparent);
+  opacity:.7;
+}
+.stat-box:nth-child(2)::before{background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.stat-box:hover{transform:translateY(-3px)}
+.stat-num{font-family:var(--font-display);font-size:2.5rem;font-weight:700;color:var(--cream);line-height:1}
+.stat-label{font-size:.75rem;color:var(--text3);margin-top:.3rem;font-family:var(--font-mono);letter-spacing:.05em}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr}}
+
+/* ── GRID LAYOUT ── */
+.content-grid{
+  display:grid;
+  grid-template-columns:1fr 1.6fr;
+  gap:3rem;
+  align-items:start;
+}
+@media(max-width:900px){.content-grid{grid-template-columns:1fr}}
+
+/* ── FORM PANEL ── */
+.form-panel{
+  position:sticky;top:2rem;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:2rem;
+  overflow:hidden;
+  animation:fadeUp .8s .25s ease both;
+}
+.form-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg, var(--red-dark), var(--red), var(--gold), var(--red));
+  background-size:200%;
+  animation:shimmer 3s ease infinite;
+}
+.form-glow{
+  position:absolute;top:-60px;right:-60px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle, rgba(220,38,38,.12), transparent 70%);
+  pointer-events:none;
+}
+
+.form-badge{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);background:var(--gold-light);
+  border:1px solid var(--border2);
+  padding:.3rem .8rem;border-radius:50px;margin-bottom:1rem;
+  font-family:var(--font-mono);
+}
+.form-title{font-family:var(--font-display);font-size:1.9rem;font-weight:700;color:var(--cream);line-height:1.2;margin-bottom:.4rem}
+.form-title em{font-style:italic;color:var(--red2)}
+.form-desc{color:var(--text3);font-size:.84rem;line-height:1.7;margin-bottom:1.8rem}
+
+/* Fields */
+.field{margin-bottom:1.1rem;position:relative}
+.field-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:.45rem;display:flex;justify-content:space-between;align-items:center}
+.field-label .req{color:var(--red)}
+.field-label .char-count{font-family:var(--font-mono);font-size:.68rem;color:var(--text3)}
+.field-input,.field-select,.field-textarea{
+  width:100%;background:var(--surface2);
+  border:1.5px solid rgba(255,255,255,.06);
+  border-radius:var(--radius-sm);padding:.75rem 1rem;
+  font-family:var(--font-bn);font-size:.9rem;color:var(--text);
+  outline:none;transition:all .25s;
+}
+.field-input:focus,.field-select:focus,.field-textarea:focus{
+  border-color:var(--red);background:var(--surface3);
+  box-shadow:0 0 0 3px rgba(220,38,38,.12),0 0 20px rgba(220,38,38,.08);
+}
+.field-input::placeholder,.field-textarea::placeholder{color:var(--text3);font-size:.85rem}
+.field-select{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a5f58' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 1rem center;
+  color:var(--text);
+}
+.field-select option{background:var(--surface2);color:var(--text)}
+.field-textarea{resize:none;min-height:100px;line-height:1.7}
+.field-error{font-size:.73rem;color:var(--red2);margin-top:.3rem;display:none;animation:slideDown .2s ease}
+.field-error.show{display:block}
+
+/* Star Rating */
+.star-field{margin-bottom:1.2rem}
+.star-label{font-size:.78rem;font-weight:600;color:var(--text2);margin-bottom:.55rem;display:block}
+.star-row{display:flex;gap:.35rem}
+.star{
+  font-size:1.7rem;cursor:pointer;
+  filter:grayscale(1) brightness(.4);
+  transition:all .2s;line-height:1;
+}
+.star:hover,.star.active{filter:none;transform:scale(1.15);animation:starPop .25s ease both}
+.star:hover ~ .star{filter:grayscale(1) brightness(.4);transform:scale(1)}
+
+/* Experience type pills */
+.exp-pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.exp-pill{
+  padding:.4rem 1rem;border-radius:50px;
+  border:1.5px solid rgba(255,255,255,.08);background:var(--surface2);
+  color:var(--text3);font-size:.78rem;font-weight:600;cursor:pointer;
+  transition:all .2s;font-family:var(--font-bn);
+}
+.exp-pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
+.exp-pill.selected{border-color:var(--red);color:var(--cream);background:var(--red-light)}
+
+/* Submit */
+.submit-btn{
+  width:100%;padding:1rem 1.5rem;
+  background:linear-gradient(135deg, var(--red-dark) 0%, var(--red) 50%, #ff4a4a 100%);
+  color:#fff;border:none;border-radius:var(--radius-sm);
+  font-family:var(--font-bn);font-size:.98rem;font-weight:700;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 24px rgba(220,38,38,.35),0 0 0 0 rgba(220,38,38,.2);
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+  position:relative;overflow:hidden;margin-top:1.5rem;
+  animation:glowPulse 3s ease infinite;
+}
+.submit-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.1), transparent);
+  pointer-events:none;
+}
+.submit-btn:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(220,38,38,.5),0 0 60px rgba(220,38,38,.2);
+}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;animation:none}
+
+/* Success overlay */
+.success-overlay{
+  position:absolute;inset:0;background:rgba(13,10,10,.95);
+  backdrop-filter:blur(10px);border-radius:24px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.2rem;opacity:0;pointer-events:none;transition:opacity .35s;z-index:10;
+}
+.success-overlay.show{opacity:1;pointer-events:all;animation:successPop .4s ease both}
+.success-icon{width:80px;height:80px;background:rgba(220,38,38,.15);border:2px solid rgba(220,38,38,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;animation:heartbeat 1.4s ease infinite}
+.success-title{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream);letter-spacing:-.01em}
+.success-sub{color:var(--text2);font-size:.88rem;text-align:center;max-width:240px;line-height:1.7}
+.success-reset{
+  background:transparent;border:1.5px solid var(--border);
+  color:var(--text2);padding:.65rem 1.8rem;border-radius:var(--radius-sm);
+  font-family:var(--font-bn);font-size:.88rem;cursor:pointer;transition:all .2s;
+}
+.success-reset:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── TESTIMONIALS LIST PANEL ── */
+.list-panel{animation:fadeUp .8s .3s ease both}
+.list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.list-title{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--cream);letter-spacing:-.01em}
+.list-count{
+  font-family:var(--font-mono);font-size:.72rem;color:var(--text3);
+  background:var(--surface);border:1px solid var(--border);
+  padding:.3rem .8rem;border-radius:50px;
+}
+
+/* Filter */
+.filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.filter-chip{
+  padding:.38rem .9rem;border-radius:50px;
+  border:1px solid rgba(255,255,255,.07);background:var(--surface);
+  color:var(--text3);font-size:.76rem;font-weight:700;cursor:pointer;transition:all .2s;
+}
+.filter-chip:hover:not(.active){border-color:var(--red);color:var(--red)}
+.filter-chip.active{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 2px 12px rgba(220,38,38,.3)}
+
+/* Testimonial Cards */
+.tlist{display:flex;flex-direction:column;gap:1.2rem}
+
+.tcard{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.6rem;
+  position:relative;overflow:hidden;
+  animation:cardReveal .5s ease both;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.tcard::before{
+  content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:linear-gradient(180deg, var(--red), transparent);
+}
+.tcard:hover{
+  transform:translateX(4px);
+  border-color:rgba(220,38,38,.3);
+  box-shadow:0 8px 40px rgba(0,0,0,.4),-4px 0 20px rgba(220,38,38,.1);
+}
+.tcard.featured{
+  border-color:rgba(201,168,76,.25);
+  background:linear-gradient(135deg, var(--surface), rgba(201,168,76,.04));
+}
+.tcard.featured::before{background:linear-gradient(180deg, var(--gold), transparent)}
+.tcard.featured:hover{border-color:rgba(201,168,76,.4);box-shadow:0 8px 40px rgba(0,0,0,.4),-4px 0 20px rgba(201,168,76,.1)}
+
+/* Big quote mark */
+.tcard-quote{
+  position:absolute;top:.8rem;right:1.2rem;
+  font-family:var(--font-display);font-size:5rem;font-weight:700;
+  color:rgba(220,38,38,.08);line-height:1;user-select:none;
+  letter-spacing:-.05em;
+}
+.tcard.featured .tcard-quote{color:rgba(201,168,76,.1)}
+
+.tcard-head{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem}
+.tcard-avatar{
+  flex-shrink:0;width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg, var(--red-dark), var(--red));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:1.4rem;font-weight:700;
+  color:#fff;border:2px solid rgba(220,38,38,.3);
+}
+.tcard.featured .tcard-avatar{background:linear-gradient(135deg, #8b6914, var(--gold));border-color:rgba(201,168,76,.4)}
+.tcard-info{flex:1;min-width:0}
+.tcard-name{font-weight:700;font-size:1rem;color:var(--cream);margin-bottom:.15rem}
+.tcard-meta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.tcard-type{
+  font-size:.68rem;font-weight:700;padding:.18rem .6rem;border-radius:50px;
+  background:var(--red-light);color:var(--red2);border:1px solid rgba(220,38,38,.2);
+}
+.tcard.featured .tcard-type{background:var(--gold-light);color:var(--gold);border-color:rgba(201,168,76,.2)}
+.tcard-time{font-size:.7rem;color:var(--text3);font-family:var(--font-mono)}
+.tcard-stars{display:flex;gap:.1rem;margin-left:auto}
+.tcard-star{font-size:.85rem;filter:grayscale(1) brightness(.4)}
+.tcard-star.active{filter:none}
+
+.tcard-body{
+  font-size:.9rem;color:var(--text2);line-height:1.8;
+  position:relative;z-index:1;
+}
+.tcard-hospital{
+  display:inline-flex;align-items:center;gap:.35rem;
+  margin-top:.9rem;font-size:.75rem;color:var(--text3);
+  background:var(--surface2);border:1px solid rgba(255,255,255,.05);
+  padding:.3rem .8rem;border-radius:50px;
+}
+.tcard-blood{
+  display:inline-flex;align-items:center;gap:.35rem;
+  margin-top:.5rem;margin-left:.4rem;font-size:.75rem;
+  color:var(--red2);background:var(--red-light);
+  border:1px solid rgba(220,38,38,.15);
+  padding:.3rem .75rem;border-radius:50px;font-weight:700;
+  font-family:var(--font-serif);
+}
+
+/* Featured badge */
+.featured-badge{
+  position:absolute;top:1rem;right:1rem;
+  background:linear-gradient(135deg, var(--gold), var(--gold2));
+  color:#0d0a0a;font-size:.65rem;font-weight:800;
+  padding:.2rem .65rem;border-radius:50px;letter-spacing:.05em;
+  font-family:var(--font-mono);text-transform:uppercase;
+}
+
+/* Skeleton */
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:400%;animation:shimmer 1.6s ease infinite;border-radius:var(--radius-sm)}
+.skel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem;display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.2rem}
+.skel-row{display:flex;gap:.8rem;align-items:center;margin-bottom:.5rem}
+.skel-circle{width:50px;height:50px;border-radius:50%;flex-shrink:0}
+.skel-lines{flex:1;display:flex;flex-direction:column;gap:.45rem}
+.skel-line{height:.72rem}
+.skel-line.w-70{width:70%}.skel-line.w-50{width:50%}.skel-line.w-90{width:90%}.skel-line.w-60{width:60%}
+
+/* Empty */
+.empty-state{
+  text-align:center;padding:4rem 2rem;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+}
+.empty-drop{font-size:3.5rem;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+.empty-title{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--cream);margin-bottom:.6rem}
+.empty-sub{color:var(--text3);font-size:.88rem;line-height:1.7}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:2rem;right:1.5rem;z-index:9999;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:.9rem 1.2rem;
+  display:flex;align-items:center;gap:.7rem;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+  max-width:320px;
+  opacity:0;pointer-events:none;transform:translateX(120%);
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show{opacity:1;pointer-events:all;transform:translateX(0)}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+.toast-text{font-size:.84rem;color:var(--text);font-weight:600;line-height:1.4}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .hero h1{font-size:2.5rem}
+  .form-panel{position:static}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles" aria-hidden="true"></div>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <a href="index.html" class="logo" aria-label="রক্তকরবী">
+      <svg viewBox="0 0 34 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M17 2C17 2 3 14 3 24C3 31.7 9.3 38 17 38C24.7 38 31 31.7 31 24C31 14 17 2 17 2Z" fill="#dc2626"/>
+        <path d="M17 8C17 8 7 18 7 24C7 29.5 11.5 34 17 34C22.5 34 27 29.5 27 24C27 18 17 8 17 8Z" fill="#ef4444" opacity=".6"/>
+      </svg>
+      <div>
+        <div>রক্তকরবী</div>
+        <div class="logo-sub">Blood Network</div>
+      </div>
+    </a>
+    <a href="index.html" class="back-btn">← মূল পাতায় ফিরুন</a>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-blood" aria-hidden="true">
+      <span class="pr"></span>
+      <span class="pr pr2"></span>
+      <span class="pr pr3"></span>
+    </div>
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      জীবন্ত অভিজ্ঞতা
+    </div>
+    <h1>হৃদয়ের<br><em>কথা</em></h1>
+    <p class="hero-sub">রক্তদাতা ও প্রাপকদের জীবন পরিবর্তনকারী অভিজ্ঞতা — প্রতিটি গল্প এক নতুন অনুপ্রেরণা</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" role="region" aria-label="পরিসংখ্যান">
+    <div class="stat-box">
+      <div class="stat-num" id="stTotal">0</div>
+      <div class="stat-label">মোট সাক্ষ্য</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stAvg">0.0</div>
+      <div class="stat-label">গড় রেটিং ⭐</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stDonors">0</div>
+      <div class="stat-label">রক্তদাতার গল্প</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="content-grid">
+
+    <!-- FORM -->
+    <section class="form-panel" aria-label="সাক্ষ্য জমা দিন" style="position:relative">
+      <div class="form-glow" aria-hidden="true"></div>
+      <div class="form-badge">✍ আপনার গল্প</div>
+      <h2 class="form-title">আপনার <em>অভিজ্ঞতা</em> ভাগ করুন</h2>
+      <p class="form-desc">আপনার একটি গল্প হাজারো মানুষকে রক্তদানে অনুপ্রাণিত করতে পারে।</p>
+
+      <!-- Experience Type -->
+      <div class="field">
+        <label class="field-label" id="exp-label">আপনি কে? <span class="req">*</span></label>
+        <div class="exp-pills" role="radiogroup" aria-labelledby="exp-label">
+          <button type="button" class="exp-pill" data-exp="রক্তদাতা" role="radio" aria-checked="false">🩸 রক্তদাতা</button>
+          <button type="button" class="exp-pill" data-exp="প্রাপক পরিবার" role="radio" aria-checked="false">💙 প্রাপক পরিবার</button>
+          <button type="button" class="exp-pill" data-exp="স্বেচ্ছাসেবক" role="radio" aria-checked="false">🤝 স্বেচ্ছাসেবক</button>
+        </div>
+        <div class="field-error" id="err-exp" role="alert">⚠ একটি বিকল্প বেছে নিন</div>
+      </div>
+
+      <!-- Star Rating -->
+      <div class="star-field">
+        <span class="star-label">অভিজ্ঞতা রেটিং <span class="req" style="color:var(--red)">*</span></span>
+        <div class="star-row" id="starRow" role="radiogroup" aria-label="রেটিং">
+          <span class="star" data-val="1" role="radio" aria-checked="false" tabindex="0" aria-label="১ তারা">★</span>
+          <span class="star" data-val="2" role="radio" aria-checked="false" tabindex="0" aria-label="২ তারা">★</span>
+          <span class="star" data-val="3" role="radio" aria-checked="false" tabindex="0" aria-label="৩ তারা">★</span>
+          <span class="star" data-val="4" role="radio" aria-checked="false" tabindex="0" aria-label="৪ তারা">★</span>
+          <span class="star" data-val="5" role="radio" aria-checked="false" tabindex="0" aria-label="৫ তারা">★</span>
+        </div>
+        <div class="field-error" id="err-rating" role="alert">⚠ রেটিং দিন</div>
+      </div>
+
+      <!-- Name -->
+      <div class="field">
+        <label class="field-label" for="tName">
+          নাম <span class="req">*</span>
+          <span class="char-count" id="cc-tname">0/50</span>
+        </label>
+        <input type="text" id="tName" class="field-input" placeholder="আপনার নাম লিখুন" maxlength="50" autocomplete="name">
+        <div class="field-error" id="err-tname" role="alert">⚠ নাম লিখুন</div>
+      </div>
+
+      <!-- Location & Blood Donated -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+        <div class="field">
+          <label class="field-label" for="tCity">শহর</label>
+          <select id="tCity" class="field-select">
+            <option value="">শহর</option>
+            <option>ঢাকা</option><option>চট্টগ্রাম</option><option>রাজশাহী</option>
+            <option>সিলেট</option><option>খুলনা</option><option>বরিশাল</option>
+            <option>ময়মনসিংহ</option><option>রংপুর</option><option>অন্যান্য</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="tBlood">রক্তের গ্রুপ</label>
+          <select id="tBlood" class="field-select">
+            <option value="">গ্রুপ</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Testimonial Text -->
+      <div class="field">
+        <label class="field-label" for="tText">
+          আপনার গল্প <span class="req">*</span>
+          <span class="char-count" id="cc-ttext">0/500</span>
+        </label>
+        <textarea id="tText" class="field-textarea" style="min-height:130px" placeholder="আপনার রক্তদান বা গ্রহণের অভিজ্ঞতা লিখুন। এটি কীভাবে আপনার জীবন পরিবর্তন করেছে?" maxlength="500"></textarea>
+        <div class="field-error" id="err-ttext" role="alert">⚠ অভিজ্ঞতা লিখুন (কমপক্ষে ২০ অক্ষর)</div>
+      </div>
+
+      <button type="button" id="tSubmitBtn" class="submit-btn">
+        <span id="tSubmitText">💬 গল্প প্রকাশ করুন</span>
+      </button>
+
+      <!-- Success overlay -->
+      <div class="success-overlay" id="tSuccessOverlay" role="dialog" aria-modal="true">
+        <div class="success-icon" aria-hidden="true">🩸</div>
+        <div class="success-title">ধন্যবাদ!</div>
+        <div class="success-sub">আপনার অভিজ্ঞতা প্রকাশিত হয়েছে। এটি অনেকের অনুপ্রেরণা হবে।</div>
+        <button type="button" class="success-reset" id="tResetBtn">আরেকটি লিখুন</button>
+      </div>
+    </section>
+
+    <!-- LIST -->
+    <section class="list-panel" aria-label="সকল সাক্ষ্য">
+      <div class="list-header">
+        <h2 class="list-title">সকল গল্প</h2>
+        <span class="list-count" id="listCount" aria-live="polite">লোড হচ্ছে...</span>
+      </div>
+
+      <div class="filter-row" role="group" aria-label="ফিল্টার">
+        <button type="button" class="filter-chip active" data-filter="all">সব</button>
+        <button type="button" class="filter-chip" data-filter="রক্তদাতা">🩸 রক্তদাতা</button>
+        <button type="button" class="filter-chip" data-filter="প্রাপক পরিবার">💙 প্রাপক পরিবার</button>
+        <button type="button" class="filter-chip" data-filter="স্বেচ্ছাসেবক">🤝 স্বেচ্ছাসেবক</button>
+      </div>
+
+      <div class="tlist" id="tList" aria-live="polite" aria-label="সাক্ষ্যের তালিকা">
+        <div class="skel-card">
+          <div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-lines"><div class="skel-line w-60 skeleton"></div><div class="skel-line w-40 skeleton"></div></div></div>
+          <div class="skel-line w-90 skeleton"></div><div class="skel-line w-70 skeleton"></div>
+        </div>
+        <div class="skel-card">
+          <div class="skel-row"><div class="skel-circle skeleton"></div><div class="skel-lines"><div class="skel-line w-70 skeleton"></div><div class="skel-line w-50 skeleton"></div></div></div>
+          <div class="skel-line w-90 skeleton"></div><div class="skel-line w-60 skeleton"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast" role="alert" aria-live="polite" aria-atomic="true">
+  <span class="toast-dot" id="toastDot"></span>
+  <span class="toast-text" id="toastText"></span>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+// Safe text
+function st(t){return document.createTextNode(String(t))}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// Storage
+const _mem={};
+const store={
+  set(k,v){const d=JSON.stringify(v);try{localStorage.setItem(k,d)}catch{_mem[k]=d}},
+  get(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null}catch{return _mem[k]?JSON.parse(_mem[k]):null}},
+};
+
+const STORAGE_KEY='rkb_testimonials_v1';
+
+// Demo seed data
+const SEED=[
+  {id:'seed1',name:'করিম আহমেদ',type:'রক্তদাতা',rating:5,city:'ঢাকা',blood:'O+',text:'প্রথমবার রক্ত দেওয়ার সময় একটু ভয় পেয়েছিলাম, কিন্তু পরে যখন জানলাম আমার রক্তে একটি শিশুর জীবন বাঁচল — সেই অনুভূতি ভাষায় প্রকাশ করা যায় না। রক্তকরবী প্ল্যাটফর্ম এই সংযোগ তৈরি করে দিয়েছে।',time:Date.now()-86400000*3,featured:true},
+  {id:'seed2',name:'সুমাইয়া খানম',type:'প্রাপক পরিবার',rating:5,city:'চট্টগ্রাম',blood:'B+',text:'আমার মায়ের অপারেশনের সময় জরুরি রক্তের প্রয়োজন হয়েছিল। মাত্র ২ ঘণ্টার মধ্যে রক্তদাতা পাওয়া গেল। রক্তকরবী না থাকলে কী হত ভাবতেও পারি না। এই সেবা সত্যিই প্রাণ বাঁচায়।',time:Date.now()-86400000*5,featured:false},
+  {id:'seed3',name:'রিয়াদ হোসেন',type:'রক্তদাতা',rating:4,city:'সিলেট',blood:'A+',text:'দশবার রক্ত দিয়েছি। প্রতিটি বার নতুন অনুপ্রেরণা। রক্তকরবীর মাধ্যমে এখন সরাসরি যোগাযোগ করা যায়, কোনো ঝামেলা নেই। সবাইকে রক্ত দিতে উৎসাহিত করি।',time:Date.now()-86400000*8,featured:false},
+  {id:'seed4',name:'নাফিসা ইসলাম',type:'স্বেচ্ছাসেবক',rating:5,city:'রাজশাহী',blood:'',text:'স্বেচ্ছাসেবক হিসেবে রক্তদাতা ও প্রাপকদের মধ্যে সেতুবন্ধন করার কাজ করি। রক্তকরবী এই কাজকে অনেক সহজ করেছে। একটি সুন্দর প্ল্যাটফর্ম।',time:Date.now()-86400000*12,featured:false},
+];
+
+// State
+let testimonials=[];
+let activeFilter='all';
+let selectedRating=0;
+let selectedExp='';
+
+// Load
+function loadTestimonials(){
+  const saved=store.get(STORAGE_KEY);
+  if(Array.isArray(saved)&&saved.length){
+    testimonials=saved;
+  } else {
+    testimonials=[...SEED];
+    store.set(STORAGE_KEY,testimonials);
+  }
+  setTimeout(()=>{renderList();updateStats();},700);
+}
+
+function saveTestimonials(){store.set(STORAGE_KEY,testimonials)}
+
+// Stats
+function updateStats(){
+  const total=testimonials.length;
+  const avgRating=total?+(testimonials.reduce((s,t)=>s+t.rating,0)/total).toFixed(1):0;
+  const donors=testimonials.filter(t=>t.type==='রক্তদাতা').length;
+  animCount('stTotal',total,false);
+  animCount('stAvg',avgRating,true);
+  animCount('stDonors',donors,false);
+}
+
+function animCount(id,target,isFloat){
+  const el=document.getElementById(id);
+  let c=0;
+  const step=isFloat?0.1:Math.max(1,Math.ceil(target/20));
+  const interval=setInterval(()=>{
+    c=isFloat?+(c+.1).toFixed(1):c+step;
+    if(c>=target){c=target;clearInterval(interval)}
+    el.textContent=isFloat?c.toFixed(1):c;
+  },40);
+}
+
+// Time ago
+function timeAgo(ts){
+  const d=Math.floor((Date.now()-ts)/86400000);
+  if(d<1)return 'আজ';
+  if(d<7)return d+' দিন আগে';
+  return Math.floor(d/7)+' সপ্তাহ আগে';
+}
+
+// Avatar initials
+function initials(name){
+  const parts=name.trim().split(' ');
+  if(parts.length>=2)return parts[0][0]+parts[1][0];
+  return name.slice(0,2);
+}
+
+// Render list
+function renderList(){
+  const list=document.getElementById('tList');
+  const filtered=testimonials.filter(t=>activeFilter==='all'||t.type===activeFilter);
+  document.getElementById('listCount').textContent=filtered.length+' টি গল্প';
+  while(list.firstChild)list.removeChild(list.firstChild);
+
+  if(!filtered.length){
+    const empty=document.createElement('div');
+    empty.className='empty-state';
+    const drop=document.createElement('div');drop.className='empty-drop';drop.textContent='🩸';
+    const title=document.createElement('div');title.className='empty-title';title.textContent='কোনো গল্প নেই';
+    const sub=document.createElement('div');sub.className='empty-sub';sub.textContent='এই বিভাগে এখনো কোনো সাক্ষ্য যোগ হয়নি। প্রথমজন হন!';
+    empty.appendChild(drop);empty.appendChild(title);empty.appendChild(sub);
+    list.appendChild(empty);
+    return;
+  }
+
+  // Featured first
+  const sorted=[...filtered].sort((a,b)=>(b.featured?1:0)-(a.featured?1:0)||(b.time-a.time));
+
+  sorted.forEach((t,i)=>{
+    list.appendChild(buildCard(t,i));
+  });
+}
+
+function buildCard(t,i){
+  const card=document.createElement('div');
+  card.className='tcard'+(t.featured?' featured':'');
+  card.style.animationDelay=(i*0.07)+'s';
+
+  // Featured badge
+  if(t.featured){
+    const badge=document.createElement('div');
+    badge.className='featured-badge';
+    badge.appendChild(st('✦ বিশেষ'));
+    card.appendChild(badge);
+  }
+
+  // Quote mark
+  const quote=document.createElement('div');
+  quote.className='tcard-quote';
+  quote.textContent='"';
+  card.appendChild(quote);
+
+  // Head
+  const head=document.createElement('div');
+  head.className='tcard-head';
+
+  const avatar=document.createElement('div');
+  avatar.className='tcard-avatar';
+  avatar.setAttribute('aria-hidden','true');
+  avatar.appendChild(st(initials(t.name)));
+
+  const info=document.createElement('div');
+  info.className='tcard-info';
+
+  const name=document.createElement('div');
+  name.className='tcard-name';
+  name.appendChild(st(t.name));
+
+  const meta=document.createElement('div');
+  meta.className='tcard-meta';
+
+  const typeTag=document.createElement('span');
+  typeTag.className='tcard-type';
+  const typeIcons={'রক্তদাতা':'🩸','প্রাপক পরিবার':'💙','স্বেচ্ছাসেবক':'🤝'};
+  typeTag.appendChild(st((typeIcons[t.type]||'')+ ' '+t.type));
+
+  const timeEl=document.createElement('span');
+  timeEl.className='tcard-time';
+  timeEl.appendChild(st(timeAgo(t.time)));
+
+  // Stars — right aligned
+  const stars=document.createElement('div');
+  stars.className='tcard-stars';
+  stars.setAttribute('aria-label',t.rating+' তারা রেটিং');
+  for(let s=1;s<=5;s++){
+    const star=document.createElement('span');
+    star.className='tcard-star'+(s<=t.rating?' active':'');
+    star.textContent='★';
+    stars.appendChild(star);
+  }
+
+  meta.appendChild(typeTag);
+  meta.appendChild(timeEl);
+  meta.appendChild(stars);
+
+  info.appendChild(name);
+  info.appendChild(meta);
+  head.appendChild(avatar);
+  head.appendChild(info);
+
+  // Body
+  const body=document.createElement('div');
+  body.className='tcard-body';
+  body.appendChild(st(t.text));
+
+  // Tags row
+  const tagsRow=document.createElement('div');
+  tagsRow.style.cssText='display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.9rem';
+
+  if(t.city){
+    const cityTag=document.createElement('span');
+    cityTag.className='tcard-hospital';
+    cityTag.appendChild(st('📍 '+t.city));
+    tagsRow.appendChild(cityTag);
+  }
+  if(t.blood){
+    const bloodTag=document.createElement('span');
+    bloodTag.className='tcard-blood';
+    bloodTag.appendChild(st('🩸 '+t.blood));
+    tagsRow.appendChild(bloodTag);
+  }
+  body.appendChild(tagsRow);
+
+  card.appendChild(head);
+  card.appendChild(body);
+  return card;
+}
+
+// Star rating
+let hoverRating=0;
+document.getElementById('starRow').addEventListener('mouseleave',()=>{
+  hoverRating=0;
+  updateStars(selectedRating);
+});
+document.querySelectorAll('.star').forEach(s=>{
+  s.addEventListener('mouseenter',()=>{hoverRating=+s.dataset.val;updateStars(hoverRating)});
+  s.addEventListener('click',()=>{
+    selectedRating=+s.dataset.val;
+    updateStars(selectedRating);
+    document.getElementById('err-rating').classList.remove('show');
+  });
+  s.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){selectedRating=+s.dataset.val;updateStars(selectedRating)}});
+});
+function updateStars(val){
+  document.querySelectorAll('.star').forEach(s=>{
+    const active=+s.dataset.val<=val;
+    s.classList.toggle('active',active);
+    s.setAttribute('aria-checked',active);
+  });
+}
+
+// Exp pills
+document.querySelectorAll('.exp-pill').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('.exp-pill').forEach(x=>{x.classList.remove('selected');x.setAttribute('aria-checked','false')});
+    p.classList.add('selected');
+    p.setAttribute('aria-checked','true');
+    selectedExp=p.dataset.exp;
+    document.getElementById('err-exp').classList.remove('show');
+  });
+});
+
+// Filter chips
+document.querySelectorAll('.filter-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeFilter=chip.dataset.filter;
+    renderList();
+  });
+});
+
+// Char counters
+function setupCC(inputId,counterId){
+  const el=document.getElementById(inputId);
+  const cc=document.getElementById(counterId);
+  if(!el||!cc)return;
+  el.addEventListener('input',()=>{
+    const l=el.value.length,max=el.maxLength;
+    cc.textContent=l+'/'+max;
+    cc.style.color=l>max*.88?'var(--red2)':'';
+  });
+}
+setupCC('tName','cc-tname');
+setupCC('tText','cc-ttext');
+
+// Submit
+document.getElementById('tSubmitBtn').addEventListener('click',handleSubmit);
+document.getElementById('tResetBtn').addEventListener('click',resetForm);
+
+async function handleSubmit(){
+  const name=document.getElementById('tName').value.trim();
+  const city=document.getElementById('tCity').value;
+  const blood=document.getElementById('tBlood').value;
+  const text=document.getElementById('tText').value.trim();
+
+  let valid=true;
+  const showE=id=>{document.getElementById(id).classList.add('show');valid=false};
+  const clearE=id=>document.getElementById(id).classList.remove('show');
+
+  clearE('err-exp');clearE('err-rating');clearE('err-tname');clearE('err-ttext');
+
+  if(!selectedExp)showE('err-exp');
+  if(!selectedRating)showE('err-rating');
+  if(!name)showE('err-tname');
+  if(text.length<20)showE('err-ttext');
+
+  if(!valid){toast('⚠ সব তথ্য সঠিকভাবে পূরণ করুন','warn');return}
+
+  const btn=document.getElementById('tSubmitBtn');
+  btn.disabled=true;
+  document.getElementById('tSubmitText').textContent='⏳ প্রকাশ হচ্ছে...';
+
+  await new Promise(r=>setTimeout(r,900));
+
+  const newT={
+    id:'t'+Date.now()+Math.random().toString(36).slice(2,5),
+    name,type:selectedExp,rating:selectedRating,
+    city,blood,text,time:Date.now(),featured:false
+  };
+
+  testimonials.unshift(newT);
+  saveTestimonials();
+  renderList();
+  updateStats();
+  document.getElementById('tSuccessOverlay').classList.add('show');
+  toast('🩸 আপনার গল্প প্রকাশিত হয়েছে!','success');
+
+  // Notify main page
+  try{const bc=new BroadcastChannel('rkb_testimonials');bc.postMessage({type:'new'});bc.close()}catch{}
+}
+
+function resetForm(){
+  document.getElementById('tSuccessOverlay').classList.remove('show');
+  const btn=document.getElementById('tSubmitBtn');
+  btn.disabled=false;
+  document.getElementById('tSubmitText').textContent='💬 গল্প প্রকাশ করুন';
+  document.getElementById('tName').value='';
+  document.getElementById('tCity').value='';
+  document.getElementById('tBlood').value='';
+  document.getElementById('tText').value='';
+  document.querySelectorAll('.exp-pill').forEach(p=>{p.classList.remove('selected');p.setAttribute('aria-checked','false')});
+  selectedExp='';selectedRating=0;updateStars(0);
+  ['cc-tname','cc-ttext'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0/'+el.textContent.split('/')[1]});
+  document.querySelectorAll('.field-error').forEach(e=>e.classList.remove('show'));
+}
+
+// Toast
+let _tt=null;
+function toast(msg,type='success'){
+  const colors={success:'var(--red)',warn:'var(--gold)',error:'#ef4444'};
+  const t=document.getElementById('toast');
+  const dot=document.getElementById('toastDot');
+  const text=document.getElementById('toastText');
+  dot.style.background=colors[type]||colors.success;
+  while(text.firstChild)text.removeChild(text.firstChild);
+  text.appendChild(st(msg));
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('show'),3800);
+}
+
+// Particles
+function createParticles(){
+  const container=document.getElementById('particles');
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`
+      left:${Math.random()*100}%;
+      bottom:${Math.random()*20}%;
+      width:${2+Math.random()*4}px;
+      height:${4+Math.random()*8}px;
+      animation-duration:${6+Math.random()*10}s;
+      animation-delay:${Math.random()*8}s;
+      opacity:${0.2+Math.random()*0.5};
+    `;
+    container.appendChild(p);
+  }
+}
+
+// Init
+createParticles();
+loadTestimonials();
+
+})();
+</script>
+</body>
+</html>
