@@ -526,8 +526,8 @@ export default function Home() {
           margin-bottom: 28px;
         }
 
-        .card-btn-primary {
-          display: block;
+        .hero-card .card-btn-primary {
+          display: block !important;
           width: 100%;
           padding: 15px;
           border: none;
@@ -550,8 +550,8 @@ export default function Home() {
           transform: scale(.98);
         }
 
-        .card-btn-secondary {
-          display: block;
+        .hero-card .card-btn-secondary {
+          display: block !important;
           width: 100%;
           padding: 14px;
           border-radius: 10px;
