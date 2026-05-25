@@ -176,32 +176,57 @@ export default function Eligibility() {
                 <button 
                   type="submit" 
                   disabled={isChecking}
-                  className="flex items-center gap-2 text-white px-6 py-3 rounded-xl font-semibold mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    background: 'linear-gradient(270deg,#dc2626,#b91c1c,#ef4444,#dc2626)',
-                    backgroundSize: '300% 300%',
-                    animation: 'gradientShift 4s ease infinite',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    transition: 'all 0.25s ease',
-                    boxShadow: '0 4px 12px rgba(220,38,38,.2)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    backgroundColor: '#BE1528',
+                    color: '#ffffff',
+                    padding: '16px 24px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    fontSize: '17px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : "'DM Sans', sans-serif",
+                    transition: 'filter 0.15s, transform 0.15s',
                   }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 14px 36px rgba(220,38,38,.4)';
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.filter = 'brightness(0.88)';
+                    const arrowBox = e.currentTarget.querySelector('.arrow-box') as HTMLElement;
+                    if (arrowBox) arrowBox.style.transform = 'translateX(4px)';
                   }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(220,38,38,.2)';
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'none';
+                    const arrowBox = e.currentTarget.querySelector('.arrow-box') as HTMLElement;
+                    if (arrowBox) arrowBox.style.transform = 'translateX(0)';
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.transform = 'scale(0.97)';
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
                   {isChecking ? (
                     <>
-                      {language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}
+                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}</span>
+                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
+                        <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
                     </>
                   ) : (
                     <>
-                      {language === 'bn' ? 'যোগ্যতা যাচাই করুন →' : 'Check →'}
+                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'যোগ্যতা যাচাই করুন' : 'Check Eligibility'}</span>
+                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                      </div>
                     </>
                   )}
                 </button>

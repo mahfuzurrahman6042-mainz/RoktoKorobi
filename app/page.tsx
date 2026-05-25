@@ -481,10 +481,6 @@ export default function Home() {
           z-index: 1;
         }
 
-        .elig-check-btn {
-          display: flex !important;
-        }
-
         .live-badge {
           display: inline-flex;
           align-items: center;
@@ -1398,25 +1394,58 @@ export default function Home() {
                   type="button"
                   onClick={handleEligibilityCheck}
                   disabled={isCheckingEligibility}
-                  className="elig-check-btn w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center justify-center gap-3 mt-6 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg"
+                  className="elig-check-btn"
                   style={{
-                    background: isCheckingEligibility ? 'linear-gradient(to right, #991B1B, #8B0E1E)' : 'linear-gradient(to right, #dc2626, #991B1B)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    backgroundColor: '#BE1528',
+                    color: '#ffffff',
+                    padding: '16px 24px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    fontSize: '17px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : "'DM Sans', sans-serif",
+                    transition: 'filter 0.15s, transform 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.filter = 'brightness(0.88)';
+                    const arrowBox = e.currentTarget.querySelector('.arrow-box') as HTMLElement;
+                    if (arrowBox) arrowBox.style.transform = 'translateX(4px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'none';
+                    const arrowBox = e.currentTarget.querySelector('.arrow-box') as HTMLElement;
+                    if (arrowBox) arrowBox.style.transform = 'translateX(0)';
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.transform = 'scale(0.97)';
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
                   {isCheckingEligibility ? (
                     <>
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}
+                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}</span>
+                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
+                        <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
                     </>
                   ) : (
                     <>
-                      {language === 'bn' ? 'যোগ্যতা যাচাই করুন' : 'Check Eligibility'}
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'যোগ্যতা যাচাই করুন' : 'Check Eligibility'}</span>
+                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                      </div>
                     </>
                   )}
                 </button>
