@@ -481,6 +481,10 @@ export default function Home() {
           z-index: 1;
         }
 
+        .eligibility button {
+          display: flex !important;
+        }
+
         .live-badge {
           display: inline-flex;
           align-items: center;
