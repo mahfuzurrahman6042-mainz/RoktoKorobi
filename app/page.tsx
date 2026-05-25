@@ -481,7 +481,7 @@ export default function Home() {
           z-index: 1;
         }
 
-        .eligibility button {
+        .elig-check-btn {
           display: flex !important;
         }
 
@@ -1398,7 +1398,7 @@ export default function Home() {
                   type="button"
                   onClick={handleEligibilityCheck}
                   disabled={isCheckingEligibility}
-                  className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center justify-center gap-3 mt-6 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg"
+                  className="elig-check-btn w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center justify-center gap-3 mt-6 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg"
                   style={{
                     background: isCheckingEligibility ? 'linear-gradient(to right, #991B1B, #8B0E1E)' : 'linear-gradient(to right, #dc2626, #991B1B)'
                   }}
