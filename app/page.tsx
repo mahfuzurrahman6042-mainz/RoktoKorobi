@@ -436,19 +436,20 @@ export default function Home() {
         }
 
         .hero-section {
-          padding: 24px 48px 60px;
-          max-width: 720px;
-          margin: 0 auto;
+          padding: 20px 48px 60px;
+          max-width: 680px;
+          margin: 0;
           background: var(--cream);
         }
 
         .hero-card {
           position: relative;
           background: var(--card-bg);
-          border-radius: 20px;
-          padding: 44px 40px 40px;
+          border-radius: 18px;
+          padding: 36px 36px 32px;
           overflow: hidden;
           margin-bottom: 56px;
+          max-width: 580px;
         }
 
         .btn-watermark-wrap {
@@ -472,6 +473,12 @@ export default function Home() {
           letter-spacing: -4px;
           line-height: 1;
           font-family: 'Hind Siliguri', sans-serif;
+          z-index: 0;
+        }
+
+        .btn-watermark-wrap .card-btn-secondary {
+          position: relative;
+          z-index: 1;
         }
 
         .live-badge {
@@ -506,11 +513,15 @@ export default function Home() {
         }
 
         .hero-heading {
-          font-size: 52px;
+          font-size: 44px;
           font-weight: 800;
           color: #fff;
           line-height: 1.1;
           margin-bottom: 16px;
+        }
+
+        .hero-heading[data-lang="bn"] {
+          font-size: 52px;
         }
 
         .hero-heading .accent {
@@ -988,10 +999,18 @@ export default function Home() {
             <span>LIVE NOW</span>
           </div>
 
-          <h1 className="hero-heading">
-            {language === 'bn'
-              ? 'রক্ত দিন, জীবন<br>বাঁচান <span className="accent">আজই</span>'
-              : 'Donate Blood,<br>Save Lives <span className="accent">Today</span>'}
+          <h1 className="hero-heading" data-lang={language}>
+            {language === 'bn' ? (
+              <>
+                রক্ত দিন, জীবন<br />
+                বাঁচান <span className="accent">আজই</span>
+              </>
+            ) : (
+              <>
+                Donate Blood, Save Lives<br />
+                <span className="accent">Today</span>
+              </>
+            )}
           </h1>
 
           <p className="hero-desc-card">
