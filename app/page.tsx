@@ -1470,7 +1470,7 @@ export default function Home() {
       <section className="map-section py-16 lg:py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="map-header reveal text-center mb-12 lg:mb-16">
-            <div className="s-label inline-block">
+            <div className="s-label">
               <div className="s-label-line"></div>
               <span className="s-label-text">{language === 'bn' ? 'লাইভ মানচিত্র' : 'Live Map'}</span>
             </div>
