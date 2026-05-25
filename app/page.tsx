@@ -438,7 +438,7 @@ export default function Home() {
         .hero-section {
           padding: 20px 48px 60px;
           max-width: 680px;
-          margin: 0;
+          margin: 0 auto;
           background: var(--cream);
         }
 
