@@ -448,7 +448,7 @@ export default function Home() {
           border-radius: 18px;
           padding: 36px 36px 32px;
           overflow: hidden;
-          margin-bottom: 56px;
+          margin: 40px auto 56px;
           max-width: 580px;
         }
 
