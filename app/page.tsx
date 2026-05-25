@@ -429,49 +429,398 @@ export default function Home() {
         ══════════════════════════════════════ */
         :root {
           --cream: #F2E8DC;
-          --maroon: #1C0508;
-          --red: #CC1A2D;
-          --red2: #A81424;
-          --white: #FFFCF8;
-          --text-dark: #1C0508;
-          --text-muted: #5a3a3a;
+          --red: #BE1528;
+          --dark: #1a1a1a;
+          --card-bg: #1C1010;
+          --teal: #2D6A6A;
         }
 
-        .hero-new {
-          display: flex;
-          align-items: center;
-          min-height: 100vh;
-          padding: 48px 80px;
-          gap: 72px;
-          position: relative;
-          overflow: hidden;
+        .hero-section {
+          padding: 24px 48px 60px;
+          max-width: 720px;
+          margin: 0 auto;
           background: var(--cream);
         }
 
         .hero-card {
-          width: 420px;
-          min-height: 420px;
-          flex-shrink: 0;
-          background: linear-gradient(160deg,#160204 0%,#1C0508 32%,#220608 68%,#170304 100%);
-          border-radius: 36px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.12), 0 8px 24px rgba(28,5,8,0.22), 0 24px 64px rgba(28,5,8,0.18), 0 48px 96px rgba(28,5,8,0.10);
-          padding: 34px 38px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
           position: relative;
+          background: var(--card-bg);
+          border-radius: 20px;
+          padding: 44px 40px 40px;
           overflow: hidden;
+          margin-bottom: 56px;
         }
 
-        .hero-card::before {
-          content: '';
+        .btn-watermark-wrap {
+          position: relative;
+          overflow: hidden;
+          border-radius: 10px;
+          display: block;
+        }
+
+        .btn-watermark-wrap .watermark {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          background: linear-gradient(to right, var(--red2), var(--red), var(--red2));
-          z-index: 3;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 180px;
+          font-weight: 800;
+          color: rgba(255, 255, 255, 0.06);
+          white-space: nowrap;
+          pointer-events: none;
+          user-select: none;
+          letter-spacing: -4px;
+          line-height: 1;
+          font-family: 'Hind Siliguri', sans-serif;
+        }
+
+        .live-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          background: rgba(190, 21, 40, 0.25);
+          border: 1px solid rgba(190, 21, 40, 0.5);
+          border-radius: 50px;
+          padding: 5px 14px;
+          margin-bottom: 22px;
+        }
+
+        .live-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--red);
+          animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: .5; transform: scale(1.3); }
+        }
+
+        .live-badge span {
+          font-size: 12px;
+          font-weight: 600;
+          color: #fff;
+          letter-spacing: 1.5px;
+        }
+
+        .hero-heading {
+          font-size: 52px;
+          font-weight: 800;
+          color: #fff;
+          line-height: 1.1;
+          margin-bottom: 16px;
+        }
+
+        .hero-heading .accent {
+          color: var(--red);
+          font-style: italic;
+        }
+
+        .hero-desc-card {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.6);
+          line-height: 1.85;
+          max-width: 460px;
+          margin-bottom: 28px;
+        }
+
+        .card-btn-primary {
+          display: block;
+          width: 100%;
+          padding: 15px;
+          border: none;
+          border-radius: 10px;
+          background: var(--red);
+          color: #fff;
+          font-size: 17px;
+          font-weight: 700;
+          font-family: 'Hind Siliguri', sans-serif;
+          cursor: pointer;
+          margin-bottom: 12px;
+          transition: filter .15s, transform .15s;
+        }
+
+        .card-btn-primary:hover {
+          filter: brightness(.88);
+        }
+
+        .card-btn-primary:active {
+          transform: scale(.98);
+        }
+
+        .card-btn-secondary {
+          display: block;
+          width: 100%;
+          padding: 14px;
+          border-radius: 10px;
+          border: 1.5px solid rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.75);
+          font-size: 17px;
+          font-weight: 600;
+          font-family: 'Hind Siliguri', sans-serif;
+          cursor: pointer;
+          transition: border-color .15s, background .15s;
+        }
+
+        .card-btn-secondary:hover {
+          border-color: rgba(255, 255, 255, 0.45);
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ═══════════════════════════════════════
+           MISSION SECTION
+        ══════════════════════════════════════ */
+        .mission-section {
+          padding: 24px 48px 60px;
+          max-width: 720px;
+          margin: 0 auto;
+          background: var(--cream);
+        }
+
+        .mission-label {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 2.5px;
+          color: var(--red);
+          text-transform: uppercase;
+          margin-bottom: 20px;
+        }
+
+        .mission-label::before {
+          content: '';
+          display: block;
+          width: 32px;
+          height: 2px;
+          background: var(--red);
+        }
+
+        .mission-title {
+          line-height: 1.05;
+          margin-bottom: 16px;
+        }
+
+        .m-line1 {
+          display: block;
+          font-size: 68px;
+          font-weight: 800;
+          color: var(--dark);
+        }
+
+        .m-line2 {
+          display: inline-block;
+          font-size: 68px;
+          font-weight: 800;
+          color: var(--red);
+          font-style: italic;
+          position: relative;
+          margin-bottom: 4px;
+        }
+
+        .m-line2::after {
+          display: none;
+        }
+
+        .m-line3 {
+          display: block;
+          font-size: 68px;
+          font-weight: 800;
+          color: transparent;
+          -webkit-text-stroke: 2.5px var(--dark);
+        }
+
+        .mission-subtitle {
+          font-size: 21px;
+          font-weight: 500;
+          color: var(--teal);
+          margin: 20px 0 14px;
+        }
+
+        .mission-desc {
+          font-size: 15px;
+          color: #555;
+          line-height: 1.9;
+          max-width: 500px;
+          margin-bottom: 36px;
+        }
+
+        .pill-group {
+          display: flex;
+          gap: 14px;
+          flex-wrap: wrap;
+          margin-bottom: 52px;
+        }
+
+        .pill-primary {
+          padding: 13px 28px;
+          border-radius: 50px;
+          border: none;
+          background: var(--red);
+          color: #fff;
+          font-size: 16px;
+          font-weight: 600;
+          font-family: 'Hind Siliguri', sans-serif;
+          cursor: pointer;
+          transition: filter .15s, transform .15s;
+        }
+
+        .pill-primary:hover {
+          filter: brightness(.88);
+        }
+
+        .pill-primary:active {
+          transform: scale(.97);
+        }
+
+        .pill-secondary {
+          padding: 13px 28px;
+          border-radius: 50px;
+          border: 1.5px solid #bbb;
+          background: transparent;
+          color: var(--dark);
+          font-size: 16px;
+          font-weight: 600;
+          font-family: 'Hind Siliguri', sans-serif;
+          cursor: pointer;
+          transition: border-color .15s, color .15s;
+        }
+
+        .pill-secondary:hover {
+          border-color: var(--red);
+          color: var(--red);
+        }
+
+        .stats {
+          display: flex;
+          border-top: 1px solid rgba(0, 0, 0, .1);
+          padding-top: 28px;
+        }
+
+        .stat {
+          padding-right: 44px;
+          margin-right: 44px;
+          border-right: 1px solid rgba(0, 0, 0, .12);
+        }
+
+        .stat:last-child {
+          border-right: none;
+          padding-right: 0;
+          margin-right: 0;
+        }
+
+        .stat-num {
+          font-size: 42px;
+          font-weight: 700;
+          color: var(--red);
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 13px;
+          color: #777;
+          margin-top: 5px;
+        }
+
+        /* ═══════════════════════════════════════
+           FABs (Floating Action Buttons)
+        ══════════════════════════════════════ */
+        .fabs {
+          position: fixed;
+          right: 20px;
+          bottom: 80px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          z-index: 999;
+        }
+
+        .fab-sos {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: var(--red);
+          border: none;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 1px;
+          cursor: pointer;
+          box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5);
+          animation: sos-pulse 2s infinite;
+          font-family: 'DM Sans', sans-serif;
+        }
+
+        @keyframes sos-pulse {
+          0%, 100% { box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5), 0 0 0 0 rgba(190, 21, 40, 0.4); }
+          50% { box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5), 0 0 0 10px rgba(190, 21, 40, 0); }
+        }
+
+        .fab-share {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: #fff;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform .2s, box-shadow .2s;
+        }
+
+        .fab-share:hover {
+          transform: scale(1.08);
+          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .fab-share svg {
+          width: 20px;
+          height: 20px;
+          color: #333;
+        }
+
+        @media (max-width: 768px) {
+          .hero-section,
+          .mission-section {
+            padding: 24px 20px 40px;
+          }
+
+          .hero-card {
+            padding: 32px 24px;
+          }
+
+          .hero-heading {
+            font-size: 36px;
+          }
+
+          .m-line1,
+          .m-line2,
+          .m-line3 {
+            font-size: 42px;
+          }
+
+          .stats {
+            flex-direction: column;
+            gap: 24px;
+          }
+
+          .stat {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+          }
+
+          .fabs {
+            right: 16px;
+            bottom: 60px;
+          }
         }
 
         .hero-card-glow {
@@ -1338,125 +1687,82 @@ export default function Home() {
       </div>
 
       {/* New Hero Section */}
-      <section className="hero-new" aria-labelledby="hero-title">
-        {/* Dark Content Card */}
+      <section className="hero-section" aria-labelledby="hero-title">
+        {/* Dark Hero Card */}
         <div className="hero-card">
-          <div className="hero-card-bg-text" aria-hidden="true">রক্ত</div>
-          <div className="hero-card-glow" aria-hidden="true"></div>
-          <div className="hero-card-grain" aria-hidden="true"></div>
-
           <div className="live-badge">
             <div className="live-dot"></div>
-            <span>{language === 'bn' ? 'এখন সরাসরি' : 'Live Now'}</span>
+            <span>LIVE NOW</span>
           </div>
 
-          <h1 className="hero-h1">
-            <span className="line"><span>{language === 'bn' ? 'রক্ত দিন, জীবন বাঁচান' : 'Donate Blood, Save'}</span></span>
-            <span className="line"><span>{language === 'bn' ? 'আজই' : 'Lives'} <span className="accent">{language === 'bn' ? '' : 'Today'}</span></span></span>
+          <h1 className="hero-heading">
+            {language === 'bn'
+              ? 'রক্ত দিন, জীবন<br>বাঁচান <span className="accent">আজই</span>'
+              : 'Donate Blood,<br>Save Lives <span className="accent">Today</span>'}
           </h1>
 
-          <p className="hero-sub">
+          <p className="hero-desc-card">
             {language === 'bn'
-              ? 'বাংলাদেশের সবচেয়ে বড় রক্তদাতা নেটওয়ার্কে যোগ দিন এবং সংকটের মুহূর্তে জীবন বাঁচাতে সাহায্য করুন।'
-              : 'Join Bangladesh\'s largest blood donor network and help save lives in critical moments.'}
+              ? 'বাংলাদেশের বৃহত্তম রক্তদাতা নেটওয়ার্ক। আমরা রক্তদাতাদের সাথে রক্তের প্রয়োজনে থাকা মানুষদের সংযোগ করি।'
+              : 'Bangladesh\'s largest blood donor network. We connect donors with people in need of blood.'}
           </p>
 
-          <div className="hero-ctas">
-            <button type="button" className="btn-register" onClick={() => router.push('/register')}>
-              {language === 'bn' ? 'দাতা হিসেবে নিবন্ধন করুন' : 'Register as Donor'}
+          <button type="button" className="card-btn-primary" onClick={() => router.push('/register')}>
+            {language === 'bn' ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Register as a Blood Donor'}
+          </button>
+
+          <div className="btn-watermark-wrap">
+            <div className="watermark">রক্ত</div>
+            <button type="button" className="card-btn-secondary" onClick={() => router.push('/request')}>
+              {language === 'bn' ? 'রক্তের প্রয়োজন?' : 'Need Blood?'}
             </button>
-            <button type="button" className="btn-need" onClick={() => router.push('/request')}>
-              {language === 'bn' ? 'রক্ত দরকার?' : 'Need Blood?'}
-            </button>
-          </div>
-        </div>
-
-        {/* GPS + Badges */}
-        <div className="hero-right">
-          <div className="map-card-anchor">
-            <div className="map-card">
-              <div className="radar">
-                <div className="radar-ring"></div>
-                <div className="radar-ring"></div>
-                <div className="radar-ring"></div>
-                <div className="radar-dot"></div>
-              </div>
-              <div className="map-bar"></div>
-            </div>
-          </div>
-
-          <div className="badge badge-emergency">
-            <div className="badge-icon" aria-hidden="true">🩸</div>
-            <div>
-              <span className="badge-title">{language === 'bn' ? 'জরুরি সহায়তা' : 'Emergency'}</span>
-              <span className="badge-sub">{language === 'bn' ? '২৪/৭ সার্ভিস' : '24/7 Support'}</span>
-            </div>
-          </div>
-
-          <div className="badge badge-map">
-            <div className="badge-icon" aria-hidden="true">📍</div>
-            <div>
-              <span className="badge-title">{language === 'bn' ? 'লাইভ ম্যাপ' : 'Live Map'}</span>
-              <span className="badge-sub">{language === 'bn' ? 'জিপিএস ট্র্যাকিং' : 'GPS Tracking'}</span>
-            </div>
-          </div>
-
-          <div className="badge badge-verified">
-            <div className="badge-icon" aria-hidden="true">✓</div>
-            <div>
-              <span className="badge-title">{language === 'bn' ? 'যাচাইকৃত' : 'Verified'}</span>
-              <span className="badge-sub">{language === 'bn' ? 'সকল দাতা' : 'All Donors'}</span>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Dashboard */}
-      <section className="stats-dashboard">
-        <div className="stat-item reveal">
-          <span className="stat-number">0</span>
-          <span className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</span>
-        </div>
-        <div className="stat-divider"></div>
-        <div className="stat-item reveal">
-          <span className="stat-number">0</span>
-          <span className="stat-label">{language === 'bn' ? 'পূরণকৃত অনুরোধ' : 'Requests Fulfilled'}</span>
-        </div>
-        <div className="stat-divider"></div>
-        <div className="stat-item reveal">
-          <span className="stat-number">0</span>
-          <span className="stat-label">{language === 'bn' ? 'অংশীদার প্রতিষ্ঠান' : 'Partner Organizations'}</span>
-        </div>
-      </section>
 
       {/* Mission Section */}
       <section className="mission-section">
-        <div className="mission-left">
-          <div className="mission-label reveal">
-            <div className="mission-label-line"></div>
-            <span className="mission-label-text">{language === 'bn' ? 'আমাদের লক্ষ্য' : 'Our Mission'}</span>
+        <div className="mission-label">
+          {language === 'bn' ? 'আমাদের মিশন' : 'Our Mission'}
+        </div>
+        <div className="mission-title">
+          <span className="m-line1">{language === 'bn' ? 'প্রতিটি ফোঁটা' : 'Every Drop'}</span>
+          <span className="m-line2">{language === 'bn' ? 'রক্ত' : 'Blood'}</span>
+          <span className="m-line3">{language === 'bn' ? 'জীবন' : 'Saves Life'}</span>
+        </div>
+        <p className="mission-subtitle">
+          {language === 'bn' ? 'সংযোগ স্থাপন করুন, জীবন বাঁচান' : 'Connect. Donate. Save a Life.'}
+        </p>
+        <p className="mission-desc">
+          {language === 'bn'
+            ? 'রক্তকরবী হল একটি ডিজিটাল প্ল্যাটফর্ম যা রক্তদাতাদের সাথে রক্তের<br>প্রয়োজনে থাকা মানুষদের সংযোগ করি।'
+            : 'Roktokorobi is a digital platform that connects blood donors<br>with people in urgent need of blood transfusions.'}
+        </p>
+
+        <div className="pill-group">
+          <button type="button" className="pill-primary" onClick={() => router.push('/register')}>
+            {language === 'bn' ? 'রক্তদাতা হন →' : 'Become a Donor →'}
+          </button>
+          <button type="button" className="pill-secondary" onClick={() => router.push('/donors')}>
+            {language === 'bn' ? 'রক্তদাতা খুঁজুন →' : 'Find a Donor →'}
+          </button>
+        </div>
+
+        <div className="stats">
+          <div className="stat">
+            <div className="stat-num">{language === 'bn' ? '15420' : '15,420'}</div>
+            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
           </div>
-          <h2 className="mission-h2 reveal">
-            <span className="normal">{language === 'bn' ? 'প্রতিটি ফোঁটা' : 'Every Drop'}</span>
-            <span className="italic-red">{language === 'bn' ? 'গুরুত্বপূর্ণ' : 'Matters'}</span>
-            <span className="normal">{language === 'bn' ? 'জীবন' : 'Lives'}</span>
-          </h2>
-          <p className="mission-sub reveal">{language === 'bn' ? 'দাতাদের সংযুক্ত করা, জীবন বাঁচানো' : 'Connecting donors, saving lives'}</p>
-          <p className="mission-body reveal">
-            {language === 'bn'
-              ? 'রক্তকরবী একটি ডিজিটাল প্ল্যাটফর্ম যা রক্তদাতাদের সাথে প্রয়োজনগ্রস্তদের সংযুক্ত করে। আমাদের লক্ষ্য বাংলাদেশে রক্তের ঘাটতি কমানো এবং প্রতিটি জরুরি পরিস্থিতিতে সহায়তা প্রদান করা।'
-              : 'RoktoKorobi is a digital platform connecting blood donors with those in need. Our mission is to reduce blood shortages in Bangladesh and provide assistance in every emergency.'}
-          </p>
-          <div className="mission-ctas reveal">
-            <button type="button" className="btn-become" onClick={() => router.push('/register')}>
-              {language === 'bn' ? 'দাতা হোন →' : 'Become a Donor →'}
-            </button>
-            <button type="button" className="btn-find" onClick={() => router.push('/donors')}>
-              {language === 'bn' ? 'দাতা খুঁজুন →' : 'Find Donors →'}
-            </button>
+          <div className="stat">
+            <div className="stat-num">{language === 'bn' ? '8934' : '8,934'}</div>
+            <div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">127</div>
+            <div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div>
           </div>
         </div>
-        <div className="mission-right"></div>
       </section>
 
       {/* FABs */}
