@@ -1,15 +1,15 @@
 import { Client, Account, Databases, ID } from 'appwrite';
 
 const client = new Client()
-  .setEndpoint('https://sgp.cloud.appwrite.io/v1')
-  .setProject('6a147b080028f1362954')
+  .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1')
+  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '6a147b080028f1362954')
   .setLocale('en-US');
 
 export const account = new Account(client);
 export const databases = new Databases(client);
 
-export const DATABASE_ID = '6a147f7000179146f157';
-export const COLLECTION_ID = 'donors_';
+export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || '6a147f7000179146f157';
+export const COLLECTION_ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID || 'donors_';
 
 // Auth helper functions
 export const loginUser = async (email: string, password: string) => {
