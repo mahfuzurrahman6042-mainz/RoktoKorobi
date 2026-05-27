@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ref, push, set, onValue, remove, update } from 'firebase/database';
-import { database } from '@/lib/firebase';
+import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebase';
 import type { TestimonialFormData, TestimonialTranslations, Language, RatingOption } from '@/types/testimonial';
 
 const translations: TestimonialTranslations = {
@@ -102,17 +102,13 @@ export const useTestimonial = () => {
     setSubmitting(true);
 
     try {
-      if (!database) {
-        console.error('Firebase database not initialized');
+      if (!firestore) {
+        console.error('Firestore not initialized');
         setSubmitting(false);
         return;
       }
 
-      const testimonialsRef = ref(database, 'testimonials');
-      const newTestimonialRef = push(testimonialsRef);
-      
       const testimonialData = {
-        id: newTestimonialRef.key,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -122,7 +118,7 @@ export const useTestimonial = () => {
         approved: false // Requires admin approval
       };
 
-      await set(newTestimonialRef, testimonialData);
+      await addDoc(collection(firestore, 'testimonials'), testimonialData);
       
       setSubmitted(true);
       setSubmitting(false);
@@ -158,25 +154,17 @@ export const useTestimonials = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!database) {
+    if (!firestore) {
       setLoading(false);
       return;
     }
 
-    const testimonialsRef = ref(database, 'testimonials');
-    const unsubscribe = onValue(testimonialsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const testimonialsArray = Object.entries(data).map(([key, value]: [string, any]) => ({
-          id: key,
-          ...value
-        }));
-        // Sort by createdAt, newest first
-        testimonialsArray.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setTestimonials(testimonialsArray);
-      } else {
-        setTestimonials([]);
-      }
+    const testimonialsCollection = collection(firestore, 'testimonials');
+    const unsubscribe = onSnapshot(testimonialsCollection, (snapshot) => {
+      const testimonialsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Sort by createdAt, newest first
+      testimonialsArray.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setTestimonials(testimonialsArray);
       setLoading(false);
     }, (error) => {
       console.error('Error fetching testimonials:', error);
@@ -191,28 +179,28 @@ export const useTestimonials = () => {
 
 export const useTestimonialActions = () => {
   const deleteTestimonial = useCallback(async (id: string) => {
-    if (!database) {
-      console.error('Firebase database not initialized');
+    if (!firestore) {
+      console.error('Firestore not initialized');
       return;
     }
 
     try {
-      const testimonialRef = ref(database, `testimonials/${id}`);
-      await remove(testimonialRef);
+      const testimonialDoc = doc(firestore, 'testimonials', id);
+      await deleteDoc(testimonialDoc);
     } catch (error) {
       console.error('Error deleting testimonial:', error);
     }
   }, []);
 
   const updateTestimonial = useCallback(async (id: string, data: any) => {
-    if (!database) {
-      console.error('Firebase database not initialized');
+    if (!firestore) {
+      console.error('Firestore not initialized');
       return;
     }
 
     try {
-      const testimonialRef = ref(database, `testimonials/${id}`);
-      await update(testimonialRef, data);
+      const testimonialDoc = doc(firestore, 'testimonials', id);
+      await updateDoc(testimonialDoc, data);
     } catch (error) {
       console.error('Error updating testimonial:', error);
     }
