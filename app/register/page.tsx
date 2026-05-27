@@ -172,6 +172,7 @@ export default function RegisterDonor() {
       }, 3000);
     } catch (error: any) {
       console.error('Registration error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       setSubmitting(false);
       if (error.message?.includes('already registered')) {
         alert(language === 'bn' ? 'এই ইমেলটি ইতিমধ্যেই ব্যবহৃত হয়েছে' : 'This email is already in use');
