@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { registerUser, saveUserData, ID } from '@/lib/appwrite';
+import { registerUser, saveUserData, updateProfile } from '@/lib/firebase';
 
 export default function RegisterDonor() {
   const router = useRouter();
@@ -132,10 +132,13 @@ export default function RegisterDonor() {
     setSubmitting(true);
 
     try {
-      // Create Appwrite user
-      const user = await registerUser(formData.email, formData.password, formData.name);
+      // Create Firebase user
+      const userCredential = await registerUser(formData.email, formData.password);
+      
+      // Update user profile with name
+      await updateProfile(userCredential.user, { displayName: formData.name });
 
-      // Save donor data to Appwrite Database
+      // Save donor data to Firestore
       const donorData = {
         name: formData.name,
         email: formData.email,
@@ -150,7 +153,7 @@ export default function RegisterDonor() {
         lastDonation: formData.lastDonation,
         medicalConditions: formData.medicalConditions,
         createdAt: new Date().toISOString(),
-        uid: user.$id,
+        uid: userCredential.user.uid,
         acceptedTerms: true,
         acceptedPrivacy: true,
         isDonor: true,
@@ -160,8 +163,8 @@ export default function RegisterDonor() {
         emailVerified: false
       };
 
-      // Save to Appwrite database
-      await saveUserData(user.$id, donorData);
+      // Save to Firestore
+      await saveUserData(userCredential.user.uid, donorData);
 
       setSubmitted(true);
       setSubmitting(false);
@@ -172,14 +175,12 @@ export default function RegisterDonor() {
       }, 3000);
     } catch (error: any) {
       console.error('Registration error:', error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
       setSubmitting(false);
-      alert(`Error: ${error.message || JSON.stringify(error)}`);
-      if (error.message?.includes('already registered')) {
+      if (error.code === 'auth/email-already-in-use') {
         alert(language === 'bn' ? 'এই ইমেলটি ইতিমধ্যেই ব্যবহৃত হয়েছে' : 'This email is already in use');
-      } else if (error.message?.includes('password')) {
+      } else if (error.code === 'auth/weak-password') {
         alert(language === 'bn' ? 'পাসওয়ার্ড খুব দুর্বল' : 'Password is too weak');
-      } else if (error.message?.includes('email')) {
+      } else if (error.code === 'auth/invalid-email') {
         alert(language === 'bn' ? 'অবৈধ ইমেল ঠিকানা' : 'Invalid email address');
       } else {
         alert(language === 'bn' ? 'নিবন্ধন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Registration failed. Please try again.');

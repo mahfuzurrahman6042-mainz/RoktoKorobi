@@ -9,7 +9,7 @@ import {
   Menu, X, Search, Bell, User, ChevronDown, Droplets,
   Activity, Shield, Globe, Filter, LogOut
 } from 'lucide-react';
-import { logoutUser, getCurrentUser, getUserData, updateUserData } from '@/lib/appwrite';
+import { logoutUser, getCurrentUser, getUserData, updateUserData, onAuthStateChange } from '@/lib/firebase';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -38,18 +38,18 @@ export default function Dashboard() {
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
     
-    // Check Appwrite authentication
+    // Check Firebase authentication
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
         if (user) {
           setCurrentUser(user);
           try {
-            const data = await getUserData(user.$id);
+            const data = await getUserData(user.uid);
             if (data) {
               setUserData(prev => ({ ...prev, ...data }));
             } else {
-              setUserData(prev => ({ ...prev, email: user.email || '', name: user.name || 'User' }));
+              setUserData(prev => ({ ...prev, email: user.email || '', name: user.displayName || 'User' }));
             }
           } catch (error) {
             console.error('Error fetching user data:', error);

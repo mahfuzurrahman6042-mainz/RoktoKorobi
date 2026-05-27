@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { listAllDonors } from '@/lib/appwrite';
+import { listAllDonors } from '@/lib/firebase';
 
 // Dynamic import for Leaflet map (SSR disabled)
 const BangladeshMap = dynamic(() => import('@/components/BangladeshMap'), {
@@ -190,13 +190,13 @@ export default function DonorsPage() {
   }, [language]);
 
   useEffect(() => {
-    // Load donors from Appwrite Database
+    // Load donors from Firestore
     const loadDonors = async () => {
       try {
-        const response = await listAllDonors();
-        if (response.documents && response.documents.length > 0) {
-          const donorsArray = response.documents.map((doc: any) => ({
-            id: doc.$id,
+        const donorsData = await listAllDonors();
+        if (donorsData && donorsData.length > 0) {
+          const donorsArray = donorsData.map((doc: any) => ({
+            id: doc.id,
             name: doc.name || 'Unknown',
             nameEn: doc.name || 'Unknown',
             blood: doc.bloodGroup || 'Unknown',
@@ -215,7 +215,7 @@ export default function DonorsPage() {
           setFilteredDonors(fallbackDonors);
         }
       } catch (error) {
-        console.log('Appwrite error, using fallback data:', error);
+        console.log('Firestore error, using fallback data:', error);
         setDonors(fallbackDonors);
         setFilteredDonors(fallbackDonors);
       }

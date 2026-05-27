@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { loginUser, getCurrentUser } from '@/lib/appwrite';
+import { loginUser, getCurrentUser, onAuthStateChange } from '@/lib/firebase';
 
 export default function Login() {
   const router = useRouter();
@@ -92,20 +92,22 @@ export default function Login() {
     }
 
     try {
-      // Appwrite Authentication
+      // Firebase Authentication
       await loginUser(formData.email, formData.password);
       
       // Get current user
-      const user = await getCurrentUser();
+      const user = getCurrentUser();
       
-      router.push('/dashboard');
+      if (user) {
+        router.push('/dashboard');
+      }
     } catch (error: any) {
       console.error('Login error:', error);
-      if (error.message?.includes('invalid') || error.message?.includes('credentials')) {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         setError(t('invalid'));
-      } else if (error.message?.includes('email')) {
+      } else if (error.code === 'auth/invalid-email') {
         setError(language === 'bn' ? 'অবৈধ ইমেল ঠিকানা' : 'Invalid email address');
-      } else if (error.message?.includes('too many')) {
+      } else if (error.code === 'auth/too-many-requests') {
         setError(language === 'bn' ? 'অনেক চেষ্টা করেছেন। কিছুক্ষণ পর আবার চেষ্টা করুন।' : 'Too many attempts. Please try again later.');
       } else {
         setError(language === 'bn' ? 'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Login failed. Please try again.');

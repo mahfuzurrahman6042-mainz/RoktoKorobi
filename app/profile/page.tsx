@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Settings, LogOut, Mail, Phone, MapPin, Droplets, Calendar, Shield, Home, Users, Heart, FileText, Image, MessageCircle, Globe, Menu, X } from 'lucide-react';
-import { logoutUser, getCurrentUser, getUserData, updateUserData } from '@/lib/appwrite';
+import { logoutUser, getCurrentUser, getUserData, updateUserData, onAuthStateChange } from '@/lib/firebase';
 
 export default function Profile() {
   const router = useRouter();
@@ -31,18 +31,18 @@ export default function Profile() {
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
     
-    // Check Appwrite authentication
+    // Check Firebase authentication
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
         if (user) {
           setCurrentUser(user);
           try {
-            const data = await getUserData(user.$id);
+            const data = await getUserData(user.uid);
             if (data) {
               setUserData(prev => ({ ...prev, ...data }));
             } else {
-              setUserData(prev => ({ ...prev, email: user.email || '', name: user.name || 'User' }));
+              setUserData(prev => ({ ...prev, email: user.email || '', name: user.displayName || 'User' }));
             }
           } catch (error) {
             console.error('Error fetching user data:', error);
