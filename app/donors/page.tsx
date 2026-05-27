@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { ref, onValue } from 'firebase/database';
-import { database } from '@/lib/firebase';
+import { listAllDonors } from '@/lib/appwrite';
 
 // Dynamic import for Leaflet map (SSR disabled)
 const BangladeshMap = dynamic(() => import('@/components/BangladeshMap'), {
@@ -191,46 +190,38 @@ export default function DonorsPage() {
   }, [language]);
 
   useEffect(() => {
-    // Load donors from Firebase Realtime Database
-    try {
-      if (!database) {
-        console.log('Firebase database not configured, using fallback data');
-        setDonors(fallbackDonors);
-        setFilteredDonors(fallbackDonors);
-        return;
-      }
-
-      const donorsRef = ref(database, 'donors');
-      const unsubscribe = onValue(donorsRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const donorsArray = Object.keys(data).map(key => ({
-            id: data[key].id || parseInt(key),
-            name: data[key].name || data[key].nameEn || 'Unknown',
-            nameEn: data[key].nameEn || data[key].name || 'Unknown',
-            blood: data[key].bloodGroup || 'Unknown',
-            district: data[key].district || 'Unknown',
-            districtBn: data[key].districtBn || data[key].district || 'Unknown',
-            lat: data[key].lat || 23.8103,
-            lng: data[key].lng || 90.4125,
-            lastDonated: data[key].lastDonation || 'Unknown',
-            lastDonatedEn: data[key].lastDonation || 'Unknown'
+    // Load donors from Appwrite Database
+    const loadDonors = async () => {
+      try {
+        const response = await listAllDonors();
+        if (response.documents && response.documents.length > 0) {
+          const donorsArray = response.documents.map((doc: any) => ({
+            id: doc.$id,
+            name: doc.name || 'Unknown',
+            nameEn: doc.name || 'Unknown',
+            blood: doc.bloodGroup || 'Unknown',
+            district: doc.district || 'Unknown',
+            districtBn: doc.district || 'Unknown',
+            lat: doc.lat || 23.8103,
+            lng: doc.lng || 90.4125,
+            lastDonated: doc.lastDonation || 'Unknown',
+            lastDonatedEn: doc.lastDonation || 'Unknown'
           }));
           setDonors(donorsArray);
           setFilteredDonors(donorsArray);
+        } else {
+          // Use fallback data if no donors in database
+          setDonors(fallbackDonors);
+          setFilteredDonors(fallbackDonors);
         }
-      }, (error) => {
-        console.log('Firebase not configured, using fallback data:', error);
+      } catch (error) {
+        console.log('Appwrite error, using fallback data:', error);
         setDonors(fallbackDonors);
         setFilteredDonors(fallbackDonors);
-      });
+      }
+    };
 
-      return () => unsubscribe();
-    } catch (error) {
-      console.log('Firebase database error, using fallback data:', error);
-      setDonors(fallbackDonors);
-      setFilteredDonors(fallbackDonors);
-    }
+    loadDonors();
   }, []);
 
   useEffect(() => {

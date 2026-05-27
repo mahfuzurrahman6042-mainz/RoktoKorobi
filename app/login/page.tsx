@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { loginUser, onAuthStateChange, getCurrentUser } from '@/lib/firebase';
+import { loginUser, getCurrentUser } from '@/lib/appwrite';
 
 export default function Login() {
   const router = useRouter();
@@ -22,13 +22,18 @@ export default function Login() {
     setLanguage(savedLang);
 
     // Check if user is already logged in
-    const unsubscribe = onAuthStateChange((user) => {
-      if (user) {
-        router.push('/dashboard');
+    const checkAuth = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          router.push('/dashboard');
+        }
+      } catch (error) {
+        // User not logged in, that's fine
       }
-    });
+    };
 
-    return () => unsubscribe();
+    checkAuth();
   }, [router]);
 
   const t = (key: string) => {
@@ -87,27 +92,20 @@ export default function Login() {
     }
 
     try {
-      // Firebase Authentication using helper function
+      // Appwrite Authentication
       await loginUser(formData.email, formData.password);
       
-      // Check email verification
-      const user = getCurrentUser();
-      if (user && !user.emailVerified) {
-        setError(t('verifyEmail'));
-        setSubmitting(false);
-        return;
-      }
+      // Get current user
+      const user = await getCurrentUser();
       
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      if (error.message?.includes('invalid') || error.message?.includes('credentials')) {
         setError(t('invalid'));
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error.message?.includes('email')) {
         setError(language === 'bn' ? 'অবৈধ ইমেল ঠিকানা' : 'Invalid email address');
-      } else if (error.code === 'auth/api-key-not-allowed') {
-        setError(language === 'bn' ? 'Firebase API key সমস্যা। ডেমো অ্যাকাউন্ট ব্যবহার করুন।' : 'Firebase API key issue. Use demo account.');
-      } else if (error.code === 'auth/too-many-requests') {
+      } else if (error.message?.includes('too many')) {
         setError(language === 'bn' ? 'অনেক চেষ্টা করেছেন। কিছুক্ষণ পর আবার চেষ্টা করুন।' : 'Too many attempts. Please try again later.');
       } else {
         setError(language === 'bn' ? 'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Login failed. Please try again.');

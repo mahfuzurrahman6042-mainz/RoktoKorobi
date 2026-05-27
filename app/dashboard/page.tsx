@@ -9,7 +9,7 @@ import {
   Menu, X, Search, Bell, User, ChevronDown, Droplets,
   Activity, Shield, Globe, Filter, LogOut
 } from 'lucide-react';
-import { onAuthStateChange, logoutUser, getUserData, updateUserData } from '@/lib/firebase';
+import { logoutUser, getCurrentUser, getUserData, updateUserData } from '@/lib/appwrite';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -38,27 +38,32 @@ export default function Dashboard() {
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
     
-    // Check Firebase authentication
-    const unsubscribe = onAuthStateChange(async (user) => {
-      if (user) {
-        setCurrentUser(user);
-        try {
-          const data = await getUserData(user.uid);
-          if (data) {
-            setUserData(prev => ({ ...prev, ...data }));
-          } else {
-            setUserData(prev => ({ ...prev, email: user.email || '', name: user.displayName || 'User' }));
+    // Check Appwrite authentication
+    const checkAuth = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setCurrentUser(user);
+          try {
+            const data = await getUserData(user.$id);
+            if (data) {
+              setUserData(prev => ({ ...prev, ...data }));
+            } else {
+              setUserData(prev => ({ ...prev, email: user.email || '', name: user.name || 'User' }));
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
           }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
+        } else {
+          router.push('/login');
         }
-      } else {
+      } catch (error) {
         router.push('/login');
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    checkAuth();
   }, [router]);
 
   const handleLogout = async () => {

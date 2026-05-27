@@ -3,10 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { ref, set } from 'firebase/database';
-import { database } from '@/lib/firebase';
+import { registerUser, saveUserData, ID } from '@/lib/appwrite';
 
 export default function RegisterDonor() {
   const router = useRouter();
@@ -135,17 +132,10 @@ export default function RegisterDonor() {
     setSubmitting(true);
 
     try {
-      // Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      const user = userCredential.user;
+      // Create Appwrite user
+      const user = await registerUser(formData.email, formData.password, formData.name);
 
-      // Update user profile
-      await updateProfile(user, { displayName: formData.name });
-
-      // Send email verification
-      await sendEmailVerification(user);
-
-      // Save donor data to Firebase Realtime Database
+      // Save donor data to Appwrite Database
       const donorData = {
         name: formData.name,
         email: formData.email,
@@ -160,7 +150,7 @@ export default function RegisterDonor() {
         lastDonation: formData.lastDonation,
         medicalConditions: formData.medicalConditions,
         createdAt: new Date().toISOString(),
-        uid: user.uid,
+        uid: user.$id,
         acceptedTerms: true,
         acceptedPrivacy: true,
         isDonor: true,
@@ -170,9 +160,8 @@ export default function RegisterDonor() {
         emailVerified: false
       };
 
-      // Save to both donors and users collections
-      await set(ref(database, `donors/${user.uid}`), donorData);
-      await set(ref(database, `users/${user.uid}`), donorData);
+      // Save to Appwrite database
+      await saveUserData(user.$id, donorData);
 
       setSubmitted(true);
       setSubmitting(false);
@@ -184,11 +173,11 @@ export default function RegisterDonor() {
     } catch (error: any) {
       console.error('Registration error:', error);
       setSubmitting(false);
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.message?.includes('already registered')) {
         alert(language === 'bn' ? 'এই ইমেলটি ইতিমধ্যেই ব্যবহৃত হয়েছে' : 'This email is already in use');
-      } else if (error.code === 'auth/weak-password') {
+      } else if (error.message?.includes('password')) {
         alert(language === 'bn' ? 'পাসওয়ার্ড খুব দুর্বল' : 'Password is too weak');
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error.message?.includes('email')) {
         alert(language === 'bn' ? 'অবৈধ ইমেল ঠিকানা' : 'Invalid email address');
       } else {
         alert(language === 'bn' ? 'নিবন্ধন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Registration failed. Please try again.');
