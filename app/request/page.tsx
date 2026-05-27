@@ -98,9 +98,9 @@ export default function BloodRequest() {
     if (firestore) {
       const requestsCollection = collection(firestore, 'bloodRequests');
       const unsubscribe = onSnapshot(requestsCollection, (snapshot) => {
-        const requestsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const requestsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
         // Sort by timestamp, newest first
-        requestsArray.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        requestsArray.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         setRequests(requestsArray);
         
         // Update stats

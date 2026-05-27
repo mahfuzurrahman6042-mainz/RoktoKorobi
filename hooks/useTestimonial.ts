@@ -161,9 +161,9 @@ export const useTestimonials = () => {
 
     const testimonialsCollection = collection(firestore, 'testimonials');
     const unsubscribe = onSnapshot(testimonialsCollection, (snapshot) => {
-      const testimonialsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const testimonialsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
       // Sort by createdAt, newest first
-      testimonialsArray.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      testimonialsArray.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setTestimonials(testimonialsArray);
       setLoading(false);
     }, (error) => {
