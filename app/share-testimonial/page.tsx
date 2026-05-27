@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getDatabase, ref, push } from "firebase/database";
-import { database } from "@/lib/firebase";
+import { collection, addDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebase';
 
 const CR = '#C0353A';
 const CR_DARK = '#A32D2D';
@@ -75,9 +75,12 @@ export default function ShareTestimonial() {
     setIsSubmitting(true);
 
     try {
-      const db = getDatabase();
-      const testimonialsRef = ref(db, 'testimonials');
-      
+      if (!firestore) {
+        console.error('Firestore not initialized');
+        setIsSubmitting(false);
+        return;
+      }
+
       const testimonialData = {
         name: formData.name,
         email: formData.email || '',
@@ -89,7 +92,7 @@ export default function ShareTestimonial() {
         approved: false // Requires admin approval
       };
 
-      await push(testimonialsRef, testimonialData);
+      await addDoc(collection(firestore, 'testimonials'), testimonialData);
       
       setIsSuccess(true);
       
