@@ -1,6 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile } from 'firebase/auth';
-import { getFirestore, Firestore, collection, doc, setDoc, getDoc, updateDoc, onSnapshot, query, where, getDocs } from 'firebase/firestore';
+import { getDatabase, Database, ref, set, get, update, onValue, push, remove } from 'firebase/database';
 import { getMessaging, Messaging } from 'firebase/messaging';
 
 const firebaseConfig = {
@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
-let firestore: Firestore | null = null;
+let database: Database | null = null;
 let messaging: Messaging | null = null;
 
 if (typeof window !== 'undefined') {
@@ -24,7 +24,7 @@ if (typeof window !== 'undefined') {
     if (firebaseConfig.apiKey && firebaseConfig.projectId) {
       app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
       auth = getAuth(app);
-      firestore = getFirestore(app);
+      database = getDatabase(app);
       
       if ('serviceWorker' in navigator) {
         try {
@@ -68,35 +68,37 @@ export const onAuthStateChange = (callback: (user: User | null) => void) => {
 
 // Database helper functions
 export const saveUserData = async (userId: string, data: any) => {
-  if (!firestore) throw new Error('Firestore not initialized');
-  const userDoc = doc(firestore, 'users', userId);
-  await setDoc(userDoc, {
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  await set(userRef, {
     ...data,
     updatedAt: new Date().toISOString()
   });
 };
 
 export const getUserData = async (userId: string) => {
-  if (!firestore) throw new Error('Firestore not initialized');
-  const userDoc = doc(firestore, 'users', userId);
-  const snapshot = await getDoc(userDoc);
-  return snapshot.exists() ? snapshot.data() : null;
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  const snapshot = await get(userRef);
+  return snapshot.exists() ? snapshot.val() : null;
 };
 
 export const updateUserData = async (userId: string, data: any) => {
-  if (!firestore) throw new Error('Firestore not initialized');
-  const userDoc = doc(firestore, 'users', userId);
-  await updateDoc(userDoc, {
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  await update(userRef, {
     ...data,
     updatedAt: new Date().toISOString()
   });
 };
 
 export const listAllDonors = async () => {
-  if (!firestore) throw new Error('Firestore not initialized');
-  const donorsCollection = collection(firestore, 'donors');
-  const snapshot = await getDocs(donorsCollection);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  if (!database) throw new Error('Database not initialized');
+  const donorsRef = ref(database, 'donors');
+  const snapshot = await get(donorsRef);
+  if (!snapshot.exists()) return [];
+  const data = snapshot.val();
+  return Object.keys(data).map(key => ({ id: key, ...data[key] }));
 };
 
-export { app, auth, firestore, messaging, updateProfile, collection, doc, setDoc, getDoc, updateDoc, onSnapshot, query, where, getDocs };
+export { app, auth, database, messaging, updateProfile, ref, set, get, update, onValue, push, remove };

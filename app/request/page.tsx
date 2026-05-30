@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SocialShare from '@/components/SocialShare';
 import CalendarIntegration from '@/components/CalendarIntegration';
-import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, addDoc } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
+import { database } from '@/lib/firebase';
 import { getCurrentUser } from '@/lib/firebase';
 
 const bloodGroups = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
@@ -49,13 +49,13 @@ export default function BloodRequest() {
 
   const handleMarkFulfilled = async (requestId: string) => {
     try {
-      if (!firestore) {
-        console.error('Firestore not initialized');
+      if (!database) {
+        console.error('Database not initialized');
         return;
       }
       
-      const requestDoc = doc(firestore, 'bloodRequests', requestId);
-      await updateDoc(requestDoc, { fulfilled: true, status: 'fulfilled' });
+      const requestRef = ref(database, `bloodRequests/${requestId}`);
+      await update(requestRef, { fulfilled: true, status: 'fulfilled' });
     } catch (error) {
       console.error('Error marking request as fulfilled:', error);
     }
@@ -70,13 +70,13 @@ export default function BloodRequest() {
   const handleDeleteRequest = async (requestId: string) => {
     if (window.confirm(language === 'bn' ? 'আপনি কি এই অনুরোধটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this request?')) {
       try {
-        if (!firestore) {
-          console.error('Firestore not initialized');
+        if (!database) {
+          console.error('Database not initialized');
           return;
         }
         
-        const requestDoc = doc(firestore, 'bloodRequests', requestId);
-        await deleteDoc(requestDoc);
+        const requestRef = ref(database, `bloodRequests/${requestId}`);
+        await remove(requestRef);
       } catch (error) {
         console.error('Error deleting request:', error);
       }
@@ -94,22 +94,32 @@ export default function BloodRequest() {
     setTimeout(() => setHeroVis(true), 80);
     setTimeout(() => setFormVis(true), 300);
     
-    // Fetch blood requests from Firestore
-    if (firestore) {
-      const requestsCollection = collection(firestore, 'bloodRequests');
-      const unsubscribe = onSnapshot(requestsCollection, (snapshot) => {
-        const requestsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
-        // Sort by timestamp, newest first
-        requestsArray.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        setRequests(requestsArray);
-        
-        // Update stats
-        const fulfilledCount = requestsArray.filter(req => req.fulfilled).length;
-        setStats({
-          totalRequests: requestsArray.length,
-          fulfilledRequests: fulfilledCount,
-          totalDonations: fulfilledCount
-        });
+    // Fetch blood requests from Realtime Database
+    if (database) {
+      const requestsRef = ref(database, 'bloodRequests');
+      const unsubscribe = onValue(requestsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const requestsArray = Object.keys(data).map(key => ({ id: key, ...data[key] as any }));
+          // Sort by timestamp, newest first
+          requestsArray.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          setRequests(requestsArray);
+          
+          // Update stats
+          const fulfilledCount = requestsArray.filter(req => req.fulfilled).length;
+          setStats({
+            totalRequests: requestsArray.length,
+            fulfilledRequests: fulfilledCount,
+            totalDonations: fulfilledCount
+          });
+        } else {
+          setRequests([]);
+          setStats({
+            totalRequests: 0,
+            fulfilledRequests: 0,
+            totalDonations: 0
+          });
+        }
       }, (error) => {
         console.error('Error fetching blood requests:', error);
       });
@@ -214,8 +224,8 @@ export default function BloodRequest() {
     setSubmitting(true);
     
     try {
-      if (!firestore) {
-        console.error('Firestore not initialized');
+      if (!database) {
+        console.error('Database not initialized');
         setSubmitting(false);
         return;
       }
@@ -240,7 +250,7 @@ export default function BloodRequest() {
         fulfilled: false
       };
 
-      await addDoc(collection(firestore, 'bloodRequests'), newRequest);
+      await push(ref(database, 'bloodRequests'), newRequest);
       
       setSubmitted(true);
       setSubmitting(false);

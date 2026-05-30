@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, addDoc } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
+import { database } from '@/lib/firebase';
 import type { TestimonialFormData, TestimonialTranslations, Language, RatingOption } from '@/types/testimonial';
 
 const translations: TestimonialTranslations = {
@@ -102,8 +102,8 @@ export const useTestimonial = () => {
     setSubmitting(true);
 
     try {
-      if (!firestore) {
-        console.error('Firestore not initialized');
+      if (!database) {
+        console.error('Database not initialized');
         setSubmitting(false);
         return;
       }
@@ -118,7 +118,7 @@ export const useTestimonial = () => {
         approved: false // Requires admin approval
       };
 
-      await addDoc(collection(firestore, 'testimonials'), testimonialData);
+      await push(ref(database, 'testimonials'), testimonialData);
       
       setSubmitted(true);
       setSubmitting(false);
@@ -154,17 +154,22 @@ export const useTestimonials = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firestore) {
+    if (!database) {
       setLoading(false);
       return;
     }
 
-    const testimonialsCollection = collection(firestore, 'testimonials');
-    const unsubscribe = onSnapshot(testimonialsCollection, (snapshot) => {
-      const testimonialsArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
-      // Sort by createdAt, newest first
-      testimonialsArray.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setTestimonials(testimonialsArray);
+    const testimonialsRef = ref(database, 'testimonials');
+    const unsubscribe = onValue(testimonialsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const testimonialsArray = Object.keys(data).map(key => ({ id: key, ...data[key] as any }));
+        // Sort by createdAt, newest first
+        testimonialsArray.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setTestimonials(testimonialsArray);
+      } else {
+        setTestimonials([]);
+      }
       setLoading(false);
     }, (error) => {
       console.error('Error fetching testimonials:', error);
@@ -179,28 +184,28 @@ export const useTestimonials = () => {
 
 export const useTestimonialActions = () => {
   const deleteTestimonial = useCallback(async (id: string) => {
-    if (!firestore) {
-      console.error('Firestore not initialized');
+    if (!database) {
+      console.error('Database not initialized');
       return;
     }
 
     try {
-      const testimonialDoc = doc(firestore, 'testimonials', id);
-      await deleteDoc(testimonialDoc);
+      const testimonialRef = ref(database, `testimonials/${id}`);
+      await remove(testimonialRef);
     } catch (error) {
       console.error('Error deleting testimonial:', error);
     }
   }, []);
 
   const updateTestimonial = useCallback(async (id: string, data: any) => {
-    if (!firestore) {
-      console.error('Firestore not initialized');
+    if (!database) {
+      console.error('Database not initialized');
       return;
     }
 
     try {
-      const testimonialDoc = doc(firestore, 'testimonials', id);
-      await updateDoc(testimonialDoc, data);
+      const testimonialRef = ref(database, `testimonials/${id}`);
+      await update(testimonialRef, data);
     } catch (error) {
       console.error('Error updating testimonial:', error);
     }
