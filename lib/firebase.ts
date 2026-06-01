@@ -4,23 +4,29 @@ import { getDatabase, Database, ref, set, get, update, onValue, push, remove } f
 import { getMessaging, Messaging } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || '',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || ''
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyCnK13W_RIhqg8HwLFAnpLXtXcuHUlPZWA',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'roktokorobi-ea822.firebaseapp.com',
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || 'https://roktokorobi-ea822-default-rtdb.firebaseio.com',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'roktokorobi-ea822',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'roktokorobi-ea822.firebasestorage.app',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '837825810640',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:837825810640:web:6fdb6fff7c44b8f3788ed5'
 };
+
+console.log('Environment variables check:');
+console.log('NEXT_PUBLIC_FIREBASE_API_KEY:', process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
+console.log('NEXT_PUBLIC_FIREBASE_PROJECT_ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let database: Database | null = null;
 let messaging: Messaging | null = null;
 
-if (typeof window !== 'undefined') {
+// Initialize Firebase
+const initializeFirebase = () => {
   try {
     // Check if Firebase is properly configured
+    console.log('Firebase config:', firebaseConfig);
     if (firebaseConfig.apiKey && firebaseConfig.projectId) {
       app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
       auth = getAuth(app);
@@ -33,12 +39,19 @@ if (typeof window !== 'undefined') {
           console.log('Messaging not supported in this environment');
         }
       }
+      console.log('Firebase initialized successfully');
     } else {
-      console.log('Firebase not configured - using demo mode');
+      console.log('Firebase not configured - missing API key or project ID');
+      console.log('API Key:', firebaseConfig.apiKey);
+      console.log('Project ID:', firebaseConfig.projectId);
     }
   } catch (error) {
     console.error('Firebase initialization error:', error);
   }
+};
+
+if (typeof window !== 'undefined') {
+  initializeFirebase();
 }
 
 // Auth helper functions
@@ -96,6 +109,15 @@ export const listAllDonors = async () => {
   if (!database) throw new Error('Database not initialized');
   const donorsRef = ref(database, 'donors');
   const snapshot = await get(donorsRef);
+  if (!snapshot.exists()) return [];
+  const data = snapshot.val();
+  return Object.keys(data).map(key => ({ id: key, ...data[key] }));
+};
+
+export const listAllHospitals = async () => {
+  if (!database) throw new Error('Database not initialized');
+  const hospitalsRef = ref(database, 'hospitals');
+  const snapshot = await get(hospitalsRef);
   if (!snapshot.exists()) return [];
   const data = snapshot.val();
   return Object.keys(data).map(key => ({ id: key, ...data[key] }));

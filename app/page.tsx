@@ -10,6 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
+import { listAllHospitals } from "@/lib/firebase";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -28,12 +29,7 @@ const SECTION_DATA = {
       desc: 'Discover articles, guides, and stories about blood donation.',
       more: 'Read More →',
       all: 'See All Posts',
-      posts: [
-        { date: 'October 20, 2024', title: 'Importance of Blood Donation', ex: 'Every blood donation can save up to three lives. Understanding why this matters is the first step toward becoming a hero.', tag: 'Health' },
-        { date: 'October 18, 2024', title: 'Hospital Blood Needs', ex: 'Blood demand is increasing in Bangladesh hospitals. Learn how you can help bridge the critical gap.', tag: 'News' },
-        { date: 'October 15, 2024', title: 'As a Volunteer', ex: 'How to volunteer for blood donation campaigns and make a real difference in your community.', tag: 'Community' },
-        { date: 'October 10, 2024', title: 'Understanding Blood Types', ex: 'A complete guide to blood type compatibility and why it matters for safe transfusions.', tag: 'Education' },
-      ],
+      posts: [],
     },
     bn: {
       lbl: 'ব্লগ',
@@ -42,12 +38,7 @@ const SECTION_DATA = {
       desc: 'রক্তদান সম্পর্কে নিবন্ধ, গাইড এবং গল্প আবিষ্কার করুন।',
       more: 'আরও পড়ুন →',
       all: 'সব পোস্ট দেখুন',
-      posts: [
-        { date: 'অক্টোবর ২০, ২০২৪', title: 'রক্তদানের গুরুত্ব', ex: 'প্রতিটি রক্তদান তিনটি জীবন বাঁচাতে পারে। এর গুরুত্ব বোঝা হিরো হওয়ার প্রথম ধাপ।', tag: 'স্বাস্থ্য' },
-        { date: 'অক্টোবর ১৮, ২০২৪', title: 'হাসপাতালে রক্তের প্রয়োজন', ex: 'বাংলাদেশের হাসপাতালগুলিতে রক্তের চাহিদা বাড়ছে। আপনি কীভাবে সাহায্য করতে পারেন জানুন।', tag: 'সংবাদ' },
-        { date: 'অক্টোবর ১৫, ২০২৪', title: 'স্বেচ্ছাসেবক হিসেবে', ex: 'রক্তদান ক্যাম্পেইনে স্বেচ্ছাসেবক হয়ে আপনার সম্প্রদায়ে প্রভাব ফেলুন।', tag: 'সম্প্রদায়' },
-        { date: 'অক্টোবর ১০, ২০২৪', title: 'রক্তের গ্রুপ বোঝা', ex: 'রক্তের গ্রুপ সামঞ্জস্যতা এবং নিরাপদ ট্রান্সফিউশনের জন্য এর গুরুত্বের সম্পূর্ণ গাইড।', tag: 'শিক্ষা' },
-      ],
+      posts: [],
     },
   },
   gallery: {
@@ -57,12 +48,7 @@ const SECTION_DATA = {
       t2: 'Gallery',
       desc: 'Artwork by our community, created in the spirit of saving lives.',
       all: 'View Full Gallery',
-      arts: [
-        { id: 1, num: "01", numEn: "01", title: "Blood Bond", titleBn: "রক্তের বন্ধন", author: "Rahim", authorBn: "রহিম", quote: "Blood donation creates lasting bonds between people.", quoteEn: "রক্তদান মানুষের মধ্যে\nচিরস্থায়ী বন্ধন তৈরি করে।", c1: "#7a0e1c", c2: "#2a0407", c3: "#b01a2a" },
-        { id: 2, num: "02", numEn: "02", title: "Gift of Life", titleBn: "জীবনের উপহার", author: "Sara", authorBn: "সারা", quote: "Blood donation is the most profound way to give life.", quoteEn: "রক্তদান জীবন দেওয়ার\nসবচেয়ে গভীর উপায়।", c1: "#5c0f20", c2: "#150208", c3: "#8b1535" },
-        { id: 3, num: "03", numEn: "03", title: "Light of Hope", titleBn: "আশার আলো", author: "Kamal", authorBn: "কামাল", quote: "Every donor is a light of hope for someone in the dark.", quoteEn: "প্রতিটি দাতা অন্ধকারে\nকারো আশার আলো।", c1: "#8b1010", c2: "#1d0505", c3: "#c01818" },
-        { id: 4, num: "04", numEn: "04", title: "River of Life", titleBn: "জীবনের নদী", author: "Nadia", authorBn: "নাদিয়া", quote: "Like a river, generosity keeps life going.", quoteEn: "উদারতা জীবনকে\nপ্রবহমান রাখে।", c1: "#6b1018", c2: "#100205", c3: "#9b1525" },
-      ],
+      arts: [],
     },
     bn: {
       lbl: 'চিত্রকথন',
@@ -70,12 +56,7 @@ const SECTION_DATA = {
       t2: 'গ্যালারি',
       desc: 'জীবন বাঁচানোর আত্মায় তৈরি আমাদের সম্প্রদায়ের শিল্পকর্ম।',
       all: 'সম্পূর্ণ গ্যালারি দেখুন',
-      arts: [
-        { id: 1, num: "০১", numEn: "01", title: "রক্তের বন্ধন", titleBn: "Blood Bond", author: "রহিম", authorBn: "Rahim", quote: "রক্তদান মানুষের মধ্যে\nচিরস্থায়ী বন্ধন তৈরি করে।", quoteEn: "Blood donation creates lasting bonds between people.", c1: "#7a0e1c", c2: "#2a0407", c3: "#b01a2a" },
-        { id: 2, num: "০২", numEn: "02", title: "জীবনের উপহার", titleBn: "Gift of Life", author: "সারা", authorBn: "Sara", quote: "রক্তদান জীবন দেওয়ার\nসবচেয়ে গভীর উপায়।", quoteEn: "Blood donation is the most profound way to give life.", c1: "#5c0f20", c2: "#150208", c3: "#8b1535" },
-        { id: 3, num: "০৩", numEn: "03", title: "আশার আলো", titleBn: "Light of Hope", author: "কামাল", authorBn: "Kamal", quote: "প্রতিটি দাতা অন্ধকারে\nকারো আশার আলো।", quoteEn: "Every donor is a light of hope for someone in the dark.", c1: "#8b1010", c2: "#1d0505", c3: "#c01818" },
-        { id: 4, num: "০৪", numEn: "04", title: "জীবনের নদী", titleBn: "River of Life", author: "নাদিয়া", authorBn: "Nadia", quote: "উদারতা জীবনকে\nপ্রবহমান রাখে।", quoteEn: "Like a river, generosity keeps life going.", c1: "#6b1018", c2: "#100205", c3: "#9b1525" },
-      ],
+      arts: [],
     },
   },
   testimonials: {
@@ -87,14 +68,11 @@ const SECTION_DATA = {
       seeAll: 'See All Stories →',
       shareCta: 'Share Your Story',
       stats: [
-        { n: '500+', l: 'Donors' },
-        { n: '200+', l: 'Lives Saved' },
-        { n: '50+', l: 'Stories' },
+        { n: '0', l: 'Donors' },
+        { n: '0', l: 'Lives Saved' },
+        { n: '0', l: 'Stories' },
       ],
-      stories: [
-        { ini: 'A', name: 'Aminul Islam', role: 'Regular Donor', q: 'I feel proud after donating blood. It is the easiest way to save lives. RoktoKorobi made it incredibly simple to find where I am needed.', badge: '12 Donations', c: '#8B1A1A' },
-        { ini: 'S', name: 'Salma Begum', role: 'Patient Family', q: 'My mother needed blood during surgery. We found a donor within hours through RoktoKorobi. This platform is a true lifesaver.', badge: 'Grateful', c: '#C41E3A' },
-      ],
+      stories: [],
     },
     bn: {
       lbl: 'সাক্ষ্য',
@@ -104,14 +82,11 @@ const SECTION_DATA = {
       seeAll: 'সব গল্প দেখুন →',
       shareCta: 'আপনার গল্প শেয়ার করুন',
       stats: [
-        { n: '৫০০+', l: 'দাতা' },
-        { n: '২০০+', l: 'জীবন বাঁচানো হয়েছে' },
-        { n: '৫০+', l: 'গল্প' },
+        { n: '০', l: 'দাতা' },
+        { n: '০', l: 'জীবন বাঁচানো হয়েছে' },
+        { n: '০', l: 'গল্প' },
       ],
-      stories: [
-        { ini: 'আ', name: 'আমিনুল ইসলাম', role: 'নিয়মিত রক্তদাতা', q: 'রক্তদান করে আমি অনেক গর্বিক বোধ করি। এটি জীবন বাঁচানোর সবচেয়ে সহজ উপায়। রক্তকরবী আমাকে যেখানে প্রয়োজন সেখানে খুঁজে পেতে অবিশ্বাস্যভাবে সহজ করেছে।', badge: '১২ বার দান', c: '#8B1A1A' },
-        { ini: 'স', name: 'সালমা বেগম', role: 'রোগীর স্বজন', q: 'আমার মায়ের অপারেশনের সময় রক্তের প্রয়োজন ছিল। আমরা রক্তকরবীর মাধ্যমে কয়েক ঘণ্টার মধ্যে দাতা পেয়েছি। এই প্ল্যাটফর্ম সত্যিই জীবনরক্ষক।', badge: 'কৃতজ্ঞ', c: '#C41E3A' },
-      ],
+      stories: [],
     },
   },
 };
@@ -165,27 +140,13 @@ export default function Home() {
   const [eligResult, setEligResult] = useState<{ eligible: boolean; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
+  const [hospitals, setHospitals] = useState<any[]>([]);
 
-  // Mock donor data with Bangladesh locations
-  const mockDonors = [
-    { id: 1, name: 'মোঃ রহিম', bloodGroup: 'A+', location: 'ঢাকা মেডিকেল', lat: 23.7104, lng: 90.4074, available: true, phone: '0171-1234567' },
-    { id: 2, name: 'সারা আক্তার', bloodGroup: 'O+', location: 'বঙ্গবন্ধু হাসপাতাল', lat: 23.7104, lng: 90.4074, available: true, phone: '0181-2345678' },
-    { id: 3, name: 'কামাল হোসেন', bloodGroup: 'B+', location: 'শিশু হাসপাতাল', lat: 23.7104, lng: 90.4074, available: false, phone: '0191-3456789' },
-    { id: 4, name: 'ফারজানা', bloodGroup: 'AB+', location: 'স্যার সলিমুল্লাহ', lat: 23.7104, lng: 90.4074, available: true, phone: '0151-4567890' },
-    { id: 5, name: 'জামিল', bloodGroup: 'A-', location: 'ঢাকা মেডিকেল', lat: 23.7104, lng: 90.4074, available: true, phone: '0161-5678901' },
-    { id: 6, name: 'আনিসুর', bloodGroup: 'O-', location: 'চট্টগ্রাম মেডিকেল', lat: 22.3569, lng: 91.7832, available: true, phone: '0171-2345671' },
-    { id: 7, name: 'নাজমা', bloodGroup: 'B-', location: 'রাজশাহী মেডিকেল', lat: 24.3636, lng: 88.6241, available: false, phone: '0181-3456721' },
-    { id: 8, name: 'সোহেল', bloodGroup: 'AB-', location: 'খুলনা মেডিকেল', lat: 22.8456, lng: 89.5403, available: true, phone: '0191-4567123' }
-  ];
+  // Mock donor data with Bangladesh locations - removed, using Firebase instead
+  const mockDonors: any[] = [];
 
-  // Mock hospital data
-  const mockHospitals = [
-    { id: 1, name: 'ঢাকা মেডিকেল কলেজ হাসপাতাল', lat: 23.7104, lng: 90.4074, emergency: true, bloodNeeded: 'A+' },
-    { id: 2, name: 'বঙ্গবন্ধু শেখ মুজিব মেডিকেল বিশ্ববিদ্যালয়', lat: 23.7104, lng: 90.4074, emergency: true, bloodNeeded: 'O+' },
-    { id: 3, name: 'শিশু হাসপাতাল', lat: 23.7104, lng: 90.4074, emergency: false, bloodNeeded: 'B+' },
-    { id: 4, name: 'চট্টগ্রাম মেডিকেল কলেজ হাসপাতাল', lat: 22.3569, lng: 91.7832, emergency: false, bloodNeeded: null },
-    { id: 5, name: 'রাজশাহী মেডিকেল কলেজ হাসপাতাল', lat: 24.3636, lng: 88.6241, emergency: false, bloodNeeded: null }
-  ];
+  // Mock hospital data - removed, using Firebase instead
+  const mockHospitals: any[] = [];
 
   useEffect(() => {
     setMounted(true);
@@ -195,6 +156,19 @@ export default function Home() {
     // Check authentication status
     const loginStatus = localStorage.getItem('isLoggedIn');
     setIsLoggedIn(loginStatus === 'true');
+
+    // Fetch hospitals from Firebase
+    const fetchHospitals = async () => {
+      try {
+        const hospitalsData = await listAllHospitals();
+        setHospitals(hospitalsData);
+      } catch (error) {
+        console.log('Error fetching hospitals:', error);
+        setHospitals([]);
+      }
+    };
+
+    fetchHospitals();
   }, []);
 
   const handleBloodTypeSelect = (type: string) => {
@@ -448,7 +422,7 @@ export default function Home() {
           border-radius: 18px;
           padding: 36px 36px 32px;
           overflow: hidden;
-          margin: 40px auto 56px;
+          margin: 60px auto 56px;
           max-width: 580px;
         }
 
@@ -1063,15 +1037,15 @@ export default function Home() {
 
         <div className="stats">
           <div className="stat">
-            <div className="stat-num">{language === 'bn' ? '15420' : '15,420'}</div>
+            <div className="stat-num">{language === 'bn' ? '১' : '1'}</div>
             <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
           </div>
           <div className="stat">
-            <div className="stat-num">{language === 'bn' ? '8934' : '8,934'}</div>
+            <div className="stat-num">{language === 'bn' ? '০' : '0'}</div>
             <div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div>
           </div>
           <div className="stat">
-            <div className="stat-num">127</div>
+            <div className="stat-num">{language === 'bn' ? '০' : '0'}</div>
             <div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div>
           </div>
         </div>
@@ -1318,13 +1292,13 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="elig-layout grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             <div className="elig-left reveal space-y-6">
-              <div className="s-label">
-                <div className="s-label-line"></div>
-                <span className="s-label-text">{language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}</span>
+              <div className="section-label">
+                <span className="label-red">{language === 'bn' ? 'যাচাই করুন' : 'CHECK'}</span>
+                <span className="label-black">{language === 'bn' ? 'যোগ্যতা' : 'ELIGIBILITY'}</span>
               </div>
-              <h2 className="s-title text-2xl lg:text-3xl font-bold">
-                {language === 'bn' ? 'রক্তদানের' : 'Blood Donation'}
-                <span className="accent">{language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}</span>
+              <h2 className="section-heading">
+                {language === 'bn' ? 'রক্তদান ' : 'Blood Donation '}
+                <span className="heading-red">{language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}</span>
               </h2>
               <p className="s-desc text-lg">
                 {language === 'bn'
@@ -1359,28 +1333,34 @@ export default function Home() {
               <div className="sc-title text-xl font-bold mb-6">{language === 'bn' ? 'যোগ্যতা পরীক্ষা করুন' : 'Check Eligibility'}</div>
               <div className="form-row space-y-4">
                 <div>
-                  <label className="form-label block text-sm font-medium mb-2">{language === 'bn' ? 'আপনার বয়স' : 'Your Age'}</label>
-                  <input 
-                    type="number" 
-                    className="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" 
-                    placeholder={language === 'bn' ? 'বছরে' : 'In years'} 
+                  <label className="form-label block text-sm font-medium mb-2" htmlFor="age">{language === 'bn' ? 'আপনার বয়স' : 'Your Age'}</label>
+                  <input
+                    id="age"
+                    name="age"
+                    type="number"
+                    className="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder={language === 'bn' ? 'যেমন: ২৫' : 'e.g. 25'}
                     value={eligAge}
                     onChange={(e) => setEligAge(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="form-label block text-sm font-medium mb-2">{language === 'bn' ? 'আপনার ওজন' : 'Your Weight'}</label>
-                  <input 
-                    type="number" 
-                    className="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" 
-                    placeholder={language === 'bn' ? 'কেজিতে' : 'In kg'} 
+                  <label className="form-label block text-sm font-medium mb-2" htmlFor="weight">{language === 'bn' ? 'আপনার ওজন' : 'Your Weight'}</label>
+                  <input
+                    id="weight"
+                    name="weight"
+                    type="number"
+                    className="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder={language === 'bn' ? 'যেমন: ৬০' : 'e.g. 60'}
                     value={eligWeight}
                     onChange={(e) => setEligWeight(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="form-label block text-sm font-medium mb-2">{language === 'bn' ? 'স্বাস্থ্য অবস্থা' : 'Health Status'}</label>
-                  <select 
+                  <label className="form-label block text-sm font-medium mb-2" htmlFor="healthStatus">{language === 'bn' ? 'স্বাস্থ্যের অবস্থা' : 'Health Status'}</label>
+                  <select
+                    id="healthStatus"
+                    name="healthStatus"
                     className="form-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     value={eligHealth}
                     onChange={(e) => setEligHealth(e.target.value)}
@@ -1390,7 +1370,7 @@ export default function Home() {
                     <option value="unhealthy">{language === 'bn' ? 'অসুস্থ আছি' : 'I am unhealthy'}</option>
                   </select>
                 </div>
-                <button 
+                <button
                   type="button"
                   onClick={handleEligibilityCheck}
                   disabled={isCheckingEligibility}
@@ -1399,7 +1379,6 @@ export default function Home() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '12px',
                     width: '100%',
                     backgroundColor: '#BE1528',
                     color: '#ffffff',
@@ -1414,13 +1393,9 @@ export default function Home() {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.filter = 'brightness(0.88)';
-                    const arrowBox = e.currentTarget.querySelector('.arrow-box') as HTMLElement;
-                    if (arrowBox) arrowBox.style.transform = 'translateX(4px)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.filter = 'none';
-                    const arrowBox = e.currentTarget.querySelector('.arrow-box') as HTMLElement;
-                    if (arrowBox) arrowBox.style.transform = 'translateX(0)';
                   }}
                   onMouseDown={(e) => {
                     e.currentTarget.style.transform = 'scale(0.97)';
@@ -1432,7 +1407,7 @@ export default function Home() {
                   {isCheckingEligibility ? (
                     <>
                       <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}</span>
-                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '12px' }}>
                         <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -1440,54 +1415,60 @@ export default function Home() {
                       </div>
                     </>
                   ) : (
-                    <>
-                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'যোগ্যতা যাচাই করুন' : 'Check Eligibility'}</span>
-                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M5 12h14M13 6l6 6-6 6"/>
-                        </svg>
-                      </div>
-                    </>
+                    <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'যোগ্যতা যাচাই করুন →' : 'Check Eligibility →'}</span>
                   )}
                 </button>
                 {eligResult && (
-                  <div className={`mt-6 p-6 rounded-xl border-2 ${
+                  <div className={`mt-6 p-6 rounded-xl border-2 flex flex-col items-center text-center ${
                     eligResult.eligible 
                       ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300' 
                       : 'bg-gradient-to-br from-red-50 to-rose-50 border-red-300'
                   }`}>
-                    <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                        eligResult.eligible 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-red-500 text-white'
-                      }`}>
-                        {eligResult.eligible ? (
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        ) : (
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className={`text-lg font-bold ${
-                          eligResult.eligible 
-                            ? 'text-green-800' 
-                            : 'text-red-800'
-                        }`}>
-                          {eligResult.message}
-                        </h4>
-                        {eligResult.eligible && (
-                          <p className="text-green-700 mt-2">{language === 'bn' ? 'আপনি রক্তদান করতে পারেন। নিবন্ধন করুন।' : 'You can donate blood. Register now.'}</p>
-                        )}
-                        {!eligResult.eligible && (
-                          <p className="text-red-700 mt-2 text-sm">{language === 'bn' ? 'দয়া করে উপরের মানদণ্ডগুলি পূরণ করুন এবং আবার চেষ্টা করুন।' : 'Please meet the above criteria and try again.'}</p>
-                        )}
-                      </div>
+                    {/* Compact 48px circular badge */}
+                    <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
+                      eligResult.eligible 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-red-500 text-white'
+                    }`}>
+                      {eligResult.eligible ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
                     </div>
+                    {/* Bold message */}
+                    <h4 className={`text-lg font-bold mb-2 ${
+                      eligResult.eligible 
+                        ? 'text-green-800' 
+                        : 'text-red-800'
+                    }`}>
+                      {eligResult.message}
+                    </h4>
+                    {/* Muted description */}
+                    {eligResult.eligible && (
+                      <p className="text-green-700 mb-4 text-sm">{language === 'bn' ? 'আপনি রক্তদান করতে পারেন। নিবন্ধন করুন।' : 'You can donate blood. Register now.'}</p>
+                    )}
+                    {!eligResult.eligible && (
+                      <p className="text-red-700 mb-4 text-sm">{language === 'bn' ? 'দয়া করে উপরের মানদণ্ডগুলি পূরণ করুন এবং আবার চেষ্টা করুন।' : 'Please meet the above criteria and try again.'}</p>
+                    )}
+                    {/* Try Again button */}
+                    {!eligResult.eligible && (
+                      <button
+                        onClick={() => {
+                          setEligResult(null);
+                          setEligAge('');
+                          setEligWeight('');
+                          setEligHealth('');
+                        }}
+                        className="px-6 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+                      >
+                        {language === 'bn' ? 'আবার চেষ্টা করুন' : 'Try Again'}
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -1500,17 +1481,16 @@ export default function Home() {
       <section className="map-section py-16 lg:py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="map-header reveal text-center mb-12 lg:mb-16">
-            <div className="s-label">
-              <div className="s-label-line"></div>
-              <span className="s-label-text">{language === 'bn' ? 'লাইভ মানচিত্র' : 'Live Map'}</span>
+            <div className="section-label">
+              <span className="label-red">{language === 'bn' ? 'লাইভ' : 'LIVE'}</span>
+              <span className="label-black">{language === 'bn' ? 'ম্যাপ' : 'MAP'}</span>
             </div>
-            <h2 className="s-title text-3xl lg:text-4xl font-bold mb-4">
-              {language === 'bn' ? 'রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'}{" "}
-              <span className="accent">{language === 'bn' ? 'মানচিত্রে' : 'on Map'}</span>
+            <h2 className="section-heading">
+              {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals on Map'}
             </h2>
             <p className="s-desc text-lg max-w-3xl mx-auto">
               {language === 'bn'
-                ? 'বাংলাদেশের সব জেলায় রক্তদাতা এবং হাসপাতালের অবস্থান দেখুন।'
+                ? 'বাংলাদেশের সকল জেলায় রক্তদাতা ও হাসপাতালের অবস্থান দেখুন।'
                 : 'View blood donors and hospital locations across all districts of Bangladesh.'}
             </p>
           </div>
@@ -1519,16 +1499,8 @@ export default function Home() {
               <BangladeshMap
                 center={{ lat: 23.6850, lng: 90.3563 }}
                 zoom={7}
-                donors={[
-                  { id: 1, name: 'মোঃ রহিম', bloodGroup: 'A+', location: 'ঢাকা মেডিকেল', lat: 23.7104, lng: 90.4074, available: true, phone: '0171-1234567' },
-                  { id: 2, name: 'সারা আক্তার', bloodGroup: 'O+', location: 'বঙ্গবন্ধু হাসপাতাল', lat: 23.7104, lng: 90.4074, available: true, phone: '0181-2345678' },
-                  { id: 3, name: 'কামাল হোসেন', bloodGroup: 'B+', location: 'শিশু হাসপাতাল', lat: 23.7104, lng: 90.4074, available: false, phone: '0191-3456789' }
-                ]}
-                hospitals={[
-                  { id: 1, name: 'ঢাকা মেডিকেল কলেজ হাসপাতাল', lat: 23.7104, lng: 90.4074, emergency: true, bloodNeeded: 'A+' },
-                  { id: 2, name: 'বঙ্গবন্ধু শেখ মুজিব মেডিকেল বিশ্ববিদ্যালয়', lat: 23.7104, lng: 90.4074, emergency: true, bloodNeeded: 'O+' },
-                  { id: 3, name: 'শিশু হাসপাতাল', lat: 23.7104, lng: 90.4074, emergency: false, bloodNeeded: 'B+' }
-                ]}
+                donors={[]}
+                hospitals={hospitals.length > 0 ? hospitals : []}
               />
             </MapErrorBoundary>
           </div>

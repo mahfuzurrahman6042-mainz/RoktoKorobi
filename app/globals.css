@@ -195,6 +195,14 @@ button, a {
     transform: none;
   }
   
+  .nav-logo-text {
+    font-size: 18px !important;
+  }
+  
+  .nav-logo-sub {
+    font-size: 9px !important;
+  }
+  
   .leaflet-container {
     min-height: 200px;
   }
@@ -346,6 +354,14 @@ button, a {
   .nav-logo {
     position: static;
     transform: none;
+  }
+  
+  .nav-logo-text {
+    font-size: 20px !important;
+  }
+  
+  .nav-logo-sub {
+    font-size: 9px !important;
   }
   
   .leaflet-container {
@@ -1402,6 +1418,42 @@ nav.solid {
 .hero-title-outline {
   -webkit-text-stroke:2px var(--ink);
   color:transparent; display:block;
+}
+
+/* Section Heading Formula */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.section-label::before,
+.section-label::after {
+  content: '——';
+  font-size: 9px;
+  color: #999999;
+}
+.section-label .label-red {
+  color: #C0392B;
+}
+.section-label .label-black {
+  color: #1a1a1a;
+}
+.section-heading {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.1;
+  margin: 0;
+}
+.section-heading .heading-red {
+  font-style: italic;
+  font-weight: 400;
+  color: #C0392B;
 }
 .hero-subtitle {
   font-family:'Tiro Bangla', serif;

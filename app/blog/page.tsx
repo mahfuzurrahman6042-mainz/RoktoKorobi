@@ -131,27 +131,13 @@ const DATA = {
     lbl:'BLOG', t1:'Latest', t2:'Posts',
     desc:'Discover articles, guides, and stories about blood donation.',
     more:'Read More →', back:'← Back', all:'See All Posts',
-    posts:[
-      { date:'October 20, 2024',   title:'Importance of Blood Donation', ex:'Every blood donation can save up to three lives. Understanding why this matters is the first step toward becoming a hero.',  tag:'Health'    },
-      { date:'October 18, 2024',   title:'Hospital Blood Needs',         ex:'Blood demand is increasing in Bangladesh hospitals. Learn how you can help bridge the critical gap.',                       tag:'News'      },
-      { date:'October 15, 2024',   title:'As a Volunteer',               ex:'How to volunteer for blood donation campaigns and make a real, lasting difference in your community.',                     tag:'Community' },
-      { date:'October 10, 2024',   title:'Understanding Blood Types',    ex:'A complete guide to blood type compatibility and why it matters for safe, life-saving transfusions.',                      tag:'Education' },
-      { date:'October 5, 2024',    title:'Post-Donation Care',           ex:'Essential tips for a healthy recovery after giving blood — what to eat, drink, and avoid.',                               tag:'Health'    },
-      { date:'September 28, 2024', title:'Youth in Blood Donation',      ex:'How young Bangladeshis are leading the charge in saving lives across the country.',                                       tag:'Community' },
-    ],
+    posts:[],
   },
   bn: {
     lbl:'ব্লগ', t1:'সর্বশেষ', t2:'পোস্ট',
     desc:'রক্তদান বিষয়ক নিবন্ধ, গাইড ও গল্প আবিষ্কার করুন।',
     more:'আরও পড়ুন →', back:'← ফিরুন', all:'সব পোস্ট দেখুন',
-    posts:[
-      { date:'২০ অক্টোবর, ২০২৪',    title:'রক্তদানের গুরুত্ব',        ex:'প্রতিটি রক্তদান তিনটি পর্যন্ত জীবন বাঁচাতে পারে। কেন এটি গুরুত্বপূর্ণ তা বোঝাটাই প্রথম পদক্ষেপ।', tag:'স্বাস্থ্য'  },
-      { date:'১৮ অক্টোবর, ২০২৪',    title:'হাসপাতালে রক্তের চাহিদা',  ex:'বাংলাদেশের হাসপাতালে রক্তের চাহিদা বাড়ছে। কীভাবে আপনি এই গুরুত্বপূর্ণ ব্যবধান পূরণ করতে পারেন।', tag:'সংবাদ'    },
-      { date:'১৫ অক্টোবর, ২০২৪',    title:'স্বেচ্ছাসেবক হিসেবে',      ex:'রক্তদান ক্যাম্পেইনে স্বেচ্ছাসেবী হওয়ার উপায় এবং আপনার সম্প্রদায়ে স্থায়ী পার্থক্য আনার সুযোগ।', tag:'সম্প্রদায়'},
-      { date:'১০ অক্টোবর, ২০২৪',    title:'রক্তের গ্রুপ বোঝা',         ex:'রক্তের ধরনের সামঞ্জস্যতা এবং নিরাপদ রক্ত সঞ্চালনের জন্য কেন এটি গুরুত্বপূর্ণ তার সম্পূর্ণ গাইড।',  tag:'শিক্ষা'   },
-      { date:'৫ অক্টোবর, ২০২৪',     title:'দান পরবর্তী যত্ন',           ex:'রক্ত দেওয়ার পরে সুস্থ থাকার জরুরি টিপস — কী খাবেন, পান করবেন এবং কী এড়িয়ে চলবেন।',               tag:'স্বাস্থ্য'  },
-      { date:'২৮ সেপ্টেম্বর, ২০২৪', title:'রক্তদানে তরুণ প্রজন্ম',    ex:'কীভাবে বাংলাদেশের তরুণরা সারা দেশে জীবন বাঁচানোর নেতৃত্ব দিচ্ছে।',                                    tag:'সম্প্রদায়'},
-    ],
+    posts:[],
   },
 };
 

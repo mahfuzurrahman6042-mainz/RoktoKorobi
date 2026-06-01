@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTestimonials, useTestimonialActions } from "@/hooks/useTestimonial";
 import { getAuth } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -91,31 +92,17 @@ const DATA = {
     lbl:'TESTIMONIALS', t1:'RoktoKorobi', t2:'Experience',
     desc:'Real, moving stories from donors and patients touched by the gift of blood.',
     back:'← Back', seeAll:'See All Stories →',
-    stats:[{n:'500+',l:'Donors'},{n:'200+',l:'Lives Saved'},{n:'50+',l:'Stories'}],
+    stats:[{n:'0',l:'Donors'},{n:'0',l:'Lives Saved'},{n:'0',l:'Stories'}],
     shareCta:'Share Your Story',
-    stories:[
-      { ini:'A', name:'Aminul Islam',   role:'Regular Donor',  q:'I feel proud after donating blood. It is the easiest way to save lives. RoktoKorobi made it incredibly simple to find where I am needed.',  badge:'12 Donations',    c:CR       },
-      { ini:'S', name:'Salma Begum',    role:'Patient Family', q:'My mother needed blood during surgery. We found a donor within hours through RoktoKorobi. This platform is a true lifesaver.',              badge:'Grateful Family', c:LCR      },
-      { ini:'R', name:'Rajib Hossain', role:'New Donor',      q:'I was nervous donating for the first time, but felt incredible afterwards. I am already planning my next visit.',                           badge:'1st Donation',    c:'#6B1515' },
-      { ini:'F', name:'Fatema Akter',  role:'Regular Donor',  q:'Donating blood is my way of giving back. RoktoKorobi makes it so easy to find exactly where I am needed most.',                            badge:'8 Donations',     c:'#A02020' },
-      { ini:'K', name:'Karim Uddin',   role:'Patient',        q:'I was in a critical condition. RoktoKorobi connected me with a donor within hours. I owe my life to this platform.',                       badge:'Life Saved',      c:'#D04040' },
-      { ini:'N', name:'Nasreen Jahan', role:'Volunteer',      q:'I have seen RoktoKorobi bridge the gap between donors and patients countless times. It is truly inspiring work.',                           badge:'50+ Helped',      c:'#8B3A3A' },
-    ],
+    stories:[],
   },
   bn: {
     lbl:'অভিজ্ঞতা', t1:'রক্তকরবী', t2:'অভিজ্ঞতা',
     desc:'দাতা ও রোগীদের হৃদয়ছোঁয়া সত্যিকারের গল্প যারা রক্তের উপহার দ্বারা ছুঁয়ে গেছেন।',
     back:'← ফিরুন', seeAll:'সব গল্প দেখুন →',
-    stats:[{n:'৫০০+',l:'দাতা'},{n:'২০০+',l:'জীবন রক্ষা'},{n:'৫০+',l:'গল্প'}],
+    stats:[{n:'০',l:'দাতা'},{n:'০',l:'জীবন রক্ষা'},{n:'০',l:'গল্প'}],
     shareCta:'আপনার গল্প শেয়ার করুন',
-    stories:[
-      { ini:'আ', name:'আমিনুল ইসলাম',  role:'নিয়মিত দাতা',   q:'রক্ত দেওয়ার পরে আমি গর্ববোধ করি। এটি জীবন বাঁচানোর সবচেয়ে সহজ উপায়। রক্তকরবী সহজ করে দিয়েছে।',                   badge:'১২টি দান',      c:CR       },
-      { ini:'স', name:'সালমা বেগম',    role:'রোগীর পরিবার',  q:'অস্ত্রোপচারের সময় আমার মায়ের রক্তের প্রয়োজন ছিল। রক্তকরবীর মাধ্যমে আমরা কয়েক ঘণ্টায় দাতা পেয়েছিলাম।',              badge:'কৃতজ্ঞ পরিবার', c:LCR      },
-      { ini:'র', name:'রাজিব হোসেন',  role:'নতুন দাতা',      q:'প্রথমবার নার্ভাস ছিলাম, কিন্তু পরে অসাধারণ লেগেছিল। পরের দানের জন্য ইতিমধ্যে পরিকল্পনা করছি।',                          badge:'প্রথম দান',    c:'#6B1515' },
-      { ini:'ফ', name:'ফাতেমা আক্তার',role:'নিয়মিত দাতা',   q:'রক্তদান আমার সম্প্রদায়কে ফিরিয়ে দেওয়ার উপায়। রক্তকরবী আমার যেখানে দরকার সেখানে খুঁজে পেতে সহজ করে দেয়।',           badge:'৮টি দান',      c:'#A02020' },
-      { ini:'ক', name:'করিম উদ্দিন',  role:'রোগী',           q:'আমি সংকটজনক অবস্থায় ছিলাম। রক্তকরবী কয়েক ঘণ্টায় দাতার সাথে সংযুক্ত করেছিল। আমি এই প্ল্যাটফর্মের কাছে জীবন ঋণী।',  badge:'জীবন রক্ষা',  c:'#D04040' },
-      { ini:'ন', name:'নাসরিন জাহান', role:'স্বেচ্ছাসেবক',  q:'আমি দেখেছি রক্তকরবী অগণিতবার দাতা ও রোগীদের মধ্যে সেতুবন্ধন করেছে। সত্যিই অনুপ্রেরণামূলক।',                              badge:'৫০+ সাহায্য', c:'#8B3A3A' },
-    ],
+    stories:[],
   },
 };
 
@@ -218,8 +205,9 @@ export default function TestimonialsPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { testimonials, loading } = useTestimonials();
   const { deleteTestimonial } = useTestimonialActions();
+  const router = useRouter();
   const d = DATA[lang];
-  const bf = lang === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
+  const bf = lang === 'bn' ? `'Noto Serif Bengali', sans-serif` : `'DM Sans', sans-serif`;
 
   useEffect(() => {
     const unsubscribe = auth?.onAuthStateChanged((user) => {
@@ -239,20 +227,24 @@ export default function TestimonialsPage() {
     console.log('Edit testimonial:', testimonial);
   };
 
-  // Combine static stories with user-submitted testimonials
-  const allStories = [
-    ...d.stories.map((s, i) => ({ ...s, isStatic: true, id: `static-${i}`, email: null })),
-    ...testimonials.filter(t => t.approved).map((t, i) => ({
-      ini: t.name.charAt(0).toUpperCase(),
-      name: t.name,
-      role: 'Donor',
-      q: t.testimonial,
-      badge: `${t.rating} Stars`,
-      c: CR,
-      id: t.id,
-      email: t.email,
-      isStatic: false
-    }))
+  // Only show user-submitted testimonials
+  const allStories = testimonials.filter(t => t.approved).map((t, i) => ({
+    ini: t.name.charAt(0).toUpperCase(),
+    name: t.name,
+    role: 'Donor',
+    q: t.testimonial,
+    badge: `${t.rating} Stars`,
+    c: CR,
+    id: t.id,
+    email: t.email,
+    isStatic: false
+  }));
+
+  // Dynamic stats based on real data
+  const dynamicStats = [
+    { n: allStories.length.toString(), l: lang === 'bn' ? 'গল্প' : 'Stories' },
+    { n: '0', l: lang === 'bn' ? 'দাতা' : 'Donors' },
+    { n: '0', l: lang === 'bn' ? 'জীবন রক্ষা' : 'Lives Saved' }
   ];
 
   return (
@@ -260,9 +252,9 @@ export default function TestimonialsPage() {
       <style dangerouslySetInnerHTML={{ __html: CSS }}/>
       <div className="pi">
         <PageHero
-          bg="linear-gradient(155deg,#0A0202 0%,#180707 55%,#200909 100%)"
+          bg="linear-gradient(155deg,#4A0A0A 0%,#6B1010 55%,#8B1A1A 100%)"
           label={d.lbl} t1={d.t1} t2={d.t2} desc={d.desc} back={d.back}
-          stats={d.stats}
+          stats={dynamicStats}
         />
         <div style={{ background:'white',minHeight:'55vh' }}>
           <div style={{ maxWidth:1100,margin:'0 auto',padding:'48px 24px' }}>
@@ -295,10 +287,11 @@ export default function TestimonialsPage() {
 
             {/* Share CTA */}
             <div style={{ marginTop:56,padding:'52px 40px',
-              background:'linear-gradient(155deg,#0A0202,#180707)',
+              background:'linear-gradient(155deg,#4A0A0A,#6B1010)',
               borderRadius:22,position:'relative',overflow:'hidden',textAlign:'center' }}>
               <div style={{ position:'absolute',inset:0,
-                background:'radial-gradient(ellipse at 50% 115%,rgba(196,30,58,0.2),transparent 65%)' }}/>
+                background:'radial-gradient(ellipse at 50% 115%,rgba(196,30,58,0.2),transparent 65%)',
+                pointerEvents:'none' }}/>
               <div className="throb" style={{ fontSize:34,marginBottom:16 }}>❤️</div>
               <h3 style={{ fontFamily:HF,fontSize:26,fontWeight:900,color:'white',marginBottom:10 }}>
                 Have a Story to Share?
@@ -306,11 +299,13 @@ export default function TestimonialsPage() {
               <p style={{ color:'rgba(255,200,200,0.55)',fontSize:13,marginBottom:28 }}>
                 Your experience could inspire others to donate and save lives.
               </p>
-              <Link href="/share-testimonial" className="cb"
+              <button
+                onClick={() => router.push('/share-testimonial')}
+                className="cb"
                 style={{ background:CR,color:'white',padding:'13px 50px',borderRadius:30,
                   fontSize:12,fontWeight:700,letterSpacing:'0.08em',
                   boxShadow:'0 8px 30px rgba(139,26,26,0.52)',border:'none',cursor:'pointer',
-                  transition:'all 0.25s ease',textDecoration:'none',display:'inline-block' }}
+                  transition:'all 0.25s ease',textDecoration:'none',display:'inline-block',position:'relative',zIndex:1 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 12px 40px rgba(139,26,26,0.65)';
@@ -320,7 +315,7 @@ export default function TestimonialsPage() {
                   e.currentTarget.style.boxShadow = '0 8px 30px rgba(139,26,26,0.52)';
                 }}>
                 {d.shareCta}
-              </Link>
+              </button>
             </div>
           </div>
         </div>

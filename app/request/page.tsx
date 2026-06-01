@@ -56,6 +56,13 @@ export default function BloodRequest() {
       
       const requestRef = ref(database, `bloodRequests/${requestId}`);
       await update(requestRef, { fulfilled: true, status: 'fulfilled' });
+      
+      // Update local stats immediately
+      setStats(prev => ({
+        ...prev,
+        fulfilledRequests: prev.fulfilledRequests + 1,
+        totalDonations: prev.totalDonations + 1
+      }));
     } catch (error) {
       console.error('Error marking request as fulfilled:', error);
     }
@@ -648,6 +655,178 @@ export default function BloodRequest() {
             </form>
           </div>
         )}
+
+        {/* Blood Requests Display Section */}
+        <div style={{ marginTop: 60 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <h3 style={{ fontSize: 24, fontWeight: 700, color: '#2d1515' }}>
+              {language === 'bn' ? 'রক্তের অনুরোধ' : 'Blood Requests'}
+            </h3>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(['all', '1', '2', '3'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => handleFilter(f)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: 8,
+                    border: '1.5px solid #e8d4d4',
+                    background: filter === f ? '#dc2626' : '#fff',
+                    color: filter === f ? '#fff' : '#5c2a2a',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {f === 'all' ? (language === 'bn' ? 'সব' : 'All') : 
+                   f === '1' ? (language === 'bn' ? 'নিম্ন' : 'Low') :
+                   f === '2' ? (language === 'bn' ? 'মধ্যম' : 'Medium') :
+                   (language === 'bn' ? 'উচ্চ' : 'High')}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredRequests.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: 60, 
+              background: '#fff', 
+              borderRadius: 16, 
+              border: '1.5px solid #e8d4d4' 
+            }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🩸</div>
+              <p style={{ fontSize: 16, color: '#7a4040' }}>
+                {language === 'bn' ? 'কোনো রক্তের অনুরোধ নেই' : 'No blood requests yet'}
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 16 }}>
+              {filteredRequests.map((request) => (
+                <div
+                  key={request.id}
+                  style={{
+                    background: request.fulfilled ? '#f0fdf4' : '#fff',
+                    borderRadius: 16,
+                    padding: 24,
+                    border: request.fulfilled ? '2px solid #22c55e' : '1.5px solid #e8d4d4',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    opacity: request.fulfilled ? 0.7 : 1
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: '#dc2626',
+                          background: '#fef2f2',
+                          padding: '4px 12px',
+                          borderRadius: 8
+                        }}>
+                          {request.bloodType}
+                        </span>
+                        <span style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: urgencyColors[request.urgency] || '#22c55e',
+                          background: (urgencyColors[request.urgency] || '#22c55e') + '18',
+                          padding: '3px 10px',
+                          borderRadius: 99
+                        }}>
+                          {urgencyEmoji[request.urgency] || '✓'} {request.urgency === 3 ? 'CRITICAL' : request.urgency === 2 ? 'HIGH' : request.urgency === 1 ? 'MEDIUM' : 'LOW'}
+                        </span>
+                        {request.fulfilled && (
+                          <span style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: '#22c55e',
+                            background: '#dcfce7',
+                            padding: '3px 10px',
+                            borderRadius: 99
+                          }}>
+                            ✓ {language === 'bn' ? 'পূর্ণ' : 'Fulfilled'}
+                          </span>
+                        )}
+                      </div>
+                      <h4 style={{ fontSize: 18, fontWeight: 700, color: '#2d1515', marginBottom: 4 }}>
+                        {request.patientName}
+                      </h4>
+                      <p style={{ fontSize: 14, color: '#7a4040', marginBottom: 8 }}>
+                        {request.hospital} • {request.location}
+                      </p>
+                      <p style={{ fontSize: 13, color: '#9b6060' }}>
+                        {language === 'bn' ? 'প্রয়োজন:' : 'Units:'} {request.units} • {language === 'bn' ? 'যোগাযোগ:' : 'Contact:'} {request.contact}
+                      </p>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#c4a0a0' }}>
+                      {new Date(request.timestamp).toLocaleDateString()}
+                    </div>
+                  </div>
+                  {request.message && (
+                    <p style={{ fontSize: 14, color: '#5c2a2a', marginBottom: 16, fontStyle: 'italic' }}>
+                      "{request.message}"
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => handleContact(request)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 8,
+                        border: '1.5px solid #dc2626',
+                        background: '#fff',
+                        color: '#dc2626',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {language === 'bn' ? 'যোগাযোগ করুন' : 'Contact'}
+                    </button>
+                    {!request.fulfilled && (
+                      <button
+                        onClick={() => handleMarkFulfilled(request.id)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: 8,
+                          border: 'none',
+                          background: '#22c55e',
+                          color: '#fff',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {language === 'bn' ? 'পূরণ করুন' : 'Mark Fulfilled'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDeleteRequest(request.id)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 8,
+                        border: '1.5px solid #ef4444',
+                        background: '#fff',
+                        color: '#ef4444',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {language === 'bn' ? 'মুছুন' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

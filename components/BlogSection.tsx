@@ -70,6 +70,47 @@ const TAG_C = {
 export function BlogSection({ data, onSeeAll }) {
   const [ref, vis] = useInView();
   const posts = data.posts;
+
+  // Handle empty posts
+  if (!posts || posts.length === 0) {
+    return (
+      <section ref={ref} style={{ background: DCREAM, padding:'80px 24px', overflow:'hidden' }}>
+        <style dangerouslySetInnerHTML={{ __html: CSS }}/>
+        <div style={{ maxWidth:1140, margin:'0 auto', textAlign:'center' }}>
+          <div className={`rk-reveal ${vis?'rk-vis':''}`}
+            style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end',
+              marginBottom:48, flexWrap:'wrap', gap:16 }}>
+            <div>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                <div style={{ width:28, height:2, background:CR, borderRadius:1 }}/>
+                <span style={{ fontSize:9, fontWeight:800, letterSpacing:'.28em',
+                  textTransform:'uppercase', color:CR }}>{data.lbl}</span>
+              </div>
+              <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
+                fontWeight:900, color:DK, lineHeight:1.1 }}>
+                {data.t1}{' '}
+                <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+              </h2>
+              <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:400 }}>{data.desc}</p>
+            </div>
+            <button className="rk-ob"
+              onClick={onSeeAll}
+              style={{ border:`1.5px solid ${CR}`, color:CR, padding:'10px 26px',
+                borderRadius:10, fontSize:11, fontWeight:700, background:'transparent',
+                whiteSpace:'nowrap', letterSpacing:'.06em' }}>
+              {data.all}
+            </button>
+          </div>
+          <div style={{ padding:'60px 20px', background:'white', borderRadius:20, marginTop:40 }}>
+            <p style={{ color:WM, fontSize:16, marginBottom:16 }}>
+              No blog posts yet. Be the first to share your story!
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const featured = posts[0];
   const side = posts.slice(1, 4);
 

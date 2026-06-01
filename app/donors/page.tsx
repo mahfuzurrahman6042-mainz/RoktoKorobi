@@ -38,20 +38,6 @@ const BangladeshMap = dynamic(() => import('@/components/BangladeshMap'), {
   )
 });
 
-// Fallback donor data (used when Firebase is not configured)
-const fallbackDonors = [
-  { id: 1, name: 'রহিম উদ্দিন', nameEn: 'Rahim Uddin', blood: 'A+', district: 'Dhaka', districtBn: 'ঢাকা', lat: 23.8103, lng: 90.4125, lastDonated: '২ মাস আগে', lastDonatedEn: '2 months ago' },
-  { id: 2, name: 'করিম হোসেন', nameEn: 'Karim Hossain', blood: 'O+', district: 'Dhaka', districtBn: 'ঢাকা', lat: 23.7808, lng: 90.4209, lastDonated: '৪৫ দিন আগে', lastDonatedEn: '45 days ago' },
-  { id: 3, name: 'মোস্তাক আহমেদ', nameEn: 'Mostak Ahmed', blood: 'B+', district: 'Dhaka', districtBn: 'ঢাকা', lat: 23.8260, lng: 90.3570, lastDonated: '৩ মাস আগে', lastDonatedEn: '3 months ago' },
-  { id: 4, name: 'নুসরাত জাহান', nameEn: 'Nusrat Jahan', blood: 'AB+', district: 'Dhaka', districtBn: 'ঢাকা', lat: 23.7500, lng: 90.3800, lastDonated: '৬০ দিন আগে', lastDonatedEn: '60 days ago' },
-  { id: 5, name: 'ফাতেমা বেগম', nameEn: 'Fatema Begum', blood: 'B+', district: 'Chittagong', districtBn: 'চট্টগ্রাম', lat: 22.3569, lng: 91.7832, lastDonated: '১ মাস আগে', lastDonatedEn: '1 month ago' },
-  { id: 6, name: 'জাহাঙ্গীর আলম', nameEn: 'Jahangir Alam', blood: 'A-', district: 'Chittagong', districtBn: 'চট্টগ্রাম', lat: 22.3300, lng: 91.8100, lastDonated: '৫০ দিন আগে', lastDonatedEn: '50 days ago' },
-  { id: 7, name: 'সালমা আক্তার', nameEn: 'Salma Akter', blood: 'A-', district: 'Sylhet', districtBn: 'সিলেট', lat: 24.8949, lng: 91.8687, lastDonated: '৪০ দিন আগে', lastDonatedEn: '40 days ago' },
-  { id: 8, name: 'শফিউল ইসলাম', nameEn: 'Shafiul Islam', blood: 'O+', district: 'Sylhet', districtBn: 'সিলেট', lat: 24.9200, lng: 91.8400, lastDonated: '২ মাস আগে', lastDonatedEn: '2 months ago' },
-  { id: 9, name: 'নাসির আহমেদ', nameEn: 'Nasir Ahmed', blood: 'O-', district: 'Khulna', districtBn: 'খুলনা', lat: 22.8456, lng: 89.5403, lastDonated: '৫৫ দিন আগে', lastDonatedEn: '55 days ago' },
-  { id: 10, name: 'রেজা চৌধুরী', nameEn: 'Reza Chowdhury', blood: 'B-', district: 'Barishal', districtBn: 'বরিশাল', lat: 22.7010, lng: 90.3535, lastDonated: '১ মাস আগে', lastDonatedEn: '1 month ago' },
-];
-
 const bloodColors = {
   'A+': '#c0392b', 'A-': '#e74c3c', 'B+': '#1565C0', 'B-': '#1976D2',
   'AB+': '#6A1B9A', 'AB-': '#7B1FA2', 'O+': '#2E7D32', 'O-': '#388E3C'
@@ -135,44 +121,133 @@ const translations = {
 };
 
 const districts = [
-  { value: 'Dhaka', label: 'Dhaka', labelBn: 'ঢাকা' },
-  { value: 'Chittagong', label: 'Chittagong', labelBn: 'চট্টগ্রাম' },
-  { value: 'Rajshahi', label: 'Rajshahi', labelBn: 'রাজশাহী' },
-  { value: 'Khulna', label: 'Khulna', labelBn: 'খুলনা' },
-  { value: 'Sylhet', label: 'Sylhet', labelBn: 'সিলেট' },
-  { value: 'Barishal', label: 'Barishal', labelBn: 'বরিশাল' },
-  { value: 'Rangpur', label: 'Rangpur', labelBn: 'রংপুর' },
-  { value: 'Mymensingh', label: 'Mymensingh', labelBn: 'ময়মনসিংহ' },
-  { value: 'Comilla', label: 'Comilla', labelBn: 'কুমিল্লা' },
-  { value: 'Narayanganj', label: 'Narayanganj', labelBn: 'নারায়ণগঞ্জ' },
-  { value: 'Gazipur', label: 'Gazipur', labelBn: 'গাজীপুর' },
-  { value: 'Tangail', label: 'Tangail', labelBn: 'টাঙ্গাইল' },
-  { value: "Cox's Bazar", label: "Cox's Bazar", labelBn: 'কক্সবাজার' },
-  { value: 'Jessore', label: 'Jessore', labelBn: 'যশোর' },
-  { value: 'Bogra', label: 'Bogra', labelBn: 'বগুড়া' }
+  {
+    division: "Dhaka",
+    division_bn: "ঢাকা",
+    districts: [
+      { en: "Dhaka", bn: "ঢাকা" },
+      { en: "Narayanganj", bn: "নারায়ণগঞ্জ" },
+      { en: "Gazipur", bn: "গাজীপুর" },
+      { en: "Manikganj", bn: "মানিকগঞ্জ" },
+      { en: "Munshiganj", bn: "মুন্সীগঞ্জ" },
+      { en: "Narsingdi", bn: "নরসিংদী" },
+      { en: "Tangail", bn: "টাঙ্গাইল" },
+      { en: "Kishoreganj", bn: "কিশোরগঞ্জ" },
+      { en: "Faridpur", bn: "ফরিদপুর" },
+      { en: "Gopalganj", bn: "গোপালগঞ্জ" },
+      { en: "Madaripur", bn: "মাদারীপুর" },
+      { en: "Rajbari", bn: "রাজবাড়ী" },
+      { en: "Shariatpur", bn: "শরিয়তপুর" }
+    ]
+  },
+  {
+    division: "Mymensingh",
+    division_bn: "ময়মনসিংহ",
+    districts: [
+      { en: "Mymensingh", bn: "ময়মনসিংহ" },
+      { en: "Jamalpur", bn: "জামালপুর" },
+      { en: "Sherpur", bn: "শেরপুর" },
+      { en: "Netrokona", bn: "নেত্রকোণা" }
+    ]
+  },
+  {
+    division: "Chattogram",
+    division_bn: "চট্টগ্রাম",
+    districts: [
+      { en: "Chattogram", bn: "চট্টগ্রাম" },
+      { en: "Cox's Bazar", bn: "কক্সবাজার" },
+      { en: "Rangamati", bn: "রাঙ্গামাটি" },
+      { en: "Bandarban", bn: "বান্দরবান" },
+      { en: "Khagrachhari", bn: "খাগড়াছড়ি" },
+      { en: "Feni", bn: "ফেনী" },
+      { en: "Noakhali", bn: "নোয়াখালী" },
+      { en: "Lakshmipur", bn: "লক্ষ্মীপুর" },
+      { en: "Comilla", bn: "কুমিল্লা" },
+      { en: "Chandpur", bn: "চাঁদপুর" },
+      { en: "Brahmanbaria", bn: "ব্রাহ্মণবাড়িয়া" }
+    ]
+  },
+  {
+    division: "Sylhet",
+    division_bn: "সিলেট",
+    districts: [
+      { en: "Sylhet", bn: "সিলেট" },
+      { en: "Moulvibazar", bn: "মৌলভীবাজার" },
+      { en: "Habiganj", bn: "হবিগঞ্জ" },
+      { en: "Sunamganj", bn: "সুনামগঞ্জ" }
+    ]
+  },
+  {
+    division: "Rajshahi",
+    division_bn: "রাজশাহী",
+    districts: [
+      { en: "Rajshahi", bn: "রাজশাহী" },
+      { en: "Chapainawabganj", bn: "চাঁপাইনবাবগঞ্জ" },
+      { en: "Naogaon", bn: "নওগাঁ" },
+      { en: "Natore", bn: "নাটোর" },
+      { en: "Bogura", bn: "বগুড়া" },
+      { en: "Joypurhat", bn: "জয়পুরহাট" },
+      { en: "Sirajganj", bn: "সিরাজগঞ্জ" },
+      { en: "Pabna", bn: "পাবনা" }
+    ]
+  },
+  {
+    division: "Rangpur",
+    division_bn: "রংপুর",
+    districts: [
+      { en: "Rangpur", bn: "রংপুর" },
+      { en: "Dinajpur", bn: "দিনাজপুর" },
+      { en: "Thakurgaon", bn: "ঠাকুরগাঁও" },
+      { en: "Panchagarh", bn: "পঞ্চগড়" },
+      { en: "Nilphamari", bn: "নীলফামারী" },
+      { en: "Lalmonirhat", bn: "লালমনিরহাট" },
+      { en: "Kurigram", bn: "কুড়িগ্রাম" },
+      { en: "Gaibandha", bn: "গাইবান্ধা" }
+    ]
+  },
+  {
+    division: "Khulna",
+    division_bn: "খুলনা",
+    districts: [
+      { en: "Khulna", bn: "খুলনা" },
+      { en: "Bagerhat", bn: "বাগেরহাট" },
+      { en: "Satkhira", bn: "সাতক্ষীরা" },
+      { en: "Jessore", bn: "যশোর" },
+      { en: "Narail", bn: "নড়াইল" },
+      { en: "Magura", bn: "মাগুরা" },
+      { en: "Jhenaidah", bn: "ঝিনাইদহ" },
+      { en: "Kushtia", bn: "কুষ্টিয়া" },
+      { en: "Chuadanga", bn: "চুয়াডাঙ্গা" },
+      { en: "Meherpur", bn: "মেহেরপুর" }
+    ]
+  },
+  {
+    division: "Barishal",
+    division_bn: "বরিশাল",
+    districts: [
+      { en: "Barishal", bn: "বরিশাল" },
+      { en: "Bhola", bn: "ভোলা" },
+      { en: "Patuakhali", bn: "পটুয়াখালী" },
+      { en: "Barguna", bn: "বরগুনা" },
+      { en: "Jhalokathi", bn: "ঝালকাঠি" },
+      { en: "Pirojpur", bn: "পিরোজপুর" }
+    ]
+  }
 ];
 
-// Hospital data for map
-const hospitals = [
-  { id: 1, name: 'ঢাকা মেডিকেল কলেজ হাসপাতাল', lat: 23.7104, lng: 90.4074, emergency: true, bloodNeeded: 'A+' },
-  { id: 2, name: 'বঙ্গবন্ধু শেখ মুজিব মেডিকেল বিশ্ববিদ্যালয়', lat: 23.7104, lng: 90.4074, emergency: true, bloodNeeded: 'O+' },
-  { id: 3, name: 'শিশু হাসপাতাল', lat: 23.7104, lng: 90.4074, emergency: false, bloodNeeded: 'B+' },
-  { id: 4, name: 'চট্টগ্রাম মেডিকেল কলেজ হাসপাতাল', lat: 22.3569, lng: 91.7832, emergency: false, bloodNeeded: null },
-  { id: 5, name: 'রাজশাহী মেডিকেল কলেজ হাসপাতাল', lat: 24.3636, lng: 88.6241, emergency: false, bloodNeeded: null },
-  { id: 6, name: 'খুলনা মেডিকেল কলেজ হাসপাতাল', lat: 22.8456, lng: 89.5403, emergency: true, bloodNeeded: 'AB+' },
-  { id: 7, name: 'সিলেট এমএজি ওসমানী মেডিকেল কলেজ', lat: 24.8949, lng: 91.8687, emergency: false, bloodNeeded: null },
-  { id: 8, name: 'বরিশাল শের-ই-বাংলা মেডিকেল কলেজ', lat: 22.7010, lng: 90.3535, emergency: false, bloodNeeded: 'O-' }
-];
+// Hospital data for map (empty - will be populated from Firebase)
+const hospitals: any[] = [];
 
 export default function DonorsPage() {
   const [language, setLanguage] = useState('en');
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [donors, setDonors] = useState(fallbackDonors);
-  const [filteredDonors, setFilteredDonors] = useState(fallbackDonors);
+  const [donors, setDonors] = useState([]);
+  const [filteredDonors, setFilteredDonors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [statCount, setStatCount] = useState(0);
+  const [districtCount, setDistrictCount] = useState(0);
   const mapSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -190,7 +265,7 @@ export default function DonorsPage() {
   }, [language]);
 
   useEffect(() => {
-    // Load donors from Firestore
+    // Load donors from Firebase Realtime Database
     const loadDonors = async () => {
       try {
         const donorsData = await listAllDonors();
@@ -210,14 +285,14 @@ export default function DonorsPage() {
           setDonors(donorsArray);
           setFilteredDonors(donorsArray);
         } else {
-          // Use fallback data if no donors in database
-          setDonors(fallbackDonors);
-          setFilteredDonors(fallbackDonors);
+          // No donors in database yet
+          setDonors([]);
+          setFilteredDonors([]);
         }
       } catch (error) {
-        console.log('Firestore error, using fallback data:', error);
-        setDonors(fallbackDonors);
-        setFilteredDonors(fallbackDonors);
+        console.log('Firebase error:', error);
+        setDonors([]);
+        setFilteredDonors([]);
       }
     };
 
@@ -245,6 +320,12 @@ export default function DonorsPage() {
     return () => clearInterval(timer);
   }, [donors.length]);
 
+  useEffect(() => {
+    // Calculate unique districts from donors
+    const uniqueDistricts = new Set(donors.map((donor: any) => donor.district));
+    setDistrictCount(uniqueDistricts.size);
+  }, [donors]);
+
   const handleFilter = () => {
     setLoading(true);
     setTimeout(() => {
@@ -253,7 +334,7 @@ export default function DonorsPage() {
         const matchesDistrict = !selectedDistrict || donor.district === selectedDistrict;
         return matchesBlood && matchesDistrict;
       });
-      setFilteredDonors(filtered.length > 0 ? filtered : donors);
+      setFilteredDonors(filtered.length > 0 ? filtered : []);
       setLoading(false);
     }, 600);
   };
@@ -605,7 +686,7 @@ export default function DonorsPage() {
               color: '#8B1A1A',
               marginBottom: '8px'
             }}>
-              64
+              {districtCount}
             </div>
             <div style={{ fontSize: '18px', color: '#666' }}>{t.stat_districts}</div>
           </div>
@@ -743,10 +824,14 @@ export default function DonorsPage() {
                   }}
                 >
                   <option value="">{t.all_districts}</option>
-                  {districts.map(district => (
-                    <option key={district.value} value={district.value}>
-                      {language === 'bn' ? district.labelBn : district.label}
-                    </option>
+                  {districts.map(division => (
+                    <optgroup key={division.division} label={language === 'bn' ? division.division_bn : division.division}>
+                      {division.districts.map(district => (
+                        <option key={district.en} value={district.en}>
+                          {language === 'bn' ? district.bn : district.en}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>

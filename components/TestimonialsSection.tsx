@@ -137,6 +137,87 @@ export function TestimonialsSection({ data, onSeeAll }) {
   // Display first 2 stories (prioritize user-submitted)
   const featuredStories = allStories.slice(0, 2);
 
+  // Handle empty stories
+  if (!loading && featuredStories.length === 0) {
+    return (
+      <section ref={ref}
+        style={{ padding:'80px 24px',
+          background:DCREAM,
+          overflow:'hidden', position:'relative' }}>
+        <style>{`
+          @media (max-width: 768px) {
+            section {
+              padding: 60px 16px !important;
+            }
+          }
+        `}</style>
+
+        <div style={{ maxWidth:1140, margin:'0 auto', position:'relative' }}>
+          {/* Stats bar */}
+          <div className={`rk-reveal ${vis?'rk-vis':''}`}
+            style={{ display:'flex', gap:0, marginBottom:56,
+              background:'white',
+              border:`1px solid rgba(139,26,26,0.12)`,
+              borderRadius:16, overflow:'hidden', flexWrap:'wrap',
+              boxShadow:'0 4px 20px rgba(139,26,26,0.06)' }}>
+            {data.stats.map((s, i) => (
+              <div key={i} style={{ flex:'1 1 120px', textAlign:'center',
+                padding:'20px 16px',
+                borderRight: i < data.stats.length - 1 ? `1px solid rgba(139,26,26,0.1)` : 'none' }}>
+                <div style={{ fontFamily:HF, fontSize:28, fontWeight:900,
+                  color:CR, lineHeight:1 }}>{s.n}</div>
+                <div style={{ fontSize:10, color:WM,
+                  fontWeight:700, letterSpacing:'.18em',
+                  textTransform:'uppercase', marginTop:6 }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Header */}
+          <div className={`rk-reveal ${vis?'rk-vis':''}`}
+            style={{ display:'flex', justifyContent:'space-between',
+              alignItems:'flex-end', marginBottom:40, flexWrap:'wrap', gap:16 }}>
+            <div>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                <div style={{ width:28, height:2, background:CR, borderRadius:1 }}/>
+                <span style={{ fontSize:9, fontWeight:800, letterSpacing:'.28em',
+                  textTransform:'uppercase', color:CR }}>
+                  {data.lbl}
+                </span>
+              </div>
+              <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
+                fontWeight:900, color:DK, lineHeight:1.1 }}>
+                {data.t1}{' '}
+                <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+              </h2>
+              <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:440 }}>{data.desc}</p>
+            </div>
+          </div>
+
+          {/* Empty state */}
+          <div style={{ padding:'60px 20px', background:'white', borderRadius:20, textAlign:'center' }}>
+            <p style={{ color:WM, fontSize:16 }}>
+              No testimonials yet. Be the first to share your story!
+            </p>
+          </div>
+
+          {/* CTA row */}
+          <div className={`rk-reveal ${vis?'rk-vis':''}`}
+            style={{ display:'flex', justifyContent:'center', gap:16, flexWrap:'wrap', marginTop:44 }}>
+            <Link href="/share-testimonial" className="rk-ob"
+              style={{ border:'1.5px solid rgba(76,175,80,0.65)',
+                color:'rgba(165,230,165,0.95)', padding:'14px 36px',
+                borderRadius:30, fontSize:12, fontWeight:700,
+                background:'transparent', letterSpacing:'.08em',
+                transition:'all .25s ease', textDecoration:'none', display:'inline-block' }}>
+              {data.shareCta}
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section ref={ref}
       style={{ padding:'80px 24px',

@@ -73,6 +73,21 @@ const CSS = `
   .nl { transition:opacity .2s ease; cursor:pointer; background:none; border:none; outline:none; font-family:inherit; }
   .nl:hover { opacity:.72; }
 
+  .btn-gallery {
+    background-color: #C0392B;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .btn-gallery:hover {
+    background-color: #A93226;
+  }
+
   ::-webkit-scrollbar { width:5px; }
   ::-webkit-scrollbar-track { background:#F5F0E8; }
   ::-webkit-scrollbar-thumb { background:#8B1A1A; border-radius:3px; }
@@ -83,27 +98,13 @@ const DATA = {
     lbl:'CHITROKOTHON', t1:'Artwork', t2:'Gallery',
     desc:'Artwork by our community, created in the spirit of saving lives.',
     back:'← Back', all:'View Full Gallery',
-    arts:[
-      { title:'Blood Bond',    artist:'Rahim',  desc:'Blood donation creates lasting bonds between people.',         g:'radial-gradient(ellipse at 28% 38%,#7A1010 0%,#C41E3A 48%,#4A0808 100%)' },
-      { title:'Gift of Life',  artist:'Sara',   desc:'Blood donation is the most profound way to give life.',        g:'radial-gradient(circle at 72% 28%,#E05050 0%,#8B1A1A 50%,#300808 100%)' },
-      { title:'Light of Hope', artist:'Kamal',  desc:'Every donor is a light of hope for someone in the dark.',      g:'conic-gradient(from 200deg at 50% 65%,#C41E3A,#6B1515,#FF6060,#C41E3A)' },
-      { title:'Red River',     artist:'Fatema', desc:'Our blood flows through each other, connecting all of us.',    g:'linear-gradient(140deg,#5A1010 0%,#C41E3A 35%,#8B1A1A 65%,#D04040 100%)' },
-      { title:'Lifeline',      artist:'Arif',   desc:"A single drop is all it takes to change someone's world.",    g:'radial-gradient(circle at 50% 32%,#FF7070 0%,#C41E3A 38%,#3A0808 100%)' },
-      { title:'Unity in Red',  artist:'Nadia',  desc:'Together in red, we rise and save lives.',                     g:'radial-gradient(ellipse at 22% 78%,#7A1010 0%,#C41E3A 52%,#5A1010 100%)' },
-    ],
+    arts:[],
   },
   bn: {
     lbl:'চিত্রকথন', t1:'শিল্পকর্ম', t2:'গ্যালারি',
     desc:'জীবন বাঁচানোর অনুপ্রেরণায় আমাদের সম্প্রদায়ের শিল্পকর্ম।',
     back:'← ফিরুন', all:'পূর্ণ গ্যালারি দেখুন',
-    arts:[
-      { title:'রক্তের বন্ধন',  artist:'রহিম',    desc:'রক্তদান মানুষের মধ্যে দীর্ঘস্থায়ী বন্ধন তৈরি করে।',             g:'radial-gradient(ellipse at 28% 38%,#7A1010 0%,#C41E3A 48%,#4A0808 100%)' },
-      { title:'জীবনের উপহার', artist:'সারা',    desc:'রক্তদান জীবন দেওয়ার সবচেয়ে গভীর উপায়।',                          g:'radial-gradient(circle at 72% 28%,#E05050 0%,#8B1A1A 50%,#300808 100%)' },
-      { title:'আশার আলো',     artist:'কামাল',   desc:'প্রতিটি দাতা অন্ধকারে আলোর বাতিঘর।',                               g:'conic-gradient(from 200deg at 50% 65%,#C41E3A,#6B1515,#FF6060,#C41E3A)' },
-      { title:'লাল নদী',      artist:'ফাতেমা',  desc:'আমাদের রক্ত একে অপরের মধ্য দিয়ে প্রবাহিত হয়।',                    g:'linear-gradient(140deg,#5A1010 0%,#C41E3A 35%,#8B1A1A 65%,#D04040 100%)' },
-      { title:'জীবনরেখা',     artist:'আরিফ',    desc:'একটি ফোঁটাই কারো পৃথিবী বদলে দিতে পারে।',                          g:'radial-gradient(circle at 50% 32%,#FF7070 0%,#C41E3A 38%,#3A0808 100%)' },
-      { title:'লালে একতা',    artist:'নাদিয়া',  desc:'লালে একত্রিত, আমরা উঠি এবং জীবন বাঁচাই।',                          g:'radial-gradient(ellipse at 22% 78%,#7A1010 0%,#C41E3A 52%,#5A1010 100%)' },
-    ],
+    arts:[],
   },
 };
 
@@ -191,12 +192,31 @@ export default function IllustrationsPage() {
         <div style={{ background:CREAM,minHeight:'55vh' }}>
           <div style={{ maxWidth:1100,margin:'0 auto',padding:'48px 24px' }}>
             {/* Section Header */}
-            <div style={{ marginBottom:40 }}>
-              <SLabel label={d.all} dark={false}/>
-              <h2 style={{ fontFamily:HF,fontSize:32,fontWeight:900,color:DK,lineHeight:1.2 }}>
-                {d.t1} <em style={{ fontStyle:'italic',color:CR }}>{d.t2}</em>
-              </h2>
-              <div style={{ width:60,height:3,background:`linear-gradient(90deg,${CR},${LCR})`,marginTop:16 }}/>
+            <div style={{ marginBottom:40, display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+              <div>
+                <SLabel label={d.all} dark={false}/>
+                <h2 style={{ fontFamily:HF,fontSize:32,fontWeight:900,color:DK,lineHeight:1.2 }}>
+                  {d.t1} <em style={{ fontStyle:'italic',color:CR }}>{d.t2}</em>
+                </h2>
+                <div style={{ width:60,height:3,background:`linear-gradient(90deg,${CR},${LCR})`,marginTop:16 }}/>
+              </div>
+              <button 
+                className="btn-gallery"
+                style={{
+                  backgroundColor: '#C0392B',
+                  color: '#ffffff',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#A93226'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C0392B'}
+              >
+                {lang === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'} →
+              </button>
             </div>
             <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24 }}>
               {d.arts.map((a, i) => (

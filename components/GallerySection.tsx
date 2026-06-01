@@ -72,6 +72,20 @@ const CSS = `
   .rk-tag { display:inline-block; font-size:9px; font-weight:800; letter-spacing:.12em;
     text-transform:uppercase; padding:4px 12px; border-radius:20px; }
 
+  .btn-gallery {
+    background-color: #C0392B;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-gallery:hover {
+    background-color: #A93226;
+  }
+
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-track { background:${CREAM}; }
   ::-webkit-scrollbar-thumb { background:${CR}; border-radius:2px; }
@@ -95,29 +109,24 @@ export function BlogSection({ data, onSeeAll }) {
     <section ref={ref} style={{ background: DCREAM, padding:'80px 24px', overflow:'hidden' }}>
       <style dangerouslySetInnerHTML={{ __html: CSS }}/>
       <div style={{ maxWidth:1140, margin:'0 auto' }}>
-
         {/* Header row */}
         <div className={`rk-reveal ${vis?'rk-vis':''}`}
-          style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end',
+          style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start',
             marginBottom:48, flexWrap:'wrap', gap:16 }}>
-          <div>
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-              <div style={{ width:28, height:2, background:CR, borderRadius:1 }}/>
-              <span style={{ fontSize:9, fontWeight:800, letterSpacing:'.28em',
-                textTransform:'uppercase', color:CR }}>{data.lbl}</span>
+          <div style={{ textAlign:'left', flex:1, minWidth:'280px' }}>
+            <div className="section-label">
+              <span className="label-red">BLOG</span>
+              <span className="label-black">POSTS</span>
             </div>
-            <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
-              fontWeight:900, color:DK, lineHeight:1.1 }}>
-              {data.t1}{' '}
-              <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+            <h2 className="section-heading">
+              Latest <span className="heading-red">Stories</span>
             </h2>
-            <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:400 }}>{data.desc}</p>
           </div>
           <button className="rk-ob"
             onClick={onSeeAll}
             style={{ border:`1.5px solid ${CR}`, color:CR, padding:'10px 26px',
               borderRadius:10, fontSize:11, fontWeight:700, background:'transparent',
-              whiteSpace:'nowrap', letterSpacing:'.06em' }}>
+              whiteSpace:'nowrap', letterSpacing:'.06em', alignSelf:'center' }}>
             {data.all}
           </button>
         </div>
@@ -473,6 +482,85 @@ export function GallerySection({ data, onSeeAll, language }) {
   const [active, setActive] = useState(0);
   const [ref, vis] = useInView();
 
+  // Handle empty arts
+  if (!data.arts || data.arts.length === 0) {
+    return (
+      <section ref={ref}
+        style={{
+          background: "#f5ede6",
+          minHeight: "100vh",
+          paddingBottom: 80,
+          position: "relative",
+          overflow: "hidden",
+          fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF,
+        }}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400;1,700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        `}</style>
+        <div style={{
+          padding: "16px 28px 32px",
+          position: "relative", zIndex: 2,
+        }}>
+          <div className="section-label">
+            <span className="label-red">{language === 'bn' ? 'চিত্রকথন' : 'CHITROKOTHON'}</span>
+            <span className="label-black">{language === 'bn' ? 'CHITROKOTHON' : 'চিত্রকথন'}</span>
+          </div>
+          <h2 className="section-heading">
+            {language === 'bn' ? 'রক্তকরবী ' : 'RoktoKorobi '}
+            <span className="heading-red">{language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}</span>
+          </h2>
+          <p style={{
+            margin: "0 0 24px",
+            fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF,
+            fontSize: 13, color: "rgba(80,20,20,0.55)",
+            fontWeight: 400, lineHeight: 1.6,
+          }}>
+            {language === 'bn' ? 'সম্প্রদায়ের শিল্পকর্ম — জীবন বাঁচানোর অনুপ্রেরণায়' : 'Artwork by our community, created in the spirit of saving lives.'}
+          </p>
+          <button 
+            className="btn-gallery" 
+            onClick={onSeeAll}
+            style={{
+              backgroundColor: '#C0392B',
+              color: '#ffffff',
+              fontSize: '15px',
+              fontWeight: 500,
+              padding: '12px 24px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#A93226'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C0392B'}
+          >
+            {language === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'} →
+          </button>
+        </div>
+        <div style={{ padding: '60px 20px', background:'white', borderRadius:20, margin:'0 28px', textAlign:'center' }}>
+          <div style={{
+            border: '2px dashed #E0D5D5',
+            borderRadius: '12px',
+            minHeight: '180px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px',
+            padding: '40px 20px'
+          }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9E8080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <p style={{ color: '#9E8080', fontSize: 16, margin: 0 }}>
+              {language === 'bn' ? 'এখনও কোনো শিল্পকর্ম নেই। আপনার সৃষ্টি প্রথম শেয়ার করুন!' : 'No artwork yet. Be the first to share your creation!'}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const handleScroll = () => {
     const c = scrollRef.current;
     if (!c) return;
@@ -536,13 +624,14 @@ export function GallerySection({ data, onSeeAll, language }) {
 
         .view-all-btn {
           display:inline-flex; align-items:center; gap:8px;
-          padding:10px 24px;
-          background:transparent;
-          border:1.5px solid rgba(122,14,28,0.3);
-          border-radius:30px;
-          color:rgba(100,10,18,0.65);
+          padding:10px 20px;
+          background: #C0392B;
+          border: none;
+          border-radius:8px;
+          color: white;
           font-family:'Hind Siliguri',sans-serif;
           font-size:13px; letter-spacing:0.5px;
+          font-weight: 500;
           cursor:pointer;
           transition:all 0.35s ease;
           position:relative; overflow:hidden;
@@ -550,15 +639,14 @@ export function GallerySection({ data, onSeeAll, language }) {
         .view-all-btn::before {
           content:'';
           position:absolute; inset:0;
-          background:linear-gradient(90deg,transparent,rgba(122,14,28,0.07),transparent);
+          background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
           transform:translateX(-100%);
           transition:transform 0.5s ease;
         }
         .view-all-btn:hover::before { transform:translateX(100%); }
         .view-all-btn:hover {
-          border-color:rgba(122,14,28,0.55);
-          color:rgba(100,10,18,0.9);
-          box-shadow:0 4px 20px rgba(122,14,28,0.1);
+          background: #A93226;
+          transform: translateY(-2px);
         }
       `}</style>
 
@@ -679,7 +767,7 @@ export function GallerySection({ data, onSeeAll, language }) {
           <span style={{
             fontFamily: HF,
             fontSize: 10, letterSpacing: "4px",
-            color: "rgba(122,14,28,0.5)", textTransform: "uppercase",
+            color: "rgba(122,14,28,1)", textTransform: "uppercase",
           }}>
             Chitrokothon · চিত্রকথন
           </span>
@@ -727,10 +815,7 @@ export function GallerySection({ data, onSeeAll, language }) {
         </p>
 
         <button className="view-all-btn" onClick={onSeeAll}>
-          {language === 'bn' ? 'সম্পূর্ণ গ্যালারি দেখুন' : 'View Full Gallery'}
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          {language === 'bn' ? 'পুরো গ্যালারি দেখুন →' : 'View Full Gallery →'}
         </button>
       </div>
 

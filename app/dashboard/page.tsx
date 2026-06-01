@@ -104,19 +104,16 @@ export default function Dashboard() {
     localStorage.setItem('language', newLang);
   };
 
-  // Navigation items - conditionally include "Become a Donor" for non-donor users
+  // Navigation items - match homepage navigation
   const navigationItems = [
-    { id: 'overview', label: language === 'bn' ? 'ওভারভিউ' : 'Overview', icon: Home },
+    { id: 'home', label: language === 'bn' ? 'হোম' : 'Home', icon: Home },
     { id: 'donors', label: language === 'bn' ? 'রক্তদাতা' : 'Donors', icon: Users },
-    { id: 'request', label: language === 'bn' ? 'রক্ত অনুরোধ' : 'Request Blood', icon: Heart },
-    ...(userData.isDonor === false ? [
-      { id: 'become-donor', label: language === 'bn' ? 'দাতা হন' : 'Become a Donor', icon: Droplets }
-    ] : []),
+    { id: 'request', label: language === 'bn' ? 'রক্তের প্রয়োজন' : 'Request Blood', icon: Heart },
+    { id: 'eligibility', label: language === 'bn' ? 'যোগ্যতা' : 'Eligibility', icon: Shield },
     { id: 'blog', label: language === 'bn' ? 'ব্লগ' : 'Blog', icon: FileText },
-    { id: 'illustrations', label: language === 'bn' ? 'রক্তকরবী চিত্রকথন' : 'RoktoKorobi Chitrokothon', icon: Image },
-    { id: 'testimonials', label: language === 'bn' ? 'সাক্ষ্য' : 'Testimonials', icon: MessageCircle },
+    { id: 'illustrations', label: language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon', icon: Image },
+    { id: 'testimonials', label: language === 'bn' ? 'অভিজ্ঞতা' : 'Testimonials', icon: MessageCircle },
     { id: 'profile', label: language === 'bn' ? 'প্রোফাইল' : 'Profile', icon: User },
-    { id: 'settings', label: language === 'bn' ? 'সেটিংস' : 'Settings', icon: Settings },
   ];
 
   const t = (key: string) => {
@@ -254,14 +251,23 @@ export default function Dashboard() {
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <button
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => {
+                    if (item.id === 'home') router.push('/');
+                    else if (item.id === 'donors') router.push('/donors');
+                    else if (item.id === 'request') router.push('/request');
+                    else if (item.id === 'eligibility') router.push('/eligibility');
+                    else if (item.id === 'blog') router.push('/blog');
+                    else if (item.id === 'illustrations') router.push('/illustrations');
+                    else if (item.id === 'testimonials') router.push('/testimonials');
+                    else if (item.id === 'profile') router.push('/profile');
+                  }}
                   style={{
                     width: '100%',
                     padding: sidebarOpen ? '12px 20px' : '12px',
                     border: 'none',
-                    background: activeSection === item.id ? '#dc2626' : 'transparent',
+                    background: 'transparent',
                     color: 'white',
                     cursor: 'pointer',
                     display: 'flex',
@@ -270,18 +276,14 @@ export default function Dashboard() {
                     gap: sidebarOpen ? '12px' : '0',
                     transition: 'all 0.2s ease',
                     fontSize: '14px',
-                    fontWeight: activeSection === item.id ? 600 : 400,
+                    fontWeight: 400,
                     textAlign: 'left'
                   }}
                   onMouseEnter={(e) => {
-                    if (activeSection !== item.id) {
-                      e.currentTarget.style.backgroundColor = 'rgba(192,21,42,0.1)';
-                    }
+                    e.currentTarget.style.backgroundColor = 'rgba(192,21,42,0.1)';
                   }}
                   onMouseLeave={(e) => {
-                    if (activeSection !== item.id) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
+                    e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   <Icon size={20} />

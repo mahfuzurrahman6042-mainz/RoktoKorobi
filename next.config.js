@@ -117,17 +117,17 @@ const nextConfig = {
         key: 'Permissions-Policy',
         value: 'camera=(), microphone=(), geolocation=()',
       },
-      // Content Security Policy - fixed for GitHub
+      // Content Security Policy - updated for Firebase
       {
         key: 'Content-Security-Policy',
         value: [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
-          "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com",
+          "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
           "img-src 'self' data: https://*.supabase.co https://*.tile.openstreetmap.org https://*.openstreetmap.org blob:",
-          "font-src 'self' data:",
-          "connect-src 'self' https://*.supabase.co https://*.vercel.app",
-          "frame-src 'self'",
+          "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com",
+          "connect-src 'self' https://*.supabase.co https://*.vercel.app https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://firebasestorage.googleapis.com wss://*.firebaseio.com",
+          "frame-src 'self' https://*.firebaseapp.com https://*.firebaseio.com",
           "base-uri 'self'",
           "form-action 'self'",
         ].join('; '),
