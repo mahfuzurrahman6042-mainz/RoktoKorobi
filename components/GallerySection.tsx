@@ -113,8 +113,17 @@ export function BlogSection({ data, onSeeAll }) {
         <div className={`rk-reveal ${vis?'rk-vis':''}`}
           style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start',
             marginBottom:48, flexWrap:'wrap', gap:16 }}>
-          <div style={{ textAlign:'left', flex:1, minWidth:'280px' }}>
-            {/* BLOG section heading removed */}
+          <div style={{ textAlign:'left', flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'8px' }}>
+            <div className="section-label" style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+              <span className="label-red">BLOG</span>
+              <span className="label-black">POSTS</span>
+            </div>
+            <h2 className="section-heading">
+              Latest <span className="heading-red" style={{ fontStyle:'italic' }}>Posts</span>
+            </h2>
+            <p style={{ fontSize:13, color:'#3D2314', maxWidth:400 }}>
+              {data.desc}
+            </p>
           </div>
           <button className="rk-ob"
             onClick={onSeeAll}
