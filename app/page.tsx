@@ -1532,9 +1532,9 @@ export default function Home() {
               <span className="label-black">{language === 'bn' ? 'ম্যাপ' : 'MAP'}</span>
             </div>
             <h2 className="section-heading">
-              {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red" style={{ fontStyle:'italic' }}>{language === 'bn' ? '' : 'on Map'}</span>
+              {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? '' : 'on Map'}</span>
             </h2>
-            <p className="s-desc text-lg max-w-3xl mx-auto">
+            <p className="s-desc text-lg max-w-3xl mx-auto" style={{ fontSize: '14px', color: '#3D2314' }}>
               {language === 'bn'
                 ? 'বাংলাদেশের সকল জেলায় রক্তদাতা ও হাসপাতালের অবস্থান দেখুন।'
                 : 'View blood donors and hospital locations across all districts of Bangladesh.'}
