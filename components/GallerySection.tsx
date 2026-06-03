@@ -119,8 +119,11 @@ export function BlogSection({ data, onSeeAll }) {
               <span className="label-black">POSTS</span>
             </div>
             <h2 className="section-heading">
-              Latest <span className="heading-red">Stories</span>
+              Latest <span className="heading-red" style={{ fontStyle:'italic' }}>Posts</span>
             </h2>
+            <p style={{ fontSize:13, color:'#3D2314', marginTop:8, maxWidth:400 }}>
+              {data.desc}
+            </p>
           </div>
           <button className="rk-ob"
             onClick={onSeeAll}

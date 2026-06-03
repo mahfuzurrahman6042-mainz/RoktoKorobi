@@ -93,14 +93,12 @@ export default function Login() {
 
     try {
       // Firebase Authentication
-      await loginUser(formData.email, formData.password);
+      const userCredential = await loginUser(formData.email, formData.password);
       
-      // Get current user
-      const user = getCurrentUser();
+      console.log('Login successful:', userCredential);
       
-      if (user) {
-        router.push('/dashboard');
-      }
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
@@ -239,16 +237,6 @@ export default function Login() {
                 {submitting ? t('logging') : t('login')}
               </button>
             </form>
-
-            {/* Demo Account Info */}
-            <div style={{
-              background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '12px',
-              padding: '16px', marginTop: '24px', fontSize: '12px', color: '#92400E'
-            }}>
-              <strong>{language === 'bn' ? 'ডেমো অ্যাকাউন্ট:' : 'Demo Account:'}</strong><br />
-              Email: test@example.com<br />
-              Password: password
-            </div>
           </div>
 
           {/* Signup Link */}

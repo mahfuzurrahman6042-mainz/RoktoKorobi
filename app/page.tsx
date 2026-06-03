@@ -450,6 +450,14 @@ export default function Home() {
           z-index: 0;
         }
 
+        @media (max-width: 768px) {
+          .btn-watermark-wrap .watermark {
+            font-size: 120px;
+            color: rgba(255, 255, 255, 0.08);
+            z-index: 1;
+          }
+        }
+
         .btn-watermark-wrap .card-btn-secondary {
           position: relative;
           z-index: 1;
@@ -617,6 +625,7 @@ export default function Home() {
           font-weight: 800;
           color: transparent;
           -webkit-text-stroke: 2.5px var(--dark);
+          text-stroke: 2.5px var(--dark);
         }
 
         .mission-subtitle {
@@ -775,10 +784,13 @@ export default function Home() {
           .hero-section,
           .mission-section {
             padding: 24px 20px 40px;
+            max-width: 100%;
           }
 
           .hero-card {
             padding: 32px 24px;
+            margin: 40px auto;
+            max-width: 100%;
           }
 
           .hero-heading {
@@ -805,6 +817,40 @@ export default function Home() {
           .fabs {
             right: 16px;
             bottom: 60px;
+          }
+
+          .mission-title {
+            line-height: 1.1;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-section,
+          .mission-section {
+            padding: 20px 16px 32px;
+          }
+
+          .hero-card {
+            padding: 28px 20px;
+            margin: 32px auto;
+          }
+
+          .hero-heading {
+            font-size: 28px;
+          }
+
+          .m-line1,
+          .m-line2,
+          .m-line3 {
+            font-size: 32px;
+          }
+
+          .mission-subtitle {
+            font-size: 18px;
+          }
+
+          .mission-desc {
+            font-size: 14px;
           }
         }
       `}}/>
@@ -1486,7 +1532,7 @@ export default function Home() {
               <span className="label-black">{language === 'bn' ? 'ম্যাপ' : 'MAP'}</span>
             </div>
             <h2 className="section-heading">
-              {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals on Map'}
+              {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red" style={{ fontStyle:'italic' }}>{language === 'bn' ? '' : 'on Map'}</span>
             </h2>
             <p className="s-desc text-lg max-w-3xl mx-auto">
               {language === 'bn'
