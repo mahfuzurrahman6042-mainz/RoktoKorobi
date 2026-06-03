@@ -1526,15 +1526,15 @@ export default function Home() {
       {/* Map Section */}
       <section className="map-section py-16 lg:py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="map-header reveal mb-12 lg:mb-16">
-            <div className="section-label">
+          <div className="map-header reveal mb-12 lg:mb-16" style={{ textAlign: 'left' }}>
+            <div className="section-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
               <span className="label-red">{language === 'bn' ? 'লাইভ' : 'LIVE'}</span>
               <span className="label-black">{language === 'bn' ? 'ম্যাপ' : 'MAP'}</span>
             </div>
-            <h2 className="section-heading">
+            <h2 className="section-heading" style={{ marginBottom: '8px' }}>
               {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? '' : 'on Map'}</span>
             </h2>
-            <p className="s-desc max-w-3xl" style={{ fontSize: '14px', color: '#3D2314' }}>
+            <p className="s-desc max-w-3xl" style={{ fontSize: '14px', color: '#3D2314', marginTop: '0' }}>
               {language === 'bn'
                 ? 'বাংলাদেশের সকল জেলায় রক্তদাতা ও হাসপাতালের অবস্থান দেখুন।'
                 : 'View blood donors and hospital locations across all districts of Bangladesh.'}
