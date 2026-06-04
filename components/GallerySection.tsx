@@ -111,9 +111,9 @@ export function BlogSection({ data, onSeeAll }) {
       <div style={{ maxWidth:1140, margin:'0 auto' }}>
         {/* Header row */}
         <div className={`rk-reveal ${vis?'rk-vis':''}`}
-          style={{ display:'flex', justifyContent:'space-between', alignItems:'center',
+          style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start',
             marginBottom:32, flexWrap:'wrap', gap:16 }}>
-          <div style={{ textAlign:'left', flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'12px', alignItems:'flex-start' }}>
+          <div style={{ textAlign:'left', flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'16px', alignItems:'flex-start' }}>
             <div className="section-label" style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'0' }}>
               <span className="label-red">{data.lbl.split(' ')[0]}</span>
               <span className="label-black">{data.lbl.split(' ')[1] || ''}</span>
@@ -129,7 +129,7 @@ export function BlogSection({ data, onSeeAll }) {
             onClick={onSeeAll}
             style={{ border:`1.5px solid ${CR}`, color:CR, padding:'10px 26px',
               borderRadius:10, fontSize:11, fontWeight:700, background:'transparent',
-              whiteSpace:'nowrap', letterSpacing:'.06em', alignSelf:'center', flexShrink:0 }}>
+              whiteSpace:'nowrap', letterSpacing:'.06em', alignSelf:'flex-start', flexShrink:0, marginTop:'0' }}>
             {data.all}
           </button>
         </div>
