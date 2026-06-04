@@ -1526,21 +1526,21 @@ export default function Home() {
       {/* Map Section */}
       <section className="map-section py-16 lg:py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="map-header reveal mb-12 lg:mb-16">
+          <div className="map-header reveal mb-12 lg:mb-16" style={{ maxWidth: '100%' }}>
             <div className="section-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
               <span className="label-red">{language === 'bn' ? 'লাইভ' : 'LIVE'}</span>
               <span className="label-black">{language === 'bn' ? 'ম্যাপ' : 'MAP'}</span>
             </div>
-            <h2 className="section-heading" style={{ marginBottom: '16px' }}>
+            <h2 className="section-heading" style={{ marginBottom: '16px', maxWidth: '100%' }}>
               {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? '' : 'on Map'}</span>
             </h2>
-            <p className="s-desc" style={{ fontSize: '14px', color: '#3D2314', marginTop: '0', maxWidth: '100%' }}>
+            <p className="s-desc" style={{ fontSize: '14px', color: '#3D2314', marginTop: '0', maxWidth: '100%', lineHeight: '1.6' }}>
               {language === 'bn'
                 ? 'বাংলাদেশের সকল জেলায় রক্তদাতা ও হাসপাতালের অবস্থান দেখুন।'
                 : 'View blood donors and hospital locations across all districts of Bangladesh.'}
             </p>
           </div>
-          <div className="map-container reveal delay-1">
+          <div className="map-container reveal delay-1" style={{ width: '100%' }}>
             <MapErrorBoundary>
               <BangladeshMap
                 center={{ lat: 23.6850, lng: 90.3563 }}

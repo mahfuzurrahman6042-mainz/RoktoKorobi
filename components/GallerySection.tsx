@@ -112,16 +112,16 @@ export function BlogSection({ data, onSeeAll }) {
         {/* Header row */}
         <div className={`rk-reveal ${vis?'rk-vis':''}`}
           style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start',
-            marginBottom:32, flexWrap:'wrap', gap:16 }}>
-          <div style={{ textAlign:'left', flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'16px', alignItems:'flex-start' }}>
+            marginBottom:32, flexWrap:'wrap', gap:16, width:'100%' }}>
+          <div style={{ textAlign:'left', flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'16px', alignItems:'flex-start', maxWidth:'100%' }}>
             <div className="section-label" style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'0' }}>
               <span className="label-red">{data.lbl.split(' ')[0]}</span>
               <span className="label-black">{data.lbl.split(' ')[1] || ''}</span>
             </div>
-            <h2 className="section-heading" style={{ marginBottom:'0', marginTop:'0' }}>
+            <h2 className="section-heading" style={{ marginBottom:'0', marginTop:'0', maxWidth:'100%' }}>
               {data.t1} <span className="heading-red" style={{ fontStyle:'italic' }}>{data.t2}</span>
             </h2>
-            <p style={{ fontSize:13, color:'#3D2314', maxWidth:400, marginTop:'0' }}>
+            <p style={{ fontSize:13, color:'#3D2314', maxWidth:400, marginTop:'0', lineHeight:'1.6' }}>
               {data.desc}
             </p>
           </div>
