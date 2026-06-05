@@ -111,26 +111,28 @@ export function BlogSection({ data, onSeeAll }) {
       <div style={{ maxWidth:1140, margin:'0 auto' }}>
         {/* Header row */}
         <div className={`rk-reveal ${vis?'rk-vis':''}`}
-          style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start',
+          style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between',
             marginBottom:32, flexWrap:'wrap', gap:16 }}>
-          <div style={{ textAlign:'left', flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'12px', alignItems:'flex-start' }}>
-            <div className="section-label" style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'0' }}>
-              <span className="label-red">{data.lbl.split(' ')[0]}</span>
-              <span className="label-black">{data.lbl.split(' ')[1] || ''}</span>
+          <div style={{ flex:1, minWidth:'280px', display:'flex', flexDirection:'column', gap:'0.65rem', alignItems:'flex-start' }}>
+            <div className="section-eyebrow" style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0' }}>
+              <span style={{ width:'28px', height:'2px', background:CR, display:'inline-block', flexShrink:0 }}></span>
+              <span style={{ fontSize:'11px', fontWeight:700, letterSpacing:'0.22em', textTransform:'uppercase', color:CR }}>
+                {data.lbl.split(' ')[0]}
+              </span>
             </div>
             <h2 className="section-heading" style={{ marginBottom:'0', marginTop:'0' }}>
               {data.t1} <span className="heading-red" style={{ fontStyle:'italic' }}>{data.t2}</span>
             </h2>
-            <p style={{ fontSize:13, color:'#3D2314', maxWidth:400, marginTop:'0' }}>
+            <p style={{ fontSize:'14.5px', color:'#9A7A7A', maxWidth:500, marginTop:'0', lineHeight:'1.65' }}>
               {data.desc}
             </p>
           </div>
           <button className="rk-ob"
             onClick={onSeeAll}
-            style={{ border:`1.5px solid ${CR}`, color:CR, padding:'10px 26px',
-              borderRadius:10, fontSize:11, fontWeight:700, background:'transparent',
-              whiteSpace:'nowrap', letterSpacing:'.06em', alignSelf:'flex-start', flexShrink:0, marginTop:'0' }}>
-            {data.all}
+            style={{ border:`1.5px solid ${CR}`, color:CR, padding:'9px 20px',
+              borderRadius:'24px', fontSize:'13px', fontWeight:600, background:'transparent',
+              whiteSpace:'nowrap', letterSpacing:'0.02em', alignSelf:'flex-end', flexShrink:0, cursor:'pointer', transition:'background 0.2s, color 0.2s' }}>
+            {data.all} →
           </button>
         </div>
 

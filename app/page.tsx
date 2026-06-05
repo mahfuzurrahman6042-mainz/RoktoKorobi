@@ -1527,14 +1527,17 @@ export default function Home() {
       <section className="map-section py-16 lg:py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="map-header reveal mb-12 lg:mb-16">
-            <div className="section-label" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
-              <span className="label-red">{language === 'bn' ? 'লাইভ' : 'LIVE'}</span>
-              <span className="label-black">{language === 'bn' ? 'ম্যাপ' : 'MAP'}</span>
+            <div className="section-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.55rem' }}>
+              <span style={{ width: '28px', height: '2px', background: '#8B1A1A', display: 'inline-block', flexShrink: 0 }}></span>
+              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#8B1A1A' }}>
+                {language === 'bn' ? 'লাইভ ম্যাপ' : 'Live Map'}
+              </span>
+              <span style={{ width: '28px', height: '2px', background: '#8B1A1A', display: 'inline-block', flexShrink: 0 }}></span>
             </div>
-            <h2 className="section-heading" style={{ marginBottom: '12px' }}>
-              {language === 'bn' ? 'মানচিত্রে রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? '' : 'on Map'}</span>
+            <h2 className="section-heading" style={{ marginBottom: '0.65rem' }}>
+              {language === 'bn' ? 'রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? 'ম্যাপে' : 'on Map'}</span>
             </h2>
-            <p className="s-desc" style={{ fontSize: '14px', color: '#3D2314', marginTop: '0' }}>
+            <p className="s-desc" style={{ fontSize: '14.5px', color: '#9A7A7A', marginTop: '0.65rem', maxWidth: '500px', lineHeight: '1.65' }}>
               {language === 'bn'
                 ? 'বাংলাদেশের সকল জেলায় রক্তদাতা ও হাসপাতালের অবস্থান দেখুন।'
                 : 'View blood donors and hospital locations across all districts of Bangladesh.'}
