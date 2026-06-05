@@ -101,8 +101,8 @@ export function BlogSection({ data, onSeeAll }) {
               {data.all}
             </button>
           </div>
-          <div style={{ padding:'60px 20px', background:'white', borderRadius:20, marginTop:40 }}>
-            <p style={{ color:WM, fontSize:16, marginBottom:16 }}>
+          <div style={{ padding:'60px 20px', background:'white', borderRadius:20, marginTop:40, display:'flex', alignItems:'center', justifyContent:'center', minHeight:'300px' }}>
+            <p style={{ color:WM, fontSize:16, textAlign:'center' }}>
               No blog posts yet. Be the first to share your story!
             </p>
           </div>

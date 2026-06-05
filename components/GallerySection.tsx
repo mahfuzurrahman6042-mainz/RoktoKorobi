@@ -506,9 +506,9 @@ export function GallerySection({ data, onSeeAll, language }) {
           padding: "16px 28px 32px",
           position: "relative", zIndex: 2,
         }}>
-          <div className="section-label">
-            <span className="label-red">{language === 'bn' ? 'চিত্রকথন' : 'CHITROKOTHON'}</span>
-            <span className="label-black">{language === 'bn' ? 'CHITROKOTHON' : 'চিত্রকথন'}</span>
+          <div className="section-label" style={{ display: 'inline-flex', alignItems: 'baseline', gap: '8px' }}>
+            <span className="label-red" style={{ lineHeight: '1.2' }}>{language === 'bn' ? 'চিত্রকথন' : 'CHITROKOTHON'}</span>
+            <span className="label-black" style={{ lineHeight: '1.2' }}>{language === 'bn' ? 'CHITROKOTHON' : 'চিত্রকথন'}</span>
           </div>
           <h2 className="section-heading">
             {language === 'bn' ? 'রক্তকরবী ' : 'RoktoKorobi '}
@@ -544,8 +544,8 @@ export function GallerySection({ data, onSeeAll, language }) {
         <div style={{ padding: '60px 20px', background:'white', borderRadius:20, margin:'0 28px', textAlign:'center' }}>
           <div style={{
             border: '2px dashed #E0D5D5',
-            borderRadius: '12px',
-            minHeight: '180px',
+            borderRadius: '16px',
+            minHeight: '400px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -553,7 +553,7 @@ export function GallerySection({ data, onSeeAll, language }) {
             gap: '16px',
             padding: '40px 20px'
           }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9E8080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#9E8080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
