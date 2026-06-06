@@ -74,35 +74,32 @@ export function BlogSection({ data, onSeeAll }) {
   // Handle empty posts
   if (!posts || posts.length === 0) {
     return (
-      <section ref={ref} style={{ background: DCREAM, padding:'80px 24px', overflow:'hidden' }}>
+      <section ref={ref} className="py-20 bg-[#EDE0CF] overflow-hidden">
         <style dangerouslySetInnerHTML={{ __html: CSS }}/>
-        <div style={{ maxWidth:1140, margin:'0 auto', textAlign:'center' }}>
-          <div className={`rk-reveal ${vis?'rk-vis':''}`}
-            style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end',
-              marginBottom:48, flexWrap:'wrap', gap:16 }}>
-            <div>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                <div style={{ width:28, height:2, background:CR, borderRadius:1 }}/>
-                <span style={{ fontSize:9, fontWeight:800, letterSpacing:'.28em',
-                  textTransform:'uppercase', color:CR }}>{data.lbl}</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`rk-reveal ${vis?'rk-vis':''} flex justify-between items-end mb-12 flex-wrap gap-4`}>
+            <div className="flex-1 min-w-[280px]">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <div className="w-7 h-0.5 bg-[#8B1A1A] rounded-sm"/>
+                <span className="text-[9px] font-extrabold tracking-[0.28em] uppercase text-[#8B1A1A]">
+                  {data.lbl}
+                </span>
               </div>
-              <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
-                fontWeight:900, color:DK, lineHeight:1.1 }}>
+              <h2 className="font-serif font-black text-[clamp(28px,3.5vw,46px)] leading-[1.1] text-[#1A0808]">
                 {data.t1}{' '}
-                <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+                <em className="text-[#8B1A1A] italic">{data.t2}</em>
               </h2>
-              <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:400 }}>{data.desc}</p>
+              <p className="text-[#6B5045] text-[13.5px] mt-2 max-w-md">
+                {data.desc}
+              </p>
             </div>
-            <button className="rk-ob"
-              onClick={onSeeAll}
-              style={{ border:`1.5px solid ${CR}`, color:CR, padding:'10px 26px',
-                borderRadius:10, fontSize:11, fontWeight:700, background:'transparent',
-                whiteSpace:'nowrap', letterSpacing:'.06em' }}>
+            <button className="rk-ob border-[1.5px] border-[#8B1A1A] text-[#8B1A1A] px-6 py-2.5 rounded-lg text-[11px] font-bold bg-transparent whitespace-nowrap tracking-[0.06em] hover:bg-[#8B1A1A] hover:text-white transition-colors"
+              onClick={onSeeAll}>
               {data.all}
             </button>
           </div>
-          <div style={{ padding:'60px 20px', background:'white', borderRadius:20, marginTop:40, display:'flex', alignItems:'center', justifyContent:'center', minHeight:'300px' }}>
-            <p style={{ color:WM, fontSize:16, textAlign:'center' }}>
+          <div className="p-16 bg-white rounded-2xl mt-10 flex items-center justify-center min-h-[300px]">
+            <p className="text-[#6B5045] text-base text-center">
               No blog posts yet. Be the first to share your story!
             </p>
           </div>
