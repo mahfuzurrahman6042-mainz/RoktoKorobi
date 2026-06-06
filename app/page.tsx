@@ -1535,7 +1535,7 @@ export default function Home() {
               <span style={{ width: '28px', height: '2px', background: '#8B1A1A', display: 'inline-block', flexShrink: 0, alignSelf: 'center' }}></span>
             </div>
             <h2 className="section-heading" style={{ marginBottom: '0.65rem', lineHeight: '1.2' }}>
-              TEST CHANGE - {language === 'bn' ? 'রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? 'ম্যাপে' : 'on Map'}</span>
+              {language === 'bn' ? 'রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red">{language === 'bn' ? 'ম্যাপে' : 'on Map'}</span>
             </h2>
             <p className="s-desc" style={{ fontSize: '14.5px', color: '#9A7A7A', marginTop: '0.65rem', maxWidth: '500px', lineHeight: '1.65' }}>
               {language === 'bn'
