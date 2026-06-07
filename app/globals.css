@@ -1294,6 +1294,11 @@ nav.solid {
   line-height: 1;
   display: inline-block;
 }
+.nav-logo-emoji {
+  font-size: 28px;
+  line-height: 1;
+  display: inline-block;
+}
 .nav-logo-text {
   font-family:'Tiro Bangla', serif; font-size:24px;
   color:var(--blood); letter-spacing:-.01em; line-height:1;
