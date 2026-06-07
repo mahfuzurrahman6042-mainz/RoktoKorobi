@@ -606,7 +606,7 @@ export function GallerySection({ data, onSeeAll, language }) {
 
             {/* View Full Gallery — top right */}
             <a
-              href="/chitrokothon"
+              href="/illustrations"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
