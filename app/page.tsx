@@ -1526,24 +1526,7 @@ export default function Home() {
       {/* Map Section */}
       <section className="map-section py-16 lg:py-24 bg-white relative z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="map-header reveal mb-12 lg:mb-16 max-w-7xl">
-            <div className="section-eyebrow flex items-center gap-3 mb-4">
-              <span className="w-7 h-0.5 bg-[#8B1A1A] flex-shrink-0"></span>
-              <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[#8B1A1A] leading-tight">
-                {language === 'bn' ? 'লাইভ ম্যাপ' : 'Live Map'}
-              </span>
-              <span className="w-7 h-0.5 bg-[#8B1A1A] flex-shrink-0"></span>
-            </div>
-            <h2 className="section-heading mb-3 leading-tight">
-              {language === 'bn' ? 'রক্তদাতা ও হাসপাতাল' : 'Donors & Hospitals'} <span className="heading-red italic">{language === 'bn' ? 'ম্যাপে' : 'on Map'}</span>
-            </h2>
-            <p className="s-desc text-[14.5px] text-[#9A7A7A] mt-3 max-w-lg leading-relaxed">
-              {language === 'bn'
-                ? 'বাংলাদেশের সকল জেলায় রক্তদাতা ও হাসপাতালের অবস্থান দেখুন।'
-                : 'View blood donors and hospital locations across all districts of Bangladesh.'}
-            </p>
-          </div>
-          <div className="map-container reveal delay-1 relative max-w-7xl">
+          <div className="map-container reveal relative max-w-7xl">
             <MapErrorBoundary>
               <BangladeshMap
                 center={{ lat: 23.6850, lng: 90.3563 }}
