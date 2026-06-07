@@ -67,40 +67,45 @@ const TAG_C = {
 /* ════════════════════════════════════════════
    SECTION 1 — BLOG  (Magazine grid layout)
 ════════════════════════════════════════════ */
-export function BlogSection({ data, onSeeAll }) {
+export function BlogSection({ data, onSeeAll, language }) {
   const [ref, vis] = useInView();
   const posts = data.posts;
 
   // Handle empty posts
   if (!posts || posts.length === 0) {
     return (
-      <section ref={ref} className="py-20 bg-[#EDE0CF] overflow-hidden">
+      <section ref={ref} className="py-16 lg:py-24 bg-[#f5e6d8]">
         <style dangerouslySetInnerHTML={{ __html: CSS }}/>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`rk-reveal ${vis?'rk-vis':''} flex justify-between items-end mb-12 flex-wrap gap-4`}>
-            <div className="flex-1 min-w-[280px]">
-              <div className="flex items-center gap-2.5 mb-2.5">
-                <div className="w-7 h-0.5 bg-[#8B1A1A] rounded-sm"/>
-                <span className="text-[9px] font-extrabold tracking-[0.28em] uppercase text-[#8B1A1A]">
-                  {data.lbl}
-                </span>
-              </div>
-              <h2 className="font-serif font-black text-[clamp(28px,3.5vw,46px)] leading-[1.1] text-[#1A0808]">
-                {data.t1}{' '}
-                <em className="text-[#8B1A1A] italic">{data.t2}</em>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`rk-reveal ${vis?'rk-vis':''} sec-header flex items-start justify-between gap-3 mb-5 flex-wrap`}>
+            <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
+              <span className="sec-tag text-[clamp(9px,2vw,11px)] tracking-[1.5px] text-[#c0392b] font-bold uppercase">
+                {language === 'bn' ? '— ব্লগ —' : '— Blog —'}
+              </span>
+              <h2 className="sec-title font-serif font-bold text-[clamp(18px,4.5vw,26px)] text-[#1a1a1a] leading-[1.45]">
+                {language === 'bn' ? 'সর্বশেষ ' : 'Latest '}
+                <em className="text-[#c0392b] not-italic">{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
               </h2>
-              <p className="text-[#6B5045] text-[13.5px] mt-2 max-w-md">
-                {data.desc}
+              <p className="sec-sub text-[clamp(11px,2.5vw,13px)] text-[#7a6a60] leading-[1.75] mt-1 max-w-md">
+                {language === 'bn'
+                  ? 'রক্তদান সম্পর্কিত নিবন্ধ, গাইড এবং অনুপ্রেরণার গল্পগুলো আবিষ্কার করুন।'
+                  : 'Discover articles, guides, and stories about blood donation.'}
               </p>
             </div>
-            <button className="rk-ob border-[1.5px] border-[#8B1A1A] text-[#8B1A1A] px-6 py-2.5 rounded-lg text-[11px] font-bold bg-transparent whitespace-nowrap tracking-[0.06em] hover:bg-[#8B1A1A] hover:text-white transition-colors"
+            <button className="btn-outline inline-block px-4 py-1.5 border-[1.5px] border-[#1a1a1a] rounded-[30px] text-[clamp(10px,2vw,12px)] font-semibold text-[#1a1a1a] cursor-pointer whitespace-nowrap flex-shrink-0 self-start transition-colors hover:bg-[#1a1a1a] hover:text-[#f5e6d8]"
               onClick={onSeeAll}>
-              {data.all}
+              {language === 'bn' ? 'সব পোস্ট দেখুন →' : 'See All Posts →'}
             </button>
           </div>
-          <div className="p-16 bg-white rounded-2xl mt-10 flex items-center justify-center min-h-[300px]">
-            <p className="text-[#6B5045] text-base text-center">
-              No blog posts yet. Be the first to share your story!
+          <div className="empty p-[clamp(28px,6vw,48px)] text-center border-[1.5px] border-dashed border-[#d4a898] rounded-[10px] bg-[rgba(255,255,255,0.4)]">
+            <span className="empty-icon text-[clamp(28px,6vw,36px)] mb-2.5 opacity-65 block">✍️</span>
+            <p className="empty-title font-serif text-[clamp(14px,3.5vw,17px)] text-[#3a2a22] mb-1.5">
+              {language === 'bn' ? 'এখনো কোনো পোস্ট নেই।' : 'No blog posts yet.'}
+            </p>
+            <p className="empty-msg text-[clamp(11px,2.5vw,13px)] text-[#9a8880] leading-[1.75] max-w-[320px] mx-auto">
+              {language === 'bn'
+                ? 'প্রথম হন — আপনার গল্প লিখুন এবং কাউকে রক্তদানে অনুপ্রাণিত করুন!'
+                : 'Be the first to share your story! Your words could inspire someone to save a life.'}
             </p>
           </div>
         </div>

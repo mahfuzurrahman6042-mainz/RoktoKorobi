@@ -1525,7 +1525,25 @@ export default function Home() {
 
       {/* Map Section */}
       <section className="map-section py-16 lg:py-24 bg-white relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+          <div className="sec-header flex items-start justify-between gap-3 mb-5 flex-wrap">
+            <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
+              <span className="sec-tag text-[clamp(9px,2vw,11px)] tracking-[1.5px] text-[#c0392b] font-bold uppercase">
+                {language === 'bn' ? '— আপনার কাছের রক্তদাতা —' : '— Find Donors —'}
+              </span>
+              <h1 className="sec-title font-serif font-bold text-[clamp(18px,4.5vw,26px)] text-[#1a1a1a] leading-[1.45]">
+                {language === 'bn' ? 'কাছেই আছেন একজন ' : 'Find a '}
+                <em className="text-[#c0392b] not-italic">{language === 'bn' ? 'জীবনদাতা' : 'Life Saver'}</em>
+                {language === 'bn' ? '' : ' Close to '}
+                <em className="text-[#c0392b] not-italic">{language === 'bn' ? '' : 'You'}</em>
+              </h1>
+              <p className="sec-sub text-[clamp(11px,2.5vw,13px)] text-[#7a6a60] leading-[1.75] mt-1 max-w-md">
+                {language === 'bn'
+                  ? 'প্রতিটি রক্তের ফোঁটার মূল্য অপরিসীম। আপনার আশেপাশের নিবন্ধিত রক্তদাতাদের খুঁজুন এবং আজই একটি জীবন বাঁচান।'
+                  : 'Every drop counts. Discover registered blood donors in your area and connect with them instantly.'}
+              </p>
+            </div>
+          </div>
           <div className="map-container reveal relative max-w-7xl">
             <MapErrorBoundary>
               <BangladeshMap
@@ -1538,6 +1556,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Blog Section */}
+      <BlogSection data={SECTION_DATA.blog[language]} onSeeAll={() => router.push('/blog')} language={language} />
+
+      {/* Chitrokothon Section */}
+      <GallerySection data={SECTION_DATA.gallery[language]} onSeeAll={() => router.push('/illustrations')} language={language} />
 
       {/* Testimonials Section */}
       <TestimonialsSection data={SECTION_DATA.testimonials[language]} onSeeAll={() => router.push('/testimonials')} />

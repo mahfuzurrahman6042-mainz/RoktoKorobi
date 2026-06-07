@@ -490,45 +490,38 @@ export function GallerySection({ data, onSeeAll, language }) {
   // Handle empty arts
   if (!data.arts || data.arts.length === 0) {
     return (
-      <section ref={ref}
-        style={{
-          background: "#f5ede6",
-          minHeight: "100vh",
-          paddingBottom: 80,
-          position: "relative",
-          overflow: "hidden",
-          fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF,
-        }}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400;1,700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
-        `}</style>
-        <div className="px-7 py-4 pb-8 relative z-10">
-          <div className="section-label inline-flex items-baseline gap-2">
-            <span className="label-red leading-tight">{language === 'bn' ? 'চিত্রকথন' : 'CHITROKOTHON'}</span>
-            <span className="label-black leading-tight">{language === 'bn' ? 'CHITROKOTHON' : 'চিত্রকথন'}</span>
+      <section ref={ref} className="py-16 lg:py-24 bg-[#f5e6d8]">
+        <style dangerouslySetInnerHTML={{ __html: CSS }}/>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className={`rk-reveal ${vis?'rk-vis':''} sec-header flex items-start justify-between gap-3 mb-5 flex-wrap`}>
+            <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
+              <span className="sec-tag text-[clamp(9px,2vw,11px)] tracking-[1.5px] text-[#c0392b] font-bold uppercase">
+                {language === 'bn' ? '— চিত্রকথন · CHITROKOTHON —' : '— Chitrokothon চিত্রকথন —'}
+              </span>
+              <h2 className="sec-title font-serif font-bold text-[clamp(18px,4.5vw,26px)] text-[#1a1a1a] leading-[1.45]">
+                {language === 'bn' ? 'রক্তকরবী ' : 'RoktoKorobi '}
+                <em className="text-[#c0392b] not-italic">{language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}</em>
+              </h2>
+              <p className="sec-sub text-[clamp(11px,2.5vw,13px)] text-[#7a6a60] leading-[1.75] mt-1 max-w-md">
+                {language === 'bn'
+                  ? 'আমাদের কমিউনিটির শিল্পকর্ম — জীবন বাঁচানোর অনুপ্রেরণায় তৈরি।'
+                  : 'Artwork by our community, created in the spirit of saving lives.'}
+              </p>
+            </div>
+            <button className="btn-red inline-block px-4 py-1.5 bg-[#c0392b] rounded-[30px] text-[clamp(10px,2vw,12px)] font-semibold text-white cursor-pointer whitespace-nowrap flex-shrink-0 self-start"
+              onClick={onSeeAll}>
+              {language === 'bn' ? 'পূর্ণ গ্যালারি দেখুন →' : 'View Full Gallery →'}
+            </button>
           </div>
-          <h2 className="section-heading">
-            {language === 'bn' ? 'রক্তকরবী ' : 'RoktoKorobi '}
-            <span className="heading-red">{language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}</span>
-          </h2>
-          <p className="mb-6 text-[13px] text-[rgba(80,20,20,0.55)] font-normal leading-[1.6]">
-            {language === 'bn' ? 'সম্প্রদায়ের শিল্পকর্ম — জীবন বাঁচানোর অনুপ্রেরণায়' : 'Artwork by our community, created in the spirit of saving lives.'}
-          </p>
-          <button 
-            className="btn-gallery bg-[#C0392B] text-white text-[15px] font-medium px-6 py-3 rounded-lg border-none cursor-pointer hover:bg-[#A93226] transition-colors"
-            onClick={onSeeAll}
-          >
-            {language === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'} →
-          </button>
-        </div>
-        <div className="p-16 bg-white rounded-2xl mx-7 text-center">
-          <div className="border-2 border-dashed border-[#E0D5D5] rounded-2xl min-h-[400px] flex flex-col items-center justify-center gap-4 p-10">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#9E8080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-              <circle cx="12" cy="13" r="4"/>
-            </svg>
-            <p className="text-[#9E8080] text-base text-center m-0">
-              {language === 'bn' ? 'এখনও কোনো শিল্পকর্ম নেই। আপনার সৃষ্টি প্রথম শেয়ার করুন!' : 'No artwork yet. Be the first to share your creation!'}
+          <div className="empty p-[clamp(28px,6vw,48px)] text-center border-[1.5px] border-dashed border-[#d4a898] rounded-[10px] bg-[rgba(255,255,255,0.4)]">
+            <span className="empty-icon text-[clamp(28px,6vw,36px)] mb-2.5 opacity-65 block">🎨</span>
+            <p className="empty-title font-serif text-[clamp(14px,3.5vw,17px)] text-[#3a2a22] mb-1.5">
+              {language === 'bn' ? 'এখনো কোনো শিল্পকর্ম নেই।' : 'No artwork yet.'}
+            </p>
+            <p className="empty-msg text-[clamp(11px,2.5vw,13px)] text-[#9a8880] leading-[1.75] max-w-[320px] mx-auto">
+              {language === 'bn'
+                ? 'প্রথম হন — আপনার সৃষ্টি শেয়ার করুন এবং শিল্পের মাধ্যমে একটি জীবন স্পর্শ করুন!'
+                : 'Be the first to share your creation! Let your art speak for a life saved.'}
             </p>
           </div>
         </div>
