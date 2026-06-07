@@ -490,7 +490,7 @@ export function GallerySection({ data, onSeeAll, language }) {
   // Handle empty arts
   if (!data.arts || data.arts.length === 0) {
     return (
-      <section ref={ref} className="py-16 lg:py-24 bg-[#f5e6d8]">
+      <section ref={ref} className="sec py-16 lg:py-24 bg-[#f5e6d8]">
         <style dangerouslySetInnerHTML={{ __html: CSS }}/>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`rk-reveal ${vis?'rk-vis':''} sec-header flex items-start justify-between gap-3 mb-5 flex-wrap`}>

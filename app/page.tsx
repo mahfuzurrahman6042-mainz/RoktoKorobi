@@ -1524,8 +1524,8 @@ export default function Home() {
       </section>
 
       {/* Map Section */}
-      <section className="map-section py-16 lg:py-24 bg-white relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+      <section className="map-sec py-16 lg:py-24 bg-white relative z-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="sec-header flex items-start justify-between gap-3 mb-5 flex-wrap">
             <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
               <span className="sec-tag text-[clamp(9px,2vw,11px)] tracking-[1.5px] text-[#c0392b] font-bold uppercase">
@@ -1544,7 +1544,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="map-container reveal relative max-w-7xl">
+          <div className="map-frame w-full h-[clamp(180px,40vw,280px)] rounded-lg overflow-hidden border border-[#d4c4b8] mt-4 bg-[#efe0d4]">
             <MapErrorBoundary>
               <BangladeshMap
                 center={{ lat: 23.6850, lng: 90.3563 }}
@@ -1557,11 +1557,17 @@ export default function Home() {
         </div>
       </section>
 
+      <div className="divider h-px bg-gradient-to-r from-transparent via-[#d4a898] to-transparent mx-4 sm:mx-6 lg:mx-12"></div>
+
       {/* Blog Section */}
       <BlogSection data={SECTION_DATA.blog[language]} onSeeAll={() => router.push('/blog')} language={language} />
 
+      <div className="divider h-px bg-gradient-to-r from-transparent via-[#d4a898] to-transparent mx-4 sm:mx-6 lg:mx-12"></div>
+
       {/* Chitrokothon Section */}
       <GallerySection data={SECTION_DATA.gallery[language]} onSeeAll={() => router.push('/illustrations')} language={language} />
+
+      <div className="divider h-px bg-gradient-to-r from-transparent via-[#d4a898] to-transparent mx-4 sm:mx-6 lg:mx-12"></div>
 
       {/* Testimonials Section */}
       <TestimonialsSection data={SECTION_DATA.testimonials[language]} onSeeAll={() => router.push('/testimonials')} />
