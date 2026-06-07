@@ -1539,12 +1539,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Blog Section */}
-      <BlogSection data={SECTION_DATA.blog[language]} onSeeAll={() => router.push('/blog')} />
-
-      {/* Chitrokothon Section */}
-      <GallerySection data={SECTION_DATA.gallery[language]} onSeeAll={() => router.push('/illustrations')} language={language} />
-
       {/* Testimonials Section */}
       <TestimonialsSection data={SECTION_DATA.testimonials[language]} onSeeAll={() => router.push('/testimonials')} />
 
