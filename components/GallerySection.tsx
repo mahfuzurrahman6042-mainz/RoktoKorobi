@@ -489,41 +489,240 @@ export function GallerySection({ data, onSeeAll, language }) {
 
   // Handle empty arts
   if (!data.arts || data.arts.length === 0) {
+    const CARDS = [
+      { opacity: 1,    titleW: "75%", subtitleW: "50%" },
+      { opacity: 0.65, titleW: "65%", subtitleW: "45%" },
+      { opacity: 0.35, titleW: "80%", subtitleW: "55%" },
+    ];
+
     return (
-      <section ref={ref} className="sec py-16 lg:py-24 bg-[#f5e6d8]">
-        <style dangerouslySetInnerHTML={{ __html: CSS }}/>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`rk-reveal ${vis?'rk-vis':''} sec-header flex items-start justify-between gap-3 mb-5 flex-wrap`}>
-            <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
-              <span className="sec-tag text-[clamp(9px,2vw,11px)] text-[#c0392b] font-bold" style={{ letterSpacing: language === 'bn' ? '1.5px' : '2px', textTransform: language === 'bn' ? 'none' : 'uppercase' }}>
-                {language === 'bn' ? '— চিত্রকথন · CHITROKOTHON —' : '— Chitrokothon চিত্রকথন —'}
-              </span>
-              <h2 className="sec-title font-serif font-bold text-[#1a1a1a]" style={{ fontSize: language === 'bn' ? 'clamp(18px,4.5vw,26px)' : 'clamp(20px,4.5vw,28px)', lineHeight: language === 'bn' ? '1.45' : '1.25' }}>
+      <section
+        ref={ref}
+        style={{
+          background: "#F5EFE8",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Subtle background texture */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `radial-gradient(circle at 75% 30%, rgba(139,26,26,0.05) 0%, transparent 50%),
+                              radial-gradient(circle at 20% 70%, rgba(192,57,43,0.03) 0%, transparent 40%)`,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "80px 48px",
+            position: "relative",
+          }}
+        >
+          {/* Section Header */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              marginBottom: "64px",
+              flexWrap: "wrap",
+              gap: "24px",
+            }}
+          >
+            <div>
+              {/* Eyebrow */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+                <span
+                  style={{
+                    fontFamily: "'Hind Siliguri', sans-serif",
+                    fontSize: language === 'bn' ? "12px" : "11px",
+                    fontWeight: "600",
+                    letterSpacing: language === 'bn' ? "2px" : "3px",
+                    textTransform: language === 'bn' ? "none" : "uppercase",
+                    color: "#8B1A1A",
+                  }}
+                >
+                  {language === 'bn' ? '— চিত্রকথন —' : 'Chitrokothon'}
+                </span>
+                <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+              </div>
+
+              {/* Headline */}
+              <h2
+                style={{
+                  fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : "'Playfair Display', serif",
+                  fontSize: language === 'bn' ? "clamp(28px, 4vw, 48px)" : "clamp(30px, 4vw, 48px)",
+                  fontWeight: "700",
+                  color: "#1A0A0A",
+                  lineHeight: language === 'bn' ? "1.2" : "1.15",
+                  margin: "0 0 12px",
+                }}
+              >
                 {language === 'bn' ? 'রক্তকরবী ' : 'RoktoKorobi '}
-                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}</em>
+                <em
+                  style={{
+                    fontStyle: "italic",
+                    color: "#8B1A1A",
+                    fontFamily: language === 'bn' ? "'Playfair Display', serif" : "'Playfair Display', serif",
+                    fontWeight: "700",
+                  }}
+                >
+                  {language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}
+                </em>
               </h2>
-              <p className="sec-sub text-[#7a6a60] mt-1 max-w-md" style={{ fontSize: 'clamp(11px,2.5vw,13px)', lineHeight: language === 'bn' ? '1.75' : '1.65' }}>
+
+              <p
+                style={{
+                  fontFamily: "'Hind Siliguri', sans-serif",
+                  fontSize: "15px",
+                  color: "#5C3D2E",
+                  margin: "0",
+                  lineHeight: language === 'bn' ? "1.8" : "1.7",
+                  maxWidth: "480px",
+                }}
+              >
                 {language === 'bn'
-                  ? 'আমাদের কমিউনিটির শিল্পকর্ম — জীবন বাঁচানোর অনুপ্রেরণায় তৈরি।'
-                  : 'Artwork by our community, created in the spirit of saving lives.'}
+                  ? 'আমাদের কমিউনিটির শিল্পকর্ম — '
+                  : 'Artwork by our community, created in the spirit of '}
+                <strong style={{ color: "#1A0A0A", fontWeight: "600" }}>
+                  {language === 'bn' ? 'জীবন বাঁচানোর' : 'saving lives'}
+                </strong>
+                {language === 'bn' ? ' অনুপ্রেরণায় তৈরি।' : '.'}
               </p>
             </div>
-            <button className="btn-red inline-block px-4 py-1.5 bg-[#c0392b] rounded-[30px] text-[clamp(10px,2vw,12px)] font-semibold text-white cursor-pointer whitespace-nowrap flex-shrink-0 self-start"
-              onClick={onSeeAll}>
-              {language === 'bn' ? 'পূর্ণ গ্যালারি দেখুন →' : 'View Full Gallery →'}
-            </button>
+
+            {/* View Full Gallery — top right */}
+            <a
+              href="/chitrokothon"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#8B1A1A",
+                fontFamily: "'Hind Siliguri', sans-serif",
+                fontSize: "14px",
+                fontWeight: "600",
+                textDecoration: "none",
+                borderBottom: "1.5px solid rgba(139,26,26,0.3)",
+                paddingBottom: "2px",
+                transition: "all 0.2s",
+              }}
+            >
+              {language === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </a>
           </div>
-          <div className="empty p-[clamp(28px,6vw,48px)] text-center border-[1.5px] border-dashed border-[#d4a898] rounded-[10px] bg-[rgba(255,255,255,0.4)]">
-            <span className="empty-icon text-[clamp(28px,6vw,36px)] mb-2.5 opacity-65 block">🎨</span>
-            <p className="empty-title font-serif text-[#3a2a22] mb-1.5" style={{ fontSize: language === 'bn' ? 'clamp(14px,3.5vw,17px)' : 'clamp(15px,3.5vw,18px)' }}>
-              {language === 'bn' ? 'এখনো কোনো শিল্পকর্ম নেই।' : 'No artwork yet.'}
-            </p>
-            <p className="empty-msg text-[#9a8880] leading-[1.75] max-w-[320px] mx-auto" style={{ fontSize: 'clamp(11px,2.5vw,13px)' }}>
-              {language === 'bn'
-                ? 'প্রথম হন — আপনার সৃষ্টি শেয়ার করুন এবং শিল্পের মাধ্যমে একটি জীবন স্পর্শ করুন!'
-                : 'Be the first to share your creation! Let your art speak for a life saved.'}
-            </p>
+
+          {/* Ghost artwork cards — 3 columns, fixed uniform height */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "24px",
+              marginBottom: "64px",
+            }}
+          >
+            {CARDS.map((card, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "rgba(255,255,255,0.5)",
+                  border: "1.5px dashed rgba(139,26,26,0.15)",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  opacity: card.opacity,
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "340px",
+                }}
+              >
+                {/* Image placeholder area */}
+                <div
+                  style={{
+                    flexShrink: 0,
+                    height: "240px",
+                    background: "rgba(139,26,26,0.05)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <svg
+                    width="36"
+                    height="36"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="rgba(139,26,26,0.22)"
+                    strokeWidth="1.5"
+                  >
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                </div>
+
+                {/* Caption skeleton */}
+                <div
+                  style={{
+                    flex: 1,
+                    padding: "20px 24px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "15px",
+                      background: "rgba(139,26,26,0.07)",
+                      borderRadius: "4px",
+                      width: card.titleW,
+                    }}
+                  />
+                  <div
+                    style={{
+                      height: "12px",
+                      background: "rgba(139,26,26,0.05)",
+                      borderRadius: "4px",
+                      width: card.subtitleW,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Bottom divider */}
+          <div
+            style={{
+              height: "1px",
+              background:
+                "linear-gradient(90deg, transparent, rgba(139,26,26,0.15), transparent)",
+            }}
+          />
         </div>
       </section>
     );
