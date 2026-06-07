@@ -1524,36 +1524,186 @@ export default function Home() {
       </section>
 
       {/* Map Section */}
-      <section className="map-sec py-16 lg:py-24 bg-white relative z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="sec-header flex items-start justify-between gap-3 mb-5 flex-wrap">
-            <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
-              <span className="sec-tag text-[clamp(9px,2vw,11px)] text-[#c0392b] font-bold uppercase" style={{ letterSpacing: language === 'bn' ? '1.5px' : '2px' }}>
-                {language === 'bn' ? '— আপনার কাছের রক্তদাতা —' : '— Find Donors —'}
+      <section
+        style={{
+          background: "linear-gradient(180deg, #F5EFE8 0%, #EDE4D8 100%)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Decorative top border */}
+        <div
+          style={{
+            height: "3px",
+            background: "linear-gradient(90deg, transparent, #8B1A1A 30%, #C0392B 70%, transparent)",
+          }}
+        />
+
+        {/* Header Block */}
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "72px 48px 40px",
+            display: "grid",
+            gridTemplateColumns: "1fr auto",
+            alignItems: "flex-end",
+            gap: "32px",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                marginBottom: "16px",
+              }}
+            >
+              <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+              <span
+                style={{
+                  fontFamily: "'Hind Siliguri', sans-serif",
+                  fontSize: language === 'bn' ? "12px" : "11px",
+                  fontWeight: "600",
+                  letterSpacing: language === 'bn' ? "2px" : "3px",
+                  textTransform: language === 'bn' ? "none" : "uppercase",
+                  color: "#8B1A1A",
+                }}
+              >
+                {language === 'bn' ? '— রক্তদাতা খুঁজুন —' : 'Find Donors'}
               </span>
-              <h1 className="sec-title font-serif font-bold text-[#1a1a1a]" style={{ fontSize: 'clamp(18px,4.5vw,26px)', lineHeight: language === 'bn' ? '1.45' : '1.25' }}>
-                {language === 'bn' ? 'কাছেই আছেন একজন ' : 'Find a '}
-                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? 'জীবনদাতা' : 'Life Saver'}</em>
-                {language === 'bn' ? '' : ' Close to '}
-                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? '' : 'You'}</em>
-              </h1>
-              <p className="sec-sub text-[#7a6a60] mt-1 max-w-md" style={{ fontSize: 'clamp(11px,2.5vw,13px)', lineHeight: language === 'bn' ? '1.75' : '1.65' }}>
-                {language === 'bn'
-                  ? 'প্রতিটি রক্তের ফোঁটার মূল্য অপরিসীম। আপনার আশেপাশের নিবন্ধিত রক্তদাতাদের খুঁজুন এবং আজই একটি জীবন বাঁচান।'
-                  : 'Every drop counts. Discover registered blood donors in your area and connect with them instantly.'}
-              </p>
+              <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
             </div>
+
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: language === 'bn' ? "clamp(30px, 4vw, 50px)" : "clamp(32px, 4vw, 52px)",
+                fontWeight: "700",
+                color: "#1A0A0A",
+                lineHeight: language === 'bn' ? "1.2" : "1.15",
+                margin: "0 0 16px",
+                letterSpacing: language === 'bn' ? "0" : "-0.5px",
+              }}
+            >
+              {language === 'bn' ? 'কাছের ' : 'Find a '}
+              <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>
+                {language === 'bn' ? 'জীবনদাতাকে' : 'Life Saver'}
+              </em>
+              {language === 'bn' ? ' খুঁজে নিন' : ' Close to '}
+              <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? '' : 'You'}</em>
+            </h2>
+
+            <p
+              style={{
+                fontFamily: "'Hind Siliguri', sans-serif",
+                fontSize: "16px",
+                color: "#5C3D2E",
+                lineHeight: language === 'bn' ? "1.8" : "1.7",
+                margin: "0",
+                maxWidth: "480px",
+              }}
+            >
+              {language === 'bn'
+                ? 'প্রতিটি ফোঁটা রক্ত মূল্যবান। আপনার এলাকার নিবন্ধিত রক্তদাতাদের খুঁজে বের করুন এবং তাৎক্ষণিকভাবে যোগাযোগ করুন।'
+                : 'Every drop counts. Discover registered blood donors in your area and connect with them instantly.'}
+            </p>
           </div>
-          <div className="map-frame w-full h-[clamp(180px,40vw,280px)] rounded-lg overflow-hidden border border-[#d4c4b8] mt-4 bg-[#efe0d4]">
-            <MapErrorBoundary>
-              <BangladeshMap
-                center={{ lat: 23.6850, lng: 90.3563 }}
-                zoom={7}
-                donors={[]}
-                hospitals={hospitals.length > 0 ? hospitals : []}
-              />
-            </MapErrorBoundary>
+        </div>
+
+        {/* Map Container */}
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "0 48px",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              borderRadius: "16px",
+              overflow: "hidden",
+              border: "2px solid rgba(139,26,26,0.12)",
+              boxShadow: "0 4px 6px rgba(139,26,26,0.05), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5)",
+            }}
+          >
+            <div
+              style={{ height: "520px", width: "100%", background: "#E8DDD0" }}
+            >
+              <MapErrorBoundary>
+                <BangladeshMap
+                  center={{ lat: 23.6850, lng: 90.3563 }}
+                  zoom={7}
+                  donors={[]}
+                  hospitals={hospitals.length > 0 ? hospitals : []}
+                />
+              </MapErrorBoundary>
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "60px",
+                background: "linear-gradient(to bottom, rgba(245,239,232,0.4), transparent)",
+                pointerEvents: "none",
+                zIndex: 999,
+              }}
+            />
           </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "32px 48px 72px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Hind Siliguri', sans-serif",
+              fontSize: "14px",
+              color: "#9E7B6A",
+              margin: "0",
+            }}
+          >
+            {language === 'bn'
+              ? 'নিবন্ধিত দাতারা লাইভ ম্যাপে দেখা যায় — রোগীরা সহজেই খুঁজে পান।'
+              : 'Donors who register appear on the live map for nearby patients to find.'}
+          </p>
+          <a
+            href="/donors"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#8B1A1A",
+              color: "#F5EFE8",
+              fontFamily: "'Hind Siliguri', sans-serif",
+              fontSize: "14px",
+              fontWeight: "600",
+              padding: "12px 28px",
+              borderRadius: "8px",
+              textDecoration: "none",
+              letterSpacing: language === 'bn' ? "0" : "0.5px",
+              transition: "all 0.2s ease",
+            }}
+          >
+            {language === 'bn' ? 'সকল দাতা দেখুন' : 'Browse All Donors'}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
         </div>
       </section>
 
