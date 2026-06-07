@@ -1528,16 +1528,16 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="sec-header flex items-start justify-between gap-3 mb-5 flex-wrap">
             <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
-              <span className="sec-tag text-[clamp(9px,2vw,11px)] tracking-[1.5px] text-[#c0392b] font-bold uppercase">
+              <span className="sec-tag text-[clamp(9px,2vw,11px)] text-[#c0392b] font-bold uppercase" style={{ letterSpacing: language === 'bn' ? '1.5px' : '2px' }}>
                 {language === 'bn' ? '— আপনার কাছের রক্তদাতা —' : '— Find Donors —'}
               </span>
-              <h1 className="sec-title font-serif font-bold text-[clamp(18px,4.5vw,26px)] text-[#1a1a1a] leading-[1.45]">
+              <h1 className="sec-title font-serif font-bold text-[#1a1a1a]" style={{ fontSize: 'clamp(18px,4.5vw,26px)', lineHeight: language === 'bn' ? '1.45' : '1.25' }}>
                 {language === 'bn' ? 'কাছেই আছেন একজন ' : 'Find a '}
-                <em className="text-[#c0392b] not-italic">{language === 'bn' ? 'জীবনদাতা' : 'Life Saver'}</em>
+                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? 'জীবনদাতা' : 'Life Saver'}</em>
                 {language === 'bn' ? '' : ' Close to '}
-                <em className="text-[#c0392b] not-italic">{language === 'bn' ? '' : 'You'}</em>
+                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? '' : 'You'}</em>
               </h1>
-              <p className="sec-sub text-[clamp(11px,2.5vw,13px)] text-[#7a6a60] leading-[1.75] mt-1 max-w-md">
+              <p className="sec-sub text-[#7a6a60] mt-1 max-w-md" style={{ fontSize: 'clamp(11px,2.5vw,13px)', lineHeight: language === 'bn' ? '1.75' : '1.65' }}>
                 {language === 'bn'
                   ? 'প্রতিটি রক্তের ফোঁটার মূল্য অপরিসীম। আপনার আশেপাশের নিবন্ধিত রক্তদাতাদের খুঁজুন এবং আজই একটি জীবন বাঁচান।'
                   : 'Every drop counts. Discover registered blood donors in your area and connect with them instantly.'}

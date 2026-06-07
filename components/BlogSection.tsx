@@ -79,14 +79,14 @@ export function BlogSection({ data, onSeeAll, language }) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`rk-reveal ${vis?'rk-vis':''} sec-header flex items-start justify-between gap-3 mb-5 flex-wrap`}>
             <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
-              <span className="sec-tag text-[clamp(9px,2vw,11px)] tracking-[1.5px] text-[#c0392b] font-bold uppercase">
+              <span className="sec-tag text-[clamp(9px,2vw,11px)] text-[#c0392b] font-bold" style={{ letterSpacing: language === 'bn' ? '1.5px' : '2px', textTransform: language === 'bn' ? 'none' : 'uppercase' }}>
                 {language === 'bn' ? '— ব্লগ —' : '— Blog —'}
               </span>
-              <h2 className="sec-title font-serif font-bold text-[clamp(18px,4.5vw,26px)] text-[#1a1a1a] leading-[1.45]">
+              <h2 className="sec-title font-serif font-bold text-[#1a1a1a]" style={{ fontSize: language === 'bn' ? 'clamp(18px,4.5vw,26px)' : 'clamp(20px,4.5vw,28px)', lineHeight: language === 'bn' ? '1.45' : '1.25' }}>
                 {language === 'bn' ? 'সর্বশেষ ' : 'Latest '}
-                <em className="text-[#c0392b] not-italic">{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
+                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
               </h2>
-              <p className="sec-sub text-[clamp(11px,2.5vw,13px)] text-[#7a6a60] leading-[1.75] mt-1 max-w-md">
+              <p className="sec-sub text-[#7a6a60] mt-1 max-w-md" style={{ fontSize: 'clamp(11px,2.5vw,13px)', lineHeight: language === 'bn' ? '1.75' : '1.65' }}>
                 {language === 'bn'
                   ? 'রক্তদান সম্পর্কিত নিবন্ধ, গাইড এবং অনুপ্রেরণার গল্পগুলো আবিষ্কার করুন।'
                   : 'Discover articles, guides, and stories about blood donation.'}
@@ -99,10 +99,10 @@ export function BlogSection({ data, onSeeAll, language }) {
           </div>
           <div className="empty p-[clamp(28px,6vw,48px)] text-center border-[1.5px] border-dashed border-[#d4a898] rounded-[10px] bg-[rgba(255,255,255,0.4)]">
             <span className="empty-icon text-[clamp(28px,6vw,36px)] mb-2.5 opacity-65 block">✍️</span>
-            <p className="empty-title font-serif text-[clamp(14px,3.5vw,17px)] text-[#3a2a22] mb-1.5">
+            <p className="empty-title font-serif text-[#3a2a22] mb-1.5" style={{ fontSize: language === 'bn' ? 'clamp(14px,3.5vw,17px)' : 'clamp(15px,3.5vw,18px)' }}>
               {language === 'bn' ? 'এখনো কোনো পোস্ট নেই।' : 'No blog posts yet.'}
             </p>
-            <p className="empty-msg text-[clamp(11px,2.5vw,13px)] text-[#9a8880] leading-[1.75] max-w-[320px] mx-auto">
+            <p className="empty-msg text-[#9a8880] leading-[1.75] max-w-[320px] mx-auto" style={{ fontSize: 'clamp(11px,2.5vw,13px)' }}>
               {language === 'bn'
                 ? 'প্রথম হন — আপনার গল্প লিখুন এবং কাউকে রক্তদানে অনুপ্রাণিত করুন!'
                 : 'Be the first to share your story! Your words could inspire someone to save a life.'}
