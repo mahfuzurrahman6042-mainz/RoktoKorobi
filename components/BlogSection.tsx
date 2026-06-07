@@ -74,40 +74,180 @@ export function BlogSection({ data, onSeeAll, language }) {
   // Handle empty posts
   if (!posts || posts.length === 0) {
     return (
-      <section ref={ref} className="sec py-16 lg:py-24 bg-[#f5e6d8]">
-        <style dangerouslySetInnerHTML={{ __html: CSS }}/>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`rk-reveal ${vis?'rk-vis':''} sec-header flex items-start justify-between gap-3 mb-5 flex-wrap`}>
-            <div className="sec-left flex flex-col gap-1.5 min-w-0 flex-1">
-              <span className="sec-tag text-[clamp(9px,2vw,11px)] text-[#c0392b] font-bold" style={{ letterSpacing: language === 'bn' ? '1.5px' : '2px', textTransform: language === 'bn' ? 'none' : 'uppercase' }}>
-                {language === 'bn' ? '— ব্লগ —' : '— Blog —'}
-              </span>
-              <h2 className="sec-title font-serif font-bold text-[#1a1a1a]" style={{ fontSize: language === 'bn' ? 'clamp(18px,4.5vw,26px)' : 'clamp(20px,4.5vw,28px)', lineHeight: language === 'bn' ? '1.45' : '1.25' }}>
+      <section
+        ref={ref}
+        style={{
+          background: "#F5EFE8",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Subtle background texture */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(139,26,26,0.04) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(192,57,43,0.03) 0%, transparent 40%)`,
+            pointerEvents: "none",
+          }}
+        />
+
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "80px 48px",
+            position: "relative",
+          }}
+        >
+          {/* Section Header */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              marginBottom: "64px",
+              flexWrap: "wrap",
+              gap: "24px",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+                <span
+                  style={{
+                    fontFamily: "'Hind Siliguri', sans-serif",
+                    fontSize: language === 'bn' ? "12px" : "11px",
+                    fontWeight: "600",
+                    letterSpacing: language === 'bn' ? "2px" : "3px",
+                    textTransform: language === 'bn' ? "none" : "uppercase",
+                    color: "#8B1A1A",
+                  }}
+                >
+                  {language === 'bn' ? '— ব্লগ —' : 'Blog'}
+                </span>
+                <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+              </div>
+
+              <h2
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(30px, 4vw, 48px)",
+                  fontWeight: "700",
+                  color: "#1A0A0A",
+                  lineHeight: language === 'bn' ? "1.2" : "1.15",
+                  margin: "0 0 12px",
+                }}
+              >
                 {language === 'bn' ? 'সর্বশেষ ' : 'Latest '}
-                <em className="text-[#c0392b]" style={{ fontStyle: language === 'bn' ? 'normal' : 'italic' }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
+                <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
               </h2>
-              <p className="sec-sub text-[#7a6a60] mt-1 max-w-md" style={{ fontSize: 'clamp(11px,2.5vw,13px)', lineHeight: language === 'bn' ? '1.75' : '1.65' }}>
+
+              <p
+                style={{
+                  fontFamily: "'Hind Siliguri', sans-serif",
+                  fontSize: "15px",
+                  color: "#5C3D2E",
+                  margin: "0",
+                  lineHeight: language === 'bn' ? "1.8" : "1.7",
+                }}
+              >
                 {language === 'bn'
-                  ? 'রক্তদান সম্পর্কিত নিবন্ধ, গাইড এবং অনুপ্রেরণার গল্পগুলো আবিষ্কার করুন।'
+                  ? 'রক্তদান সম্পর্কিত নিবন্ধ, গাইড এবং অনুপ্রেরণামূলক গল্প পড়ুন।'
                   : 'Discover articles, guides, and stories about blood donation.'}
               </p>
             </div>
-            <button className="btn-outline inline-block px-4 py-1.5 border-[1.5px] border-[#1a1a1a] rounded-[30px] text-[clamp(10px,2vw,12px)] font-semibold text-[#1a1a1a] cursor-pointer whitespace-nowrap flex-shrink-0 self-start transition-colors hover:bg-[#1a1a1a] hover:text-[#f5e6d8]"
-              onClick={onSeeAll}>
-              {language === 'bn' ? 'সব পোস্ট দেখুন →' : 'See All Posts →'}
-            </button>
+
+            {/* See All Posts button — top right */}
+            <a
+              href="/blog"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#8B1A1A",
+                fontFamily: "'Hind Siliguri', sans-serif",
+                fontSize: "14px",
+                fontWeight: "600",
+                textDecoration: "none",
+                borderBottom: "1.5px solid rgba(139,26,26,0.3)",
+                paddingBottom: "2px",
+                transition: "all 0.2s",
+              }}
+            >
+              {language === 'bn' ? 'সব পোস্ট দেখুন' : 'See All Posts'}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+              </svg>
+            </a>
           </div>
-          <div className="empty p-[clamp(28px,6vw,48px)] text-center border-[1.5px] border-dashed border-[#d4a898] rounded-[10px] bg-[rgba(255,255,255,0.4)]">
-            <span className="empty-icon text-[clamp(28px,6vw,36px)] mb-2.5 opacity-65 block">✍️</span>
-            <p className="empty-title font-serif text-[#3a2a22] mb-1.5" style={{ fontSize: language === 'bn' ? 'clamp(14px,3.5vw,17px)' : 'clamp(15px,3.5vw,18px)' }}>
-              {language === 'bn' ? 'এখনো কোনো পোস্ট নেই।' : 'No blog posts yet.'}
-            </p>
-            <p className="empty-msg text-[#9a8880] leading-[1.75] max-w-[320px] mx-auto" style={{ fontSize: 'clamp(11px,2.5vw,13px)' }}>
-              {language === 'bn'
-                ? 'প্রথম হন — আপনার গল্প লিখুন এবং কাউকে রক্তদানে অনুপ্রাণিত করুন!'
-                : 'Be the first to share your story! Your words could inspire someone to save a life.'}
-            </p>
+
+          {/* Ghost placeholder cards */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "24px",
+              marginBottom: "64px",
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  background: "rgba(255,255,255,0.5)",
+                  border: "1.5px dashed rgba(139,26,26,0.15)",
+                  borderRadius: "16px",
+                  padding: "40px 32px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: "16px",
+                  minHeight: "280px",
+                  opacity: i === 0 ? 1 : i === 1 ? 0.6 : 0.3,
+                  transition: "opacity 0.3s",
+                }}
+              >
+                {/* Category pill placeholder */}
+                <div
+                  style={{
+                    width: "80px",
+                    height: "24px",
+                    background: "rgba(139,26,26,0.07)",
+                    borderRadius: "100px",
+                  }}
+                />
+                {/* Title placeholder lines */}
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ height: "20px", background: "rgba(139,26,26,0.07)", borderRadius: "4px", width: "90%" }} />
+                  <div style={{ height: "20px", background: "rgba(139,26,26,0.07)", borderRadius: "4px", width: "70%" }} />
+                </div>
+                {/* Body placeholder lines */}
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ height: "12px", background: "rgba(139,26,26,0.05)", borderRadius: "4px" }} />
+                  <div style={{ height: "12px", background: "rgba(139,26,26,0.05)", borderRadius: "4px" }} />
+                  <div style={{ height: "12px", background: "rgba(139,26,26,0.05)", borderRadius: "4px", width: "60%" }} />
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Bottom divider */}
+          <div
+            style={{
+              marginTop: "80px",
+              height: "1px",
+              background: "linear-gradient(90deg, transparent, rgba(139,26,26,0.15), transparent)",
+            }}
+          />
         </div>
       </section>
     );
