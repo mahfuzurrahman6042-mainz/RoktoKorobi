@@ -12,7 +12,7 @@ function useInView(threshold = 0.15): [React.RefObject<HTMLElement>, boolean] {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold, rootMargin: "300px" });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
@@ -266,8 +266,9 @@ function ArtCard({ art, index, language }) {
         width: "min(310px, 80vw)",
         borderRadius: "20px",
         overflow: "hidden",
-        scrollSnapAlign: "center",
+        scrollSnapAlign: "start",
         cursor: "pointer",
+        aspectRatio: "3 / 4",
         transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateY(${hovered ? -14 : 0}px) scale(${hovered ? 1.02 : 1})`,
         transition: hovered ? "transform 0.08s linear" : "transform 0.7s cubic-bezier(0.23,1,0.32,1)",
         boxShadow: hovered
@@ -656,7 +657,7 @@ export function GallerySection({ data, onSeeAll, language }) {
                   opacity: card.opacity,
                   display: "flex",
                   flexDirection: "column",
-                  height: "340px",
+                  aspectRatio: "3 / 4",
                 }}
               >
                 {/* Image placeholder area */}
@@ -994,6 +995,7 @@ export function GallerySection({ data, onSeeAll, language }) {
         style={{
           display: "flex", gap: 20,
           overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
           padding: "8px 28px 28px",
           scrollSnapType: "x mandatory",
           position: "relative", zIndex: 2,
@@ -1004,6 +1006,14 @@ export function GallerySection({ data, onSeeAll, language }) {
             .scroll-hide {
               padding: 8px 16px 24px !important;
               gap: 16px !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .scroll-hide {
+              flex-direction: column !important;
+              overflow-x: visible !important;
+              overflow-y: auto !important;
+              scrollSnapType: none !important;
             }
           }
         `}</style>

@@ -22,9 +22,10 @@ const TickerBanner = () => {
       width: '100%',
       overflow: 'hidden',
       marginTop: '32px',
+      position: 'relative',
     }}>
-      <div style={{ display: 'flex', width: 'max-content', minWidth: '300vw',
-        animation: 'ticker 35s linear infinite' }}>
+      <div style={{ display: 'flex', width: 'max-content',
+        animation: 'ticker 35s linear infinite', willChange: 'transform' }}>
         {octupled.map((item, i) => (
           <span key={i} style={{ display: 'inline-flex',
             alignItems: 'center', color: '#E8DCC8', fontSize: '12px',
@@ -40,6 +41,12 @@ const TickerBanner = () => {
         @keyframes ticker {
           0% { transform: translateX(0); }
           100% { transform: translateX(-12.5%); }
+        }
+        @media (max-width: 768px) {
+          @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-25%); }
+          }
         }
       `}</style>
     </div>

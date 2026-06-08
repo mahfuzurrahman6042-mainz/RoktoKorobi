@@ -411,9 +411,27 @@ export default function Home() {
 
         .hero-section {
           padding: 20px 48px 60px;
-          max-width: 680px;
+          max-width: 100%;
           margin: 0 auto;
           background: var(--cream);
+        }
+
+        @media (max-width: 1200px) {
+          .hero-section {
+            padding: 20px 32px 60px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hero-section {
+            padding: 20px 24px 60px;
+          }
+        }
+
+        @media (max-width: 479px) {
+          .hero-section {
+            padding: 20px 16px 60px;
+          }
         }
 
         .hero-card {
@@ -423,14 +441,33 @@ export default function Home() {
           padding: 36px 36px 32px;
           overflow: hidden;
           margin: 60px auto 56px;
-          max-width: 580px;
+          width: 100%;
+          max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+          .hero-card {
+            padding: 28px 24px;
+            margin: 40px auto 40px;
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 479px) {
+          .hero-card {
+            padding: 24px 20px;
+            margin: 32px auto 32px;
+            width: 100%;
+          }
         }
 
         .btn-watermark-wrap {
           position: relative;
-          overflow: hidden;
+          overflow: visible;
           border-radius: 10px;
           display: block;
+          height: auto;
+          min-height: 56px;
         }
 
         .btn-watermark-wrap .watermark {
@@ -451,6 +488,9 @@ export default function Home() {
         }
 
         @media (max-width: 768px) {
+          .btn-watermark-wrap {
+            overflow: visible;
+          }
           .btn-watermark-wrap .watermark {
             font-size: 120px;
             color: rgba(255, 255, 255, 0.08);
@@ -596,18 +636,19 @@ export default function Home() {
         .mission-title {
           line-height: 1.05;
           margin-bottom: 16px;
+          font-size: clamp(32px, 5vw, 68px);
         }
 
         .m-line1 {
           display: block;
-          font-size: 68px;
+          font-size: clamp(32px, 5vw, 68px);
           font-weight: 800;
           color: var(--dark);
         }
 
         .m-line2 {
           display: inline-block;
-          font-size: 68px;
+          font-size: clamp(32px, 5vw, 68px);
           font-weight: 800;
           color: var(--red);
           font-style: italic;
@@ -615,17 +656,59 @@ export default function Home() {
           margin-bottom: 4px;
         }
 
-        .m-line2::after {
-          display: none;
-        }
-
         .m-line3 {
           display: block;
-          font-size: 68px;
+          font-size: clamp(32px, 5vw, 68px);
           font-weight: 800;
           color: transparent;
           -webkit-text-stroke: 2.5px var(--dark);
           text-stroke: 2.5px var(--dark);
+        }
+
+        /* Ensure mobile doesn't override hollow outline */
+        @media (max-width: 768px) {
+          .m-line3 {
+            color: transparent !important;
+            -webkit-text-stroke: 2px #000000 !important;
+            text-stroke: 2px #000000 !important;
+          }
+          .mission-section {
+            padding: 40px 16px 32px;
+          }
+          .mission-title {
+            font-size: clamp(24px, 6vw, 36px);
+            line-height: 1.2;
+          }
+          .m-line1, .m-line2, .m-line3 {
+            font-size: clamp(20px, 5vw, 32px);
+          }
+          .eligibility-section {
+            padding: 40px 16px 32px;
+          }
+          .elig-layout {
+            gap: 24px;
+          }
+          .elig-card {
+            padding: 20px 16px;
+          }
+        }
+
+        @media (max-width: 479px) {
+          .mission-section {
+            padding: 32px 16px 24px;
+          }
+          .mission-title {
+            font-size: clamp(20px, 6vw, 28px);
+          }
+          .m-line1, .m-line2, .m-line3 {
+            font-size: clamp(18px, 5vw, 24px);
+          }
+          .eligibility-section {
+            padding: 32px 16px 24px;
+          }
+          .elig-card {
+            padding: 16px 12px;
+          }
         }
 
         .mission-subtitle {
@@ -726,12 +809,17 @@ export default function Home() {
         .fabs {
           position: fixed;
           right: 20px;
-          bottom: 80px;
+          bottom: 88px;
+          left: auto;
+          top: auto;
+          transform: none;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: flex-end;
           gap: 10px;
-          z-index: 999;
+          z-index: 9999;
+          pointer-events: none;
+          padding-bottom: env(safe-area-inset-bottom);
         }
 
         .fab-sos {
@@ -748,6 +836,7 @@ export default function Home() {
           box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5);
           animation: sos-pulse 2s infinite;
           font-family: 'DM Sans', sans-serif;
+          pointer-events: auto;
         }
 
         @keyframes sos-pulse {
@@ -767,6 +856,7 @@ export default function Home() {
           align-items: center;
           justify-content: center;
           transition: transform .2s, box-shadow .2s;
+          pointer-events: auto;
         }
 
         .fab-share:hover {
@@ -816,7 +906,10 @@ export default function Home() {
 
           .fabs {
             right: 16px;
-            bottom: 60px;
+            bottom: 80px;
+            left: auto;
+            top: auto;
+            transform: none;
           }
 
           .mission-title {
@@ -1541,8 +1634,9 @@ export default function Home() {
 
         {/* Header Block */}
         <div
+          className="map-section-header"
           style={{
-            maxWidth: "1200px",
+            maxWidth: "100%",
             margin: "0 auto",
             padding: "72px 48px 40px",
             display: "grid",
@@ -1551,6 +1645,25 @@ export default function Home() {
             gap: "32px",
           }}
         >
+          <style>{`
+            @media (max-width: 1200px) {
+              .map-section-header {
+                padding: 72px 32px 40px !important;
+              }
+            }
+            @media (max-width: 768px) {
+              .map-section-header {
+                padding: 40px 20px !important;
+                max-width: 100% !important;
+                gridTemplateColumns: 1fr !important;
+              }
+            }
+            @media (max-width: 479px) {
+              .map-section-header {
+                padding: 32px 16px !important;
+              }
+            }
+          `}</style>
           <div>
             <div
               style={{
@@ -1615,12 +1728,30 @@ export default function Home() {
         {/* Map Container */}
         <div
           style={{
-            maxWidth: "1200px",
+            maxWidth: "100%",
             margin: "0 auto",
             padding: "0 48px",
           }}
         >
+          <style>{`
+            @media (max-width: 1200px) {
+              .map-container-wrapper {
+                padding: 0 32px !important;
+              }
+            }
+            @media (max-width: 768px) {
+              .map-container-wrapper {
+                padding: 0 20px !important;
+              }
+            }
+            @media (max-width: 479px) {
+              .map-container-wrapper {
+                padding: 0 16px !important;
+              }
+            }
+          `}</style>
           <div
+            className="map-container-wrapper"
             style={{
               position: "relative",
               borderRadius: "16px",
@@ -1630,8 +1761,16 @@ export default function Home() {
             }}
           >
             <div
-              style={{ height: "520px", width: "100%", background: "#E8DDD0" }}
+              style={{ height: "520px", width: "100%", background: "#E8DDD0", position: "relative" }}
             >
+              <style>{`
+                @media (max-width: 768px) {
+                  .map-container {
+                    height: 300px !important;
+                    width: 100% !important;
+                  }
+                }
+              `}</style>
               <MapErrorBoundary>
                 <BangladeshMap
                   center={{ lat: 23.6850, lng: 90.3563 }}
@@ -1640,6 +1779,41 @@ export default function Home() {
                   hospitals={hospitals.length > 0 ? hospitals : []}
                 />
               </MapErrorBoundary>
+              {hospitals.length === 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px",
+                    zIndex: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      border: "3px solid rgba(139, 26, 26, 0.3)",
+                      borderTop: "3px solid #8B1A1A",
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'Hind Siliguri', sans-serif",
+                      fontSize: "14px",
+                      color: "#8B1A1A",
+                    }}
+                  >
+                    {language === 'bn' ? 'আপনার কাছাকাছি দাতা খুঁজছে…' : 'Loading donors near you…'}
+                  </span>
+                </div>
+              )}
             </div>
             <div
               style={{

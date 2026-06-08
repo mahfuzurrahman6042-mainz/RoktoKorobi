@@ -12,7 +12,7 @@ function useInView(threshold = 0.15): [React.RefObject<HTMLElement>, boolean] {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold, rootMargin: "300px" });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
@@ -28,9 +28,19 @@ const CSS = `
   @keyframes rk-in   { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
   @keyframes rk-line { from{width:0} to{width:100%} }
   @keyframes rk-throb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
 
   .rk-reveal { opacity:0; }
   .rk-reveal.rk-vis { animation: rk-up .72s cubic-bezier(.22,1,.36,1) both; }
+
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
 
   /* Blog cards */
   .rk-bcard {
@@ -70,9 +80,171 @@ const TAG_C = {
 export function BlogSection({ data, onSeeAll, language }) {
   const [ref, vis] = useInView();
   const posts = data.posts;
+  const [loadingError, setLoadingError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isLoading && (!posts || posts.length === 0)) {
+        setLoadingError(true);
+        setIsLoading(false);
+      }
+    }, 5000);
+
+    if (posts && posts.length > 0) {
+      setIsLoading(false);
+      clearTimeout(timer);
+    }
+
+    return () => clearTimeout(timer);
+  }, [posts, isLoading]);
+
+  const handleRetry = () => {
+    setLoadingError(false);
+    setIsLoading(true);
+    setTimeout(() => {
+      if (!posts || posts.length === 0) {
+        setLoadingError(true);
+      }
+      setIsLoading(false);
+    }, 5000);
+  };
 
   // Handle empty posts
   if (!posts || posts.length === 0) {
+    if (loadingError) {
+      return (
+        <section
+          ref={ref}
+          style={{
+            background: "#F5EFE8",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: "1200px",
+              margin: "0 auto",
+              padding: "80px 48px",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+                marginBottom: "64px",
+                flexWrap: "wrap",
+                gap: "24px",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+                  <span
+                    style={{
+                      fontFamily: "'Hind Siliguri', sans-serif",
+                      fontSize: language === 'bn' ? "12px" : "11px",
+                      fontWeight: "600",
+                      letterSpacing: language === 'bn' ? "2px" : "3px",
+                      textTransform: language === 'bn' ? "none" : "uppercase",
+                      color: "#8B1A1A",
+                    }}
+                  >
+                    {language === 'bn' ? '— ব্লগ —' : 'Blog'}
+                  </span>
+                  <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
+                </div>
+
+                <h2
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "clamp(30px, 4vw, 48px)",
+                    fontWeight: "700",
+                    color: "#1A0A0A",
+                    lineHeight: language === 'bn' ? "1.2" : "1.15",
+                    margin: "0 0 12px",
+                  }}
+                >
+                  {language === 'bn' ? 'সর্বশেষ ' : 'Latest '}
+                  <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
+                </h2>
+              </div>
+
+              <a
+                href="/blog"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  color: "#8B1A1A",
+                  fontFamily: "'Hind Siliguri', sans-serif",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  textDecoration: "none",
+                  borderBottom: "1.5px solid rgba(139,26,26,0.3)",
+                  paddingBottom: "2px",
+                  transition: "all 0.2s",
+                }}
+              >
+                {language === 'bn' ? 'সব পোস্ট দেখুন' : 'See All Posts'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                </svg>
+              </a>
+            </div>
+
+            <div
+              style={{
+                textAlign: "center",
+                padding: "60px 32px",
+                background: "rgba(255,255,255,0.5)",
+                border: "1.5px dashed rgba(139,26,26,0.15)",
+                borderRadius: "16px",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'Hind Siliguri', sans-serif",
+                  fontSize: "16px",
+                  color: "#8B1A1A",
+                  marginBottom: "24px",
+                }}
+              >
+                {language === 'bn' ? 'পোস্ট লোড করতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।' : "Couldn't load posts. Tap to retry."}
+              </p>
+              <button
+                onClick={handleRetry}
+                style={{
+                  background: "#8B1A1A",
+                  color: "#F5EFE8",
+                  fontFamily: "'Hind Siliguri', sans-serif",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  padding: "12px 28px",
+                  borderRadius: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {language === 'bn' ? 'পুনরায় চেষ্টা করুন' : 'Retry'}
+              </button>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section
         ref={ref}
@@ -190,7 +362,7 @@ export function BlogSection({ data, onSeeAll, language }) {
             </a>
           </div>
 
-          {/* Ghost placeholder cards */}
+          {/* Ghost placeholder cards with shimmer */}
           <div
             style={{
               display: "grid",
@@ -206,35 +378,35 @@ export function BlogSection({ data, onSeeAll, language }) {
                   background: "rgba(255,255,255,0.5)",
                   border: "1.5px dashed rgba(139,26,26,0.15)",
                   borderRadius: "16px",
-                  padding: "40px 32px",
+                  padding: "32px 24px",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "flex-start",
                   gap: "16px",
-                  minHeight: "280px",
+                  minHeight: "200px",
                   opacity: i === 0 ? 1 : i === 1 ? 0.6 : 0.3,
                   transition: "opacity 0.3s",
                 }}
               >
                 {/* Category pill placeholder */}
                 <div
+                  className="skeleton"
                   style={{
                     width: "80px",
                     height: "24px",
-                    background: "rgba(139,26,26,0.07)",
                     borderRadius: "100px",
                   }}
                 />
                 {/* Title placeholder lines */}
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <div style={{ height: "20px", background: "rgba(139,26,26,0.07)", borderRadius: "4px", width: "90%" }} />
-                  <div style={{ height: "20px", background: "rgba(139,26,26,0.07)", borderRadius: "4px", width: "70%" }} />
+                  <div className="skeleton" style={{ height: "20px", borderRadius: "4px", width: "90%" }} />
+                  <div className="skeleton" style={{ height: "20px", borderRadius: "4px", width: "70%" }} />
                 </div>
                 {/* Body placeholder lines */}
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div style={{ height: "12px", background: "rgba(139,26,26,0.05)", borderRadius: "4px" }} />
-                  <div style={{ height: "12px", background: "rgba(139,26,26,0.05)", borderRadius: "4px" }} />
-                  <div style={{ height: "12px", background: "rgba(139,26,26,0.05)", borderRadius: "4px", width: "60%" }} />
+                  <div className="skeleton" style={{ height: "12px", borderRadius: "4px" }} />
+                  <div className="skeleton" style={{ height: "12px", borderRadius: "4px" }} />
+                  <div className="skeleton" style={{ height: "12px", borderRadius: "4px", width: "60%" }} />
                 </div>
               </div>
             ))}
