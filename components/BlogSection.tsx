@@ -182,7 +182,7 @@ export function BlogSection({ data, onSeeAll, language }) {
                   }}
                 >
                   {language === 'bn' ? 'সর্বশেষ ' : 'Latest '}
-                  <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
+                  <em style={{ fontStyle: "italic", color: "#8B1A1A", fontSize: "inherit" }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
                 </h2>
               </div>
 
@@ -326,7 +326,7 @@ export function BlogSection({ data, onSeeAll, language }) {
                 }}
               >
                 {language === 'bn' ? 'সর্বশেষ ' : 'Latest '}
-                <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
+                <em style={{ fontStyle: "italic", color: "#8B1A1A", fontSize: "inherit" }}>{language === 'bn' ? 'পোস্টসমূহ' : 'Posts'}</em>
               </h2>
 
               <p
@@ -452,7 +452,7 @@ export function BlogSection({ data, onSeeAll, language }) {
             <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
               fontWeight:900, color:DK, lineHeight:1.1 }}>
               {data.t1}{' '}
-              <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+              <em style={{ color:CR, fontStyle:'italic', fontSize:'inherit' }}>{data.t2}</em>
             </h2>
             <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:400 }}>{data.desc}</p>
           </div>

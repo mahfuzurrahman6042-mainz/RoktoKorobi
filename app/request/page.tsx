@@ -512,7 +512,7 @@ export default function BloodRequest() {
           </div>
           <h1 className="anim-hero d2 hero-title" style={{ fontSize:58, fontWeight:700, lineHeight:1.1, color:"#2d1515", marginBottom:18, maxWidth:560 }}>
             {t.heroTitle}<br/>
-            <span style={{ color:"#dc2626", fontStyle:"italic" }}>{t.heroRed}</span>
+            <span style={{ color:"#dc2626", fontStyle:"italic", fontSize:"inherit" }}>{t.heroRed}</span>
           </h1>
           <p className="anim-hero d3 hero-sub" style={{ fontFamily:"'DM Sans',sans-serif", fontSize:16, color:"#5c2a2a", maxWidth:500, lineHeight:1.75 }}>{t.heroSub}</p>
         </>}

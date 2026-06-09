@@ -126,7 +126,7 @@ function PageHero({ bg, label, t1, t2, desc, back, stats }) {
         </Link>
         <SLabel label={label} dark/>
         <h1 style={{ fontFamily:HF,fontSize:'clamp(30px,5vw,58px)',fontWeight:900,color:'white',lineHeight:1.1 }}>
-          {t1} <em style={{ fontStyle:'italic',color:'#FFD0D0' }}>{t2}</em>
+          {t1} <em style={{ fontStyle:'italic',color:'#FFD0D0',fontSize:'inherit' }}>{t2}</em>
         </h1>
         <p style={{ color:'rgba(255,215,215,0.72)',fontSize:14,marginTop:10,maxWidth:520 }}>{desc}</p>
         {stats && (
@@ -262,7 +262,7 @@ export default function TestimonialsPage() {
             <div style={{ marginBottom:40 }}>
               <SLabel label={d.seeAll} dark={false}/>
               <h2 style={{ fontFamily:HF,fontSize:32,fontWeight:900,color:DK,lineHeight:1.2 }}>
-                {d.t1} <em style={{ fontStyle:'italic',color:CR }}>{d.t2}</em>
+                {d.t1} <em style={{ fontStyle:'italic',color:CR,fontSize:'inherit' }}>{d.t2}</em>
               </h2>
               <div style={{ width:60,height:3,background:`linear-gradient(90deg,${CR},${LCR})`,marginTop:16 }}/>
             </div>

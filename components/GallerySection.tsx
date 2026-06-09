@@ -121,7 +121,7 @@ export function BlogSection({ data, onSeeAll }) {
               </span>
             </div>
             <h2 className="section-heading" style={{ marginBottom:'0', marginTop:'0' }}>
-              {data.t1} <span className="heading-red" style={{ fontStyle:'italic' }}>{data.t2}</span>
+              {data.t1} <span className="heading-red" style={{ fontStyle:'italic', fontSize:'inherit' }}>{data.t2}</span>
             </h2>
             <p style={{ fontSize:'14.5px', color:'#9A7A7A', maxWidth:500, marginTop:'0', lineHeight:'1.65' }}>
               {data.desc}
@@ -568,7 +568,7 @@ export function GallerySection({ data, onSeeAll, language }) {
                 }}
               >
                 {language === 'bn' ? 'আর্ট ' : 'Art '}
-                <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? 'গ্যালারি' : 'Gallery'}</em>
+                <em style={{ fontStyle: "italic", color: "#8B1A1A", fontSize: "inherit" }}>{language === 'bn' ? 'গ্যালারি' : 'Gallery'}</em>
               </h2>
             </div>
           </div>

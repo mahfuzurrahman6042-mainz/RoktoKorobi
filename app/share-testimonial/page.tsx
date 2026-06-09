@@ -179,7 +179,7 @@ export default function ShareTestimonial() {
               </div>
               <h1 style={{ fontFamily: language === 'bn' ? 'Hind Siliguri, sans-serif' : 'Playfair Display, serif', fontSize: language === 'bn' ? '27px' : '30px', fontWeight: '400', margin: '0 0 0.4rem', lineHeight: language === 'bn' ? '1.4' : '1.25', color: TEXT }}>
                 {language === 'bn' ? 'আপনার ' : 'Share your '}
-                <span style={{ fontStyle: language === 'bn' ? 'normal' : 'italic', color: CR }}>
+                <span style={{ fontStyle: language === 'bn' ? 'normal' : 'italic', color: CR, fontSize: 'inherit' }}>
                   {language === 'bn' ? 'গল্প' : 'story'}
                 </span>
                 {language === 'bn' ? ' শেয়ার করুন' : ''}

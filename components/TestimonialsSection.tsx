@@ -188,7 +188,7 @@ export function TestimonialsSection({ data, onSeeAll }) {
               <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
                 fontWeight:900, color:DK, lineHeight:1.1 }}>
                 {data.t1}{' '}
-                <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+                <em style={{ color:CR, fontStyle:'italic', fontSize:'inherit' }}>{data.t2}</em>
               </h2>
               <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:440 }}>{data.desc}</p>
             </div>
@@ -295,7 +295,7 @@ export function TestimonialsSection({ data, onSeeAll }) {
             <h2 style={{ fontFamily:HF, fontSize:'clamp(28px,3.5vw,46px)',
               fontWeight:900, color:DK, lineHeight:1.1 }}>
               {data.t1}{' '}
-              <em style={{ color:CR, fontStyle:'italic' }}>{data.t2}</em>
+              <em style={{ color:CR, fontStyle:'italic', fontSize:'inherit' }}>{data.t2}</em>
             </h2>
             <p style={{ color:WM, fontSize:13.5, marginTop:8, maxWidth:440 }}>{data.desc}</p>
           </div>

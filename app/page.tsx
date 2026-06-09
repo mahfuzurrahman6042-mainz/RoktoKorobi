@@ -1668,11 +1668,11 @@ export default function Home() {
               }}
             >
               {language === 'bn' ? 'কাছের ' : 'Find a '}
-              <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>
+              <em style={{ fontStyle: "italic", color: "#8B1A1A", fontSize: "inherit" }}>
                 {language === 'bn' ? 'জীবনদাতাকে' : 'Life Saver'}
               </em>
               {language === 'bn' ? ' খুঁজে নিন' : ' Close to '}
-              <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? '' : 'You'}</em>
+              <em style={{ fontStyle: "italic", color: "#8B1A1A", fontSize: "inherit" }}>{language === 'bn' ? '' : 'You'}</em>
             </h2>
 
             <p

@@ -126,7 +126,7 @@ export function FeatureSection({ onCardClick }: { onCardClick?: (id: string) => 
             <div style={{ width:46,height:1,background:'rgba(139,26,26,0.5)' }}/>
           </div>
           <h2 style={{ fontFamily:HF,fontSize:'clamp(26px,4vw,52px)',fontWeight:900,color:'white',lineHeight:1.1 }}>
-            {d.fHead} <em style={{ color:'#FF8080',fontStyle:'italic' }}>{d.fHeadI}</em>
+            {d.fHead} <em style={{ color:'#FF8080',fontStyle:'italic',fontSize:'inherit' }}>{d.fHeadI}</em>
           </h2>
           <p style={{ color:'rgba(255,200,200,0.38)',fontSize:14,marginTop:10 }}>{d.fSub}</p>
         </div>
