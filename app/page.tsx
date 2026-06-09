@@ -794,7 +794,7 @@ export default function Home() {
           right: 16px;
           bottom: 24px;
           display: flex;
-          flex-direction: column-reverse;
+          flex-direction: column;
           align-items: flex-end;
           gap: 10px;
           z-index: 9999;
