@@ -453,17 +453,6 @@ export default function Home() {
           z-index: 0;
         }
 
-        @media (max-width: 768px) {
-          .btn-watermark-wrap {
-            overflow: visible;
-          }
-          .btn-watermark-wrap .watermark {
-            font-size: 120px;
-            color: rgba(255, 255, 255, 0.08);
-            z-index: 1;
-          }
-        }
-
         .btn-watermark-wrap .card-btn-secondary {
           position: relative;
           z-index: 1;
