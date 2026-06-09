@@ -186,13 +186,13 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
   }, [donors, hospitals]);
 
   return (
-    <div 
-      ref={mapRef} 
-      style={{ 
-        width: '100%', 
+    <div
+      ref={mapRef}
+      style={{
+        width: '100%',
         height: '100%',
-        borderRadius: '0 0 16px 16px'
-      }} 
+        borderRadius: '0',
+      }}
     />
   );
 }

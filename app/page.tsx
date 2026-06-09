@@ -659,17 +659,14 @@ export default function Home() {
         .m-line3 {
           display: block;
           font-size: clamp(32px, 5vw, 68px);
-          font-weight: 800;
-          color: var(--ink);
-          -webkit-text-stroke: 0;
-          -webkit-text-fill-color: var(--ink);
+          font-weight: 900;
+          color: transparent;
+          -webkit-text-stroke: 2.5px #1A0F0A;
+          text-stroke: 2.5px #1A0F0A;
         }
 
         /* Ensure mobile doesn't override hollow outline */
         @media (max-width: 768px) {
-          .m-line3 {
-            color: var(--dark) !important;
-          }
           .mission-section {
             padding: 40px 16px 32px;
           }
@@ -772,13 +769,15 @@ export default function Home() {
 
         .stats {
           display: flex;
+          flex-wrap: wrap;
           border-top: 1px solid rgba(0, 0, 0, .1);
           padding-top: 28px;
+          gap: 0;
         }
 
         .stat {
-          padding-right: 44px;
-          margin-right: 44px;
+          padding-right: clamp(16px, 4vw, 44px);
+          margin-right: clamp(16px, 4vw, 44px);
           border-right: 1px solid rgba(0, 0, 0, .12);
         }
 
@@ -789,16 +788,34 @@ export default function Home() {
         }
 
         .stat-num {
-          font-size: 42px;
+          font-size: clamp(28px, 5vw, 42px);
           font-weight: 700;
           color: var(--red);
           line-height: 1;
         }
 
         .stat-label {
-          font-size: 13px;
+          font-size: clamp(11px, 2vw, 13px);
           color: #777;
           margin-top: 5px;
+        }
+
+        @media (max-width: 400px) {
+          .stats {
+            flex-direction: column;
+            gap: 16px;
+          }
+          .stat {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            padding-bottom: 16px;
+          }
+          .stat:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+          }
         }
 
         /* ═══════════════════════════════════════
@@ -1137,8 +1154,8 @@ export default function Home() {
         </div>
         <div className="mission-title">
           <span className="m-line1">{language === 'bn' ? 'প্রতিটি ফোঁটা' : 'Every Drop'}</span>
-          <span className="m-line2">{language === 'bn' ? 'রক্ত' : 'Blood'}</span>
-          <span className="m-line3">{language === 'bn' ? 'জীবন' : 'Saves Life'}</span>
+          <span className="m-line2">{language === 'bn' ? 'রক্তের' : 'Of Blood'}</span>
+          <span className="m-line3">{language === 'bn' ? 'জীবন বাঁচায়' : 'Saves Life'}</span>
         </div>
         <p className="mission-subtitle">
           {language === 'bn' ? 'সংযোগ স্থাপন করুন, জীবন বাঁচান' : 'Connect. Donate. Save a Life.'}
@@ -1159,9 +1176,18 @@ export default function Home() {
         </div>
 
         <div className="stats">
-          <div className="stat"><div className="stat-num">{language === 'bn' ? '১+' : '1+'}</div><div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div></div>
-          <div className="stat"><div className="stat-num">—</div><div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div></div>
-          <div className="stat"><div className="stat-num">—</div><div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div></div>
+          <div className="stat">
+            <div className="stat-num">1</div>
+            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">0</div>
+            <div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">0</div>
+            <div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div>
+          </div>
         </div>
       </section>
 
@@ -1597,6 +1623,7 @@ export default function Home() {
           background: "linear-gradient(180deg, #F5EFE8 0%, #EDE4D8 100%)",
           position: "relative",
           overflow: "hidden",
+          padding: '48px 0 0 0',
         }}
       >
         {/* Decorative top border */}
@@ -1705,23 +1732,23 @@ export default function Home() {
           style={{
             maxWidth: "100%",
             margin: "0 auto",
-            padding: "0 48px",
+            padding: "0",
           }}
         >
           <style>{`
             @media (max-width: 1200px) {
               .map-container-wrapper {
-                padding: 0 32px !important;
+                padding: 0 !important;
               }
             }
             @media (max-width: 768px) {
               .map-container-wrapper {
-                padding: 0 20px !important;
+                padding: 0 !important;
               }
             }
             @media (max-width: 479px) {
               .map-container-wrapper {
-                padding: 0 16px !important;
+                padding: 0 !important;
               }
             }
           `}</style>
@@ -1729,19 +1756,19 @@ export default function Home() {
             className="map-container-wrapper"
             style={{
               position: "relative",
-              borderRadius: "16px",
+              borderRadius: "0",
               overflow: "hidden",
-              border: "2px solid rgba(139,26,26,0.12)",
-              boxShadow: "0 4px 6px rgba(139,26,26,0.05), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5)",
+              border: "none",
+              boxShadow: "none",
             }}
           >
             <div
-              style={{ height: "520px", width: "100%", background: "#E8DDD0", position: "relative" }}
+              style={{ height: 'clamp(320px, 55vw, 480px)', width: '100%', background: "#E8DDD0", position: 'relative' }}
             >
               <style>{`
                 @media (max-width: 768px) {
                   .map-container {
-                    height: 300px !important;
+                    height: 320px !important;
                     width: 100% !important;
                   }
                 }

@@ -488,14 +488,23 @@ export function GallerySection({ data, onSeeAll, language }) {
   const [active, setActive] = useState(0);
   const [ref, vis] = useInView();
 
+  const handleScroll = () => {
+    const c = scrollRef.current;
+    if (!c) return;
+    const cardW = c.scrollWidth / data.arts.length;
+    setActive(Math.min(Math.round(c.scrollLeft / cardW), data.arts.length - 1));
+  };
+
+  const goTo = (i) => {
+    setActive(i);
+    const c = scrollRef.current;
+    if (!c) return;
+    const cardW = c.scrollWidth / data.arts.length;
+    c.scrollTo({ left: i * cardW, behavior: "smooth" });
+  };
+
   // Handle empty arts
   if (!data.arts || data.arts.length === 0) {
-    const CARDS = [
-      { opacity: 1,    titleW: "75%", subtitleW: "50%" },
-      { opacity: 0.65, titleW: "65%", subtitleW: "45%" },
-      { opacity: 0.35, titleW: "80%", subtitleW: "55%" },
-    ];
-
     return (
       <section
         ref={ref}
@@ -505,17 +514,6 @@ export function GallerySection({ data, onSeeAll, language }) {
           overflow: "hidden",
         }}
       >
-        {/* Subtle background texture */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(circle at 75% 30%, rgba(139,26,26,0.05) 0%, transparent 50%),
-                              radial-gradient(circle at 20% 70%, rgba(192,57,43,0.03) 0%, transparent 40%)`,
-            pointerEvents: "none",
-          }}
-        />
-
         <div
           style={{
             maxWidth: "1200px",
@@ -524,7 +522,6 @@ export function GallerySection({ data, onSeeAll, language }) {
             position: "relative",
           }}
         >
-          {/* Section Header */}
           <div
             style={{
               display: "flex",
@@ -536,7 +533,6 @@ export function GallerySection({ data, onSeeAll, language }) {
             }}
           >
             <div>
-              {/* Eyebrow */}
               <div
                 style={{
                   display: "flex",
@@ -561,503 +557,44 @@ export function GallerySection({ data, onSeeAll, language }) {
                 <div style={{ width: "32px", height: "1px", background: "#8B1A1A" }} />
               </div>
 
-              {/* Headline */}
               <h2
                 style={{
-                  fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : "'Playfair Display', serif",
-                  fontSize: language === 'bn' ? "clamp(28px, 4vw, 48px)" : "clamp(30px, 4vw, 48px)",
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(30px, 4vw, 48px)",
                   fontWeight: "700",
                   color: "#1A0A0A",
                   lineHeight: language === 'bn' ? "1.2" : "1.15",
                   margin: "0 0 12px",
                 }}
               >
-                {language === 'bn' ? 'রক্তকরবী ' : 'RoktoKorobi '}
-                <em
-                  style={{
-                    fontStyle: "italic",
-                    color: "#8B1A1A",
-                    fontFamily: language === 'bn' ? "'Playfair Display', serif" : "'Playfair Display', serif",
-                    fontWeight: "700",
-                  }}
-                >
-                  {language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}
-                </em>
+                {language === 'bn' ? 'আর্ট ' : 'Art '}
+                <em style={{ fontStyle: "italic", color: "#8B1A1A" }}>{language === 'bn' ? 'গ্যালারি' : 'Gallery'}</em>
               </h2>
-
-              <p
-                style={{
-                  fontFamily: "'Hind Siliguri', sans-serif",
-                  fontSize: "15px",
-                  color: "#5C3D2E",
-                  margin: "0",
-                  lineHeight: language === 'bn' ? "1.8" : "1.7",
-                  maxWidth: "480px",
-                }}
-              >
-                {language === 'bn'
-                  ? 'আমাদের কমিউনিটির শিল্পকর্ম — '
-                  : 'Artwork by our community, created in the spirit of '}
-                <strong style={{ color: "#1A0A0A", fontWeight: "600" }}>
-                  {language === 'bn' ? 'জীবন বাঁচানোর' : 'saving lives'}
-                </strong>
-                {language === 'bn' ? ' অনুপ্রেরণায় তৈরি।' : '.'}
-              </p>
             </div>
-
-            {/* View Full Gallery — top right */}
-            <a
-              href="/illustrations"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                color: "#8B1A1A",
-                fontFamily: "'Hind Siliguri', sans-serif",
-                fontSize: "14px",
-                fontWeight: "600",
-                textDecoration: "none",
-                borderBottom: "1.5px solid rgba(139,26,26,0.3)",
-                paddingBottom: "2px",
-                transition: "all 0.2s",
-              }}
-            >
-              {language === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </a>
           </div>
 
-          {/* Ghost artwork cards — 3 columns, fixed uniform height */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "24px",
-              marginBottom: "64px",
+              textAlign: "center",
+              padding: "60px 32px",
+              background: "rgba(255,255,255,0.5)",
+              border: "1.5px dashed rgba(139,26,26,0.15)",
+              borderRadius: "16px",
             }}
           >
-            {CARDS.map((card, i) => (
-              <div
-                key={i}
-                style={{
-                  background: "rgba(255,255,255,0.5)",
-                  border: "1.5px dashed rgba(139,26,26,0.15)",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  opacity: card.opacity,
-                  display: "flex",
-                  flexDirection: "column",
-                  aspectRatio: "3 / 4",
-                }}
-              >
-                {/* Image placeholder area */}
-                <div
-                  style={{
-                    flexShrink: 0,
-                    height: "240px",
-                    background: "rgba(139,26,26,0.05)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg
-                    width="36"
-                    height="36"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="rgba(139,26,26,0.22)"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                    <circle cx="12" cy="13" r="4" />
-                  </svg>
-                </div>
-
-                {/* Caption skeleton */}
-                <div
-                  style={{
-                    flex: 1,
-                    padding: "20px 24px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    gap: "10px",
-                  }}
-                >
-                  <div
-                    style={{
-                      height: "15px",
-                      background: "rgba(139,26,26,0.07)",
-                      borderRadius: "4px",
-                      width: card.titleW,
-                    }}
-                  />
-                  <div
-                    style={{
-                      height: "12px",
-                      background: "rgba(139,26,26,0.05)",
-                      borderRadius: "4px",
-                      width: card.subtitleW,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+            <p
+              style={{
+                fontFamily: "'Hind Siliguri', sans-serif",
+                fontSize: "16px",
+                color: "#8B1A1A",
+                marginBottom: "24px",
+              }}
+            >
+              {language === 'bn' ? 'কোনো আর্ট নেই। প্রথম অবদানকারী হন!' : 'No art yet. Be the first to contribute!'}
+            </p>
           </div>
-
-          {/* Bottom divider */}
-          <div
-            style={{
-              height: "1px",
-              background:
-                "linear-gradient(90deg, transparent, rgba(139,26,26,0.15), transparent)",
-            }}
-          />
         </div>
       </section>
     );
   }
-
-  const handleScroll = () => {
-    const c = scrollRef.current;
-    if (!c) return;
-    const cardW = c.scrollWidth / data.arts.length;
-    setActive(Math.min(Math.round(c.scrollLeft / cardW), data.arts.length - 1));
-  };
-
-  const goTo = (i) => {
-    setActive(i);
-    scrollRef.current?.children[i]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  };
-
-  return (
-    <section ref={ref}
-      style={{
-        background: "#f5ede6",
-        minHeight: "100vh",
-        paddingBottom: 80,
-        position: "relative",
-        overflow: "hidden",
-        fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF,
-      }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400;1,700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
-
-        @keyframes cardIn {
-          from { opacity:0; transform:translateY(40px) scale(0.96); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
-        }
-        @keyframes blobA {
-          0%   { border-radius:60% 40% 30% 70%/60% 30% 70% 40%; transform:scale(1) translate(0,0); }
-          100% { border-radius:30% 60% 70% 40%/50% 60% 30% 60%; transform:scale(1.15) translate(10px,-8px); }
-        }
-        @keyframes blobB {
-          0%   { border-radius:40% 60% 70% 30%/40% 70% 30% 60%; transform:scale(1) translate(0,0); }
-          100% { border-radius:70% 30% 40% 60%/30% 50% 70% 40%; transform:scale(1.12) translate(-8px,10px); }
-        }
-        @keyframes floatWm {
-          0%,100% { transform:translate(-50%,-50%) rotate(-12deg) translateY(0); }
-          50%      { transform:translate(-50%,-50%) rotate(-12deg) translateY(-14px); }
-        }
-        @keyframes pulseOrb {
-          0%,100% { transform:translate(-50%,-50%) scale(1); opacity:0.55; }
-          50%      { transform:translate(-50%,-50%) scale(1.08); opacity:0.75; }
-        }
-        @keyframes fadeSlideUp {
-          from { opacity:0; transform:translateY(22px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes shimmer {
-          0%   { background-position:-200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes rotateSlow {
-          from { transform:rotate(0deg); }
-          to   { transform:rotate(360deg); }
-        }
-
-        .scroll-hide::-webkit-scrollbar { display:none; }
-        .scroll-hide { -ms-overflow-style:none; scrollbar-width:none; }
-
-        .view-all-btn {
-          display:inline-flex; align-items:center; gap:8px;
-          padding:10px 20px;
-          background: #C0392B;
-          border: none;
-          border-radius:8px;
-          color: white;
-          font-family:'Hind Siliguri',sans-serif;
-          font-size:13px; letter-spacing:0.5px;
-          font-weight: 500;
-          cursor:pointer;
-          transition:all 0.35s ease;
-          position:relative; overflow:hidden;
-        }
-        .view-all-btn::before {
-          content:'';
-          position:absolute; inset:0;
-          background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-          transform:translateX(-100%);
-          transition:transform 0.5s ease;
-        }
-        .view-all-btn:hover::before { transform:translateX(100%); }
-        .view-all-btn:hover {
-          background: #A93226;
-          transform: translateY(-2px);
-        }
-      `}</style>
-
-      {/* Subtle cream-to-warm gradient mesh */}
-      <div style={{
-        position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none",
-        background: `
-          radial-gradient(ellipse at 8% 15%, rgba(200,140,130,0.18) 0%, transparent 50%),
-          radial-gradient(ellipse at 88% 75%, rgba(180,100,100,0.12) 0%, transparent 45%),
-          radial-gradient(ellipse at 50% 100%, rgba(210,160,140,0.15) 0%, transparent 55%)
-        `,
-      }} />
-
-      {/* Grain texture overlay */}
-      <div style={{
-        position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-        opacity: 0.025,
-      }} />
-
-      {/* Warm background orbs */}
-      {[
-        { size: 380, x: "5%",  y: "15%", color: "rgba(180,80,80,0.1)",  d: "0s" },
-        { size: 300, x: "80%", y: "60%", color: "rgba(160,60,60,0.08)", d: "3s" },
-        { size: 220, x: "45%", y: "90%", color: "rgba(190,100,80,0.1)", d: "6s" },
-      ].map((orb, i) => (
-        <div key={i} style={{
-          position: "absolute",
-          width: orb.size, height: orb.size, borderRadius: "50%",
-          background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
-          left: orb.x, top: orb.y,
-          transform: "translate(-50%, -50%)",
-          filter: "blur(50px)", zIndex: 0,
-          animation: `pulseOrb 9s ease-in-out ${orb.d} infinite`,
-        }} />
-      ))}
-
-      {/* Decorative rotating ring */}
-      <div style={{
-        position: "absolute", top: "10%", right: "-60px",
-        width: 200, height: 200,
-        border: "1px solid rgba(122,14,28,0.07)",
-        borderRadius: "50%",
-        zIndex: 0,
-        animation: "rotateSlow 40s linear infinite",
-      }} />
-      <div style={{
-        position: "absolute", top: "10%", right: "-40px",
-        width: 160, height: 160,
-        border: "1px dashed rgba(122,14,28,0.05)",
-        borderRadius: "50%",
-        zIndex: 0,
-        animation: "rotateSlow 28s linear infinite reverse",
-      }} />
-
-      {/* Watermark */}
-      <div style={{
-        position: "absolute", top: "42%", left: "50%",
-        fontSize: "clamp(60px,20vw,180px)",
-        fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF, fontWeight: 700,
-        color: "rgba(122,14,28,0.04)",
-        whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none", zIndex: 0,
-        animation: "floatWm 11s ease-in-out infinite",
-      }}>
-        {language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}
-      </div>
-
-      {/* Vertical side text */}
-      <div style={{
-        position: "absolute", right: 14, top: "50%",
-        transform: "translateY(-50%) rotate(90deg)",
-        fontFamily: HF,
-        fontSize: 10, letterSpacing: "4px",
-        color: "rgba(122,14,28,0.15)", textTransform: "uppercase",
-        whiteSpace: "nowrap", userSelect: "none", pointerEvents: "none", zIndex: 0,
-      }}>
-        রক্তকরবী · RoktoKorobi · চিত্রকথন · Chitrokothon
-      </div>
-
-      {/* Ink splats */}
-      <InkSplat size={90}  opacity={0.045} style={{ top: 60,  right: "12%", transform: "rotate(22deg)",  zIndex: 1 }} />
-      <InkSplat size={55}  opacity={0.035} style={{ top: 210, left: "4%",   transform: "rotate(-18deg)", zIndex: 1 }} />
-      <InkSplat size={110} opacity={0.025} style={{ bottom: 100, right: "6%", transform: "rotate(38deg)", zIndex: 1 }} />
-
-      {/* Top decorative rule */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        height: 28,
-        display: "flex", alignItems: "center",
-        padding: "0 28px",
-        marginTop: 12,
-      }}>
-        <div style={{
-          flex: 1, height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(122,14,28,0.25) 40%, rgba(122,14,28,0.25) 60%, transparent)",
-        }} />
-        <div style={{
-          width: 6, height: 6, borderRadius: "50%",
-          background: "rgba(122,14,28,0.3)", margin: "0 12px",
-          flexShrink: 0,
-        }} />
-        <div style={{
-          width: 3, height: 3, borderRadius: "50%",
-          background: "rgba(122,14,28,0.2)", marginRight: 12,
-          flexShrink: 0,
-        }} />
-      </div>
-
-      {/* Header */}
-      <div style={{
-        padding: "16px 28px 32px",
-        position: "relative", zIndex: 2,
-        animation: "fadeSlideUp 0.9s ease 0.1s both",
-      }}>
-        {/* Label */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
-          <div style={{ width: 28, height: 1, background: "rgba(122,14,28,0.4)" }} />
-          <span style={{
-            fontFamily: HF,
-            fontSize: 10, letterSpacing: "4px",
-            color: "rgba(122,14,28,1)", textTransform: "uppercase",
-          }}>
-            Chitrokothon · চিত্রকথন
-          </span>
-          <div style={{ width: 28, height: 1, background: "rgba(122,14,28,0.4)" }} />
-        </div>
-
-        {/* Title */}
-        <h2 style={{
-          margin: "0 0 2px",
-          fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF,
-          fontSize: "clamp(30px,8vw,50px)", fontWeight: 700,
-          color: "#1a0505", lineHeight: 1.1, letterSpacing: "-0.5px",
-        }}>
-          {language === 'bn' ? 'রক্তকরবী' : 'RoktoKorobi'}
-        </h2>
-        <h3 style={{
-          margin: "0 0 14px",
-          fontFamily: HF,
-          fontSize: "clamp(20px,5.5vw,36px)", fontWeight: 400, fontStyle: "italic",
-          background: "linear-gradient(90deg, #8b1a1a, #c0392b, #8b1a1a)",
-          backgroundSize: "200% auto",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-          animation: "shimmer 5s linear infinite",
-          lineHeight: 1.2,
-        }}>
-          {language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon'}
-        </h3>
-
-        <p style={{
-          margin: "0 0 4px",
-          fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : HF,
-          fontSize: 13, color: "rgba(80,20,20,0.55)",
-          fontWeight: 400, lineHeight: 1.6,
-        }}>
-          {language === 'bn' ? 'সম্প্রদায়ের শিল্পকর্ম — জীবন বাঁচানোর অনুপ্রেরণায়' : 'Artwork by our community, created in the spirit of saving lives.'}
-        </p>
-        <p style={{
-          margin: "0 0 24px",
-          fontFamily: HF,
-          fontSize: 13, fontStyle: "italic",
-          color: "rgba(100,40,40,0.4)",
-        }}>
-          {language === 'bn' ? 'Artwork by our community, created in the spirit of saving lives.' : 'সম্প্রদায়ের শিল্পকর্ম — জীবন বাঁচানোর অনুপ্রেরণায়'}
-        </p>
-
-        <button className="view-all-btn" onClick={onSeeAll}>
-          {language === 'bn' ? 'পুরো গ্যালারি দেখুন →' : 'View Full Gallery →'}
-        </button>
-      </div>
-
-      {/* Cards */}
-      <div
-        ref={scrollRef}
-        className="scroll-hide"
-        onScroll={handleScroll}
-        style={{
-          display: "flex", gap: 20,
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-          padding: "8px 28px 28px",
-          scrollSnapType: "x mandatory",
-          position: "relative", zIndex: 2,
-        }}
-      >
-        <style>{`
-          @media (max-width: 768px) {
-            .scroll-hide {
-              padding: 8px 16px 24px !important;
-              gap: 16px !important;
-            }
-          }
-          @media (max-width: 480px) {
-            .scroll-hide {
-              flex-direction: column !important;
-              overflow-x: visible !important;
-              overflow-y: auto !important;
-              scrollSnapType: none !important;
-            }
-          }
-        `}</style>
-        {data.arts.map((art, i) => (
-          <ArtCard key={art.id} art={art} index={i} language={language} />
-        ))}
-      </div>
-
-      {/* Pagination dots */}
-      <div style={{
-        display: "flex", justifyContent: "center",
-        alignItems: "center", gap: 8, marginTop: 12,
-        position: "relative", zIndex: 2,
-      }}>
-        {data.arts.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i)}
-            style={{
-              width: active === i ? 26 : 7, height: 7,
-              borderRadius: 4, border: "none",
-              background: active === i
-                ? "linear-gradient(90deg, #7a0e1c, #c0392b)"
-                : "rgba(122,14,28,0.2)",
-              cursor: "pointer",
-              transition: "all 0.35s cubic-bezier(0.23,1,0.32,1)",
-              boxShadow: active === i ? "0 0 10px rgba(122,14,28,0.3)" : "none",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Bottom rule */}
-      <div style={{
-        position: "relative", zIndex: 2,
-        display: "flex", alignItems: "center", gap: 14,
-        padding: "44px 28px 0", opacity: 0.35,
-      }}>
-        <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, #7a0e1c)" }} />
-        <svg width="12" height="16" viewBox="0 0 12 16" fill="#7a0e1c">
-          <path d="M6 0C6 0 0 7 0 11a6 6 0 0012 0C12 7 6 0 6 0z"/>
-        </svg>
-        <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, transparent, #7a0e1c)" }} />
-      </div>
-    </section>
-  );
 }
