@@ -410,61 +410,27 @@ export default function Home() {
         }
 
         .hero-section {
-          padding: 20px 48px 60px;
+          padding: 20px clamp(16px, 4vw, 48px) clamp(24px, 4vw, 60px);
           max-width: 100%;
           margin: 0 auto;
           background: var(--cream);
-        }
-
-        @media (max-width: 1200px) {
-          .hero-section {
-            padding: 20px 32px 60px;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .hero-section {
-            padding: 20px 24px 60px;
-          }
-        }
-
-        @media (max-width: 479px) {
-          .hero-section {
-            padding: 20px 16px 60px;
-          }
         }
 
         .hero-card {
           position: relative;
           background: var(--card-bg);
           border-radius: 18px;
-          padding: 36px 36px 32px;
+          padding: clamp(20px, 4vw, 36px) clamp(20px, 4vw, 36px) clamp(20px, 4vw, 32px);
           overflow: hidden;
-          margin: 60px auto 56px;
+          margin: clamp(72px, 10vw, 60px) auto clamp(16px, 4vw, 56px);
           width: 100%;
           max-width: 100%;
         }
 
-        @media (max-width: 768px) {
-          .hero-card {
-            padding: 28px 24px;
-            margin: 40px auto 40px;
-            width: 100%;
-          }
-        }
-
-        @media (max-width: 479px) {
-          .hero-card {
-            padding: 24px 20px;
-            margin: 32px auto 32px;
-            width: 100%;
-          }
-        }
-
         .btn-watermark-wrap {
           position: relative;
-          overflow: visible;
-          border-radius: 10px;
+          overflow: hidden;
+          border-radius: 100px;
           display: block;
           height: auto;
           min-height: 56px;
@@ -475,9 +441,9 @@ export default function Home() {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 180px;
+          font-size: clamp(80px, 25vw, 180px);
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.06);
+          color: rgba(255, 255, 255, 0.12);
           white-space: nowrap;
           pointer-events: none;
           user-select: none;
@@ -562,9 +528,9 @@ export default function Home() {
         .hero-card .card-btn-primary {
           display: block !important;
           width: 100%;
-          padding: 15px;
+          padding: 16px;
           border: none;
-          border-radius: 10px;
+          border-radius: 100px;
           background: var(--red);
           color: #fff;
           font-size: 17px;
@@ -573,6 +539,7 @@ export default function Home() {
           cursor: pointer;
           margin-bottom: 12px;
           transition: filter .15s, transform .15s;
+          box-shadow: 0 4px 20px rgba(190,21,40,0.35);
         }
 
         .card-btn-primary:hover {
@@ -587,10 +554,10 @@ export default function Home() {
           display: block !important;
           width: 100%;
           padding: 14px;
-          border-radius: 10px;
-          border: 1.5px solid rgba(255, 255, 255, 0.2);
-          background: rgba(255, 255, 255, 0.05);
-          color: rgba(255, 255, 255, 0.75);
+          border-radius: 100px;
+          border: 1.5px solid rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.06);
+          color: rgba(255, 255, 255, 0.8);
           font-size: 17px;
           font-weight: 600;
           font-family: 'Hind Siliguri', sans-serif;
@@ -607,7 +574,7 @@ export default function Home() {
            MISSION SECTION
         ══════════════════════════════════════ */
         .mission-section {
-          padding: 24px 48px 60px;
+          padding: 24px clamp(16px, 6vw, 48px) clamp(32px, 6vw, 60px);
           max-width: 720px;
           margin: 0 auto;
           background: var(--cream);
@@ -662,7 +629,8 @@ export default function Home() {
           font-weight: 900;
           color: transparent;
           -webkit-text-stroke: 2.5px #1A0F0A;
-          text-stroke: 2.5px #1A0F0A;
+          paint-order: stroke fill;
+          text-decoration: none !important;
         }
 
         /* Ensure mobile doesn't override hollow outline */
@@ -770,14 +738,14 @@ export default function Home() {
         .stats {
           display: flex;
           flex-wrap: wrap;
+          gap: 0;
           border-top: 1px solid rgba(0, 0, 0, .1);
           padding-top: 28px;
-          gap: 0;
         }
 
         .stat {
-          padding-right: clamp(16px, 4vw, 44px);
-          margin-right: clamp(16px, 4vw, 44px);
+          padding-right: clamp(16px, 5vw, 44px);
+          margin-right: clamp(16px, 5vw, 44px);
           border-right: 1px solid rgba(0, 0, 0, .12);
         }
 
@@ -788,19 +756,19 @@ export default function Home() {
         }
 
         .stat-num {
-          font-size: clamp(28px, 5vw, 42px);
+          font-size: clamp(26px, 6vw, 42px);
           font-weight: 700;
           color: var(--red);
           line-height: 1;
         }
 
         .stat-label {
-          font-size: clamp(11px, 2vw, 13px);
+          font-size: clamp(10px, 2.5vw, 13px);
           color: #777;
           margin-top: 5px;
         }
 
-        @media (max-width: 400px) {
+        @media (max-width: 380px) {
           .stats {
             flex-direction: column;
             gap: 16px;
@@ -809,8 +777,8 @@ export default function Home() {
             border-right: none;
             padding-right: 0;
             margin-right: 0;
-            border-bottom: 1px solid rgba(0,0,0,0.08);
             padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
           }
           .stat:last-child {
             border-bottom: none;
@@ -823,22 +791,18 @@ export default function Home() {
         ══════════════════════════════════════ */
         .fabs {
           position: fixed;
-          right: 20px;
-          bottom: 88px;
-          left: auto;
-          top: auto;
-          transform: none;
+          right: 16px;
+          bottom: 24px;
           display: flex;
-          flex-direction: column;
+          flex-direction: column-reverse;
           align-items: flex-end;
           gap: 10px;
           z-index: 9999;
-          pointer-events: none;
           padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .fab-sos { width: 56px; height: 56px; border-radius: 50%; background: var(--red); border: none; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5); animation: sos-pulse 2s infinite; font-family: 'DM Sans', sans-serif; pointer-events: auto; position: fixed; bottom: 24px; right: 16px; z-index: 50; }
-        @media (max-width: 768px) { .fab-sos { bottom: 16px; right: 12px; width: 48px; height: 48px; font-size: 11px; } .fabs { bottom: 16px; right: 12px; } }
+        .fab-sos { width: 56px; height: 56px; border-radius: 50%; background: var(--red); border: none; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5); animation: sos-pulse 2s infinite; font-family: 'DM Sans', sans-serif; pointer-events: auto; position: static; }
+        @media (max-width: 768px) { .fab-sos { width: 48px; height: 48px; font-size: 11px; } .fabs { right: 12px; bottom: 16px; } }
 
         @keyframes sos-pulse {
           0%, 100% { box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5), 0 0 0 0 rgba(190, 21, 40, 0.4); }
@@ -1193,18 +1157,22 @@ export default function Home() {
 
       {/* FABs */}
       <div className="fabs">
-        <button type="button" className="fab-sos" aria-label={language === 'bn' ? 'জরুরি রক্ত সহায়তা — SOS' : 'Emergency Blood Assistance — SOS'} onClick={() => router.push('/request')}>
-          <span aria-hidden="true">SOS</span>
+        <button
+          type="button"
+          className="fab-sos"
+          aria-label="Emergency SOS"
+          onClick={() => router.push('/request')}
+        >
+          <span>SOS</span>
         </button>
-        <button type="button" className="fab-share" aria-label={language === 'bn' ? 'শেয়ার' : 'Share'} onClick={() => {
-          if (navigator.share) {
-            navigator.share({
-              title: language === 'bn' ? 'রক্তকরবী - রক্ত দান' : 'RoktoKorobi - Blood Donation',
-              url: window.location.href
-            });
-          }
-        }}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <button
+          type="button"
+          className="fab-share"
+          aria-label="Share"
+          onClick={() => { if (navigator.share) { navigator.share({ title: 'RoktoKorobi', url: window.location.href }); } }}
+          style={{ width: 44, height: 44, borderRadius: '50%', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', pointerEvents: 'auto' }}
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
             <polyline points="16 6 12 2 8 6"/>
             <line x1="12" y1="2" x2="12" y2="15"/>
