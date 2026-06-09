@@ -634,6 +634,10 @@ export default function Home() {
           .m-line1, .m-line2, .m-line3 {
             font-size: clamp(20px, 5vw, 32px);
           }
+          .m-line3 {
+            -webkit-text-stroke: 2px #1A0F0A;
+            text-stroke: 2px #1A0F0A;
+          }
           .eligibility-section {
             padding: 40px 16px 32px;
           }
@@ -654,6 +658,10 @@ export default function Home() {
           }
           .m-line1, .m-line2, .m-line3 {
             font-size: clamp(18px, 5vw, 24px);
+          }
+          .m-line3 {
+            -webkit-text-stroke: 1.8px #1A0F0A;
+            text-stroke: 1.8px #1A0F0A;
           }
           .eligibility-section {
             padding: 32px 16px 24px;
