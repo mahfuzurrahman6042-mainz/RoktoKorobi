@@ -40,36 +40,38 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Layer[]>([]);
 
+  // Initialize map once only
   useEffect(() => {
-    if (!mapRef.current || !center || !zoom) return;
-
+    if (!mapRef.current || mapInstanceRef.current) return;
     try {
-      // Initialize map only if it doesn't exist
-      if (!mapInstanceRef.current) {
-        const map = L.map(mapRef.current).setView([center.lat, center.lng], zoom);
-
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 18,
-        }).addTo(map);
-
-        mapInstanceRef.current = map;
-      } else {
-        // Update view if map already exists
-        mapInstanceRef.current.setView([center.lat, center.lng], zoom);
-      }
+      const map = L.map(mapRef.current, {
+        center: [23.6850, 90.3563],
+        zoom: 7,
+        scrollWheelZoom: false,
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18,
+      }).addTo(map);
+      mapInstanceRef.current = map;
+      setTimeout(() => map.invalidateSize(), 300);
+      setTimeout(() => map.invalidateSize(), 800);
     } catch (error) {
-      console.error('Error initializing map:', error);
+      console.error('Map init error:', error);
     }
-
     return () => {
-      // Cleanup map instance when component unmounts
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
     };
+  }, []); // empty deps — init once only
+
+  // Update view when props change
+  useEffect(() => {
+    if (mapInstanceRef.current && center?.lat && center?.lng) {
+      mapInstanceRef.current.setView([center.lat, center.lng], zoom);
+    }
   }, [center, zoom]);
 
   useEffect(() => {

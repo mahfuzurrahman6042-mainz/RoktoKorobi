@@ -68,9 +68,9 @@ const SECTION_DATA = {
       seeAll: 'See All Stories →',
       shareCta: 'Share Your Story',
       stats: [
-        { n: '0', l: 'Donors' },
-        { n: '0', l: 'Lives Saved' },
-        { n: '0', l: 'Stories' },
+        { n: '—', l: 'Donors' },
+        { n: '—', l: 'Lives Saved' },
+        { n: '—', l: 'Stories' },
       ],
       stories: [],
     },
@@ -82,9 +82,9 @@ const SECTION_DATA = {
       seeAll: 'সব গল্প দেখুন →',
       shareCta: 'আপনার গল্প শেয়ার করুন',
       stats: [
-        { n: '০', l: 'দাতা' },
-        { n: '০', l: 'জীবন বাঁচানো হয়েছে' },
-        { n: '০', l: 'গল্প' },
+        { n: '—', l: 'দাতা' },
+        { n: '—', l: 'জীবন বাঁচানো হয়েছে' },
+        { n: '—', l: 'গল্প' },
       ],
       stories: [],
     },
@@ -660,17 +660,15 @@ export default function Home() {
           display: block;
           font-size: clamp(32px, 5vw, 68px);
           font-weight: 800;
-          color: transparent;
-          -webkit-text-stroke: 2.5px var(--dark);
-          text-stroke: 2.5px var(--dark);
+          color: var(--ink);
+          -webkit-text-stroke: 0;
+          -webkit-text-fill-color: var(--ink);
         }
 
         /* Ensure mobile doesn't override hollow outline */
         @media (max-width: 768px) {
           .m-line3 {
-            color: transparent !important;
-            -webkit-text-stroke: 2px #000000 !important;
-            text-stroke: 2px #000000 !important;
+            color: var(--dark) !important;
           }
           .mission-section {
             padding: 40px 16px 32px;
@@ -822,22 +820,8 @@ export default function Home() {
           padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .fab-sos {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          background: var(--red);
-          border: none;
-          color: #fff;
-          font-size: 13px;
-          font-weight: 800;
-          letter-spacing: 1px;
-          cursor: pointer;
-          box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5);
-          animation: sos-pulse 2s infinite;
-          font-family: 'DM Sans', sans-serif;
-          pointer-events: auto;
-        }
+        .fab-sos { width: 56px; height: 56px; border-radius: 50%; background: var(--red); border: none; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5); animation: sos-pulse 2s infinite; font-family: 'DM Sans', sans-serif; pointer-events: auto; position: fixed; bottom: 24px; right: 16px; z-index: 50; }
+        @media (max-width: 768px) { .fab-sos { bottom: 16px; right: 12px; width: 48px; height: 48px; font-size: 11px; } .fabs { bottom: 16px; right: 12px; } }
 
         @keyframes sos-pulse {
           0%, 100% { box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5), 0 0 0 0 rgba(190, 21, 40, 0.4); }
@@ -950,7 +934,7 @@ export default function Home() {
       
       {/* Navigation with Mobile Responsive */}
       <nav className={`nav ${navSolid ? 'solid' : ''} ${mobileOpen ? 'mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
-        <Link href="/" className="nav-logo" aria-label="RoktoKorobi - Home">
+        <Link href="/" className="nav-logo" aria-label="RoktoKorobi - Home" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, minWidth: 0 }}>
           <span className="nav-logo-emoji">🩸</span>
           <div>
             <span className="nav-logo-text">রক্তকরবী</span>
@@ -1115,12 +1099,12 @@ export default function Home() {
           <h1 className="hero-heading" data-lang={language}>
             {language === 'bn' ? (
               <>
-                রক্ত দিন, জীবন<br />
+                রক্ত দিন, জীবন
                 বাঁচান <span className="accent">আজই</span>
               </>
             ) : (
               <>
-                Donate Blood, Save Lives<br />
+                Donate Blood, Save Lives
                 <span className="accent">Today</span>
               </>
             )}
@@ -1161,8 +1145,8 @@ export default function Home() {
         </p>
         <p className="mission-desc">
           {language === 'bn'
-            ? 'রক্তকরবী হল একটি ডিজিটাল প্ল্যাটফর্ম যা রক্তদাতাদের সাথে রক্তের<br>প্রয়োজনে থাকা মানুষদের সংযোগ করি।'
-            : 'Roktokorobi is a digital platform that connects blood donors<br>with people in urgent need of blood transfusions.'}
+            ? 'রক্তকরবী হল একটি ডিজিটাল প্ল্যাটফর্ম যা রক্তদাতাদের সাথে রক্তের প্রয়োজনে থাকা মানুষদের সংযোগ করি।'
+            : 'Roktokorobi is a digital platform that connects blood donors with people in urgent need of blood transfusions.'}
         </p>
 
         <div className="pill-group">
@@ -1175,18 +1159,9 @@ export default function Home() {
         </div>
 
         <div className="stats">
-          <div className="stat">
-            <div className="stat-num">{language === 'bn' ? '১' : '1'}</div>
-            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">{language === 'bn' ? '০' : '0'}</div>
-            <div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">{language === 'bn' ? '০' : '0'}</div>
-            <div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div>
-          </div>
+          <div className="stat"><div className="stat-num">{language === 'bn' ? '১+' : '1+'}</div><div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div></div>
+          <div className="stat"><div className="stat-num">—</div><div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div></div>
+          <div className="stat"><div className="stat-num">—</div><div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div></div>
         </div>
       </section>
 
@@ -1230,7 +1205,7 @@ export default function Home() {
                 : 'The blood donation process is now easier than ever. Register in minutes and start saving lives.'}
             </p>
           </div>
-          <div className="steps reveal delay-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="steps reveal delay-1 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             <div 
               className="step group cursor-pointer transition-all duration-200 hover:transform hover:-translate-y-2 hover:shadow-xl" 
               onClick={() => router.push('/register')}

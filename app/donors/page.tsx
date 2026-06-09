@@ -248,6 +248,7 @@ export default function DonorsPage() {
   const [mounted, setMounted] = useState(false);
   const [statCount, setStatCount] = useState(0);
   const [districtCount, setDistrictCount] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mapSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -395,6 +396,15 @@ export default function DonorsPage() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
+
+        @media (max-width: 768px) {
+          .donors-nav-links {
+            display: none !important;
+          }
+          .donors-hamburger {
+            display: flex !important;
+          }
+        }
       `}</style>
 
       {/* Navigation */}
@@ -412,67 +422,201 @@ export default function DonorsPage() {
         zIndex: 1000,
         boxShadow: '0 2px 20px rgba(0, 0, 0, 0.08)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, #8B1A1A 0%, #6B1010 100%)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '24px',
-            fontWeight: 800
-          }}>
-            R
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <span style={{ fontSize: '28px' }}>🩸</span>
           <span style={{
             fontSize: '24px',
             fontWeight: 800,
-            color: '#8B1A1A'
+            color: '#8B1A1A',
+            whiteSpace: 'nowrap'
           }}>
-            RoktoKorobi
+            {language === 'bn' ? 'রক্তকরবী' : 'RoktoKorobi'}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => handleLanguageChange('en')}
-            style={{
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '24px',
-              background: language === 'en' ? '#8B1A1A' : 'transparent',
-              color: language === 'en' ? 'white' : '#8B1A1A',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            EN
-          </button>
-          <button
-            onClick={() => handleLanguageChange('bn')}
-            style={{
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '24px',
-              background: language === 'bn' ? '#8B1A1A' : 'transparent',
-              color: language === 'bn' ? 'white' : '#8B1A1A',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            বাংলা
-          </button>
+        <div className="donors-nav-links" style={{
+          display: 'flex',
+          gap: '32px',
+          alignItems: 'center'
+        }}>
+          <a href="/" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '16px',
+            transition: 'color 0.3s ease'
+          }}>
+            {language === 'bn' ? 'হোম' : 'Home'}
+          </a>
+          <a href="/donors" style={{
+            textDecoration: 'none',
+            color: '#8B1A1A',
+            fontWeight: 700,
+            fontSize: '16px'
+          }}>
+            {language === 'bn' ? 'দাতা' : 'Donors'}
+          </a>
+          <a href="/eligibility" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '16px',
+            transition: 'color 0.3s ease'
+          }}>
+            {language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}
+          </a>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => handleLanguageChange('en')}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '20px',
+                background: language === 'en' ? '#8B1A1A' : 'transparent',
+                color: language === 'en' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '14px'
+              }}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => handleLanguageChange('bn')}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '20px',
+                background: language === 'bn' ? '#8B1A1A' : 'transparent',
+                color: language === 'bn' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '14px'
+              }}
+            >
+              বাংলা
+            </button>
+          </div>
         </div>
+        <button
+          className="donors-hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{
+            display: 'none',
+            flexDirection: 'column',
+            gap: '5px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px'
+          }}
+        >
+          <span style={{
+            width: '24px',
+            height: '2px',
+            background: '#8B1A1A',
+            transition: 'all 0.3s ease'
+          }} />
+          <span style={{
+            width: '24px',
+            height: '2px',
+            background: '#8B1A1A',
+            transition: 'all 0.3s ease'
+          }} />
+          <span style={{
+            width: '24px',
+            height: '2px',
+            background: '#8B1A1A',
+            transition: 'all 0.3s ease'
+          }} />
+        </button>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: '72px',
+          left: 0,
+          right: 0,
+          background: 'white',
+          padding: '24px',
+          zIndex: 999,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+          <a href="/" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '18px',
+            padding: '12px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            {language === 'bn' ? 'হোম' : 'Home'}
+          </a>
+          <a href="/donors" style={{
+            textDecoration: 'none',
+            color: '#8B1A1A',
+            fontWeight: 700,
+            fontSize: '18px',
+            padding: '12px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            {language === 'bn' ? 'দাতা' : 'Donors'}
+          </a>
+          <a href="/eligibility" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '18px',
+            padding: '12px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            {language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}
+          </a>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+            <button
+              onClick={() => handleLanguageChange('en')}
+              style={{
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '24px',
+                background: language === 'en' ? '#8B1A1A' : 'transparent',
+                color: language === 'en' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '16px'
+              }}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => handleLanguageChange('bn')}
+              style={{
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '24px',
+                background: language === 'bn' ? '#8B1A1A' : 'transparent',
+                color: language === 'bn' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '16px'
+              }}
+            >
+              বাংলা
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section style={{
-        paddingTop: '120px',
-        paddingBottom: '80px',
         padding: '120px 32px 80px',
         background: 'linear-gradient(135deg, #8B1A1A 0%, #6B1010 100%)',
         color: 'white',
@@ -522,7 +666,7 @@ export default function DonorsPage() {
               {t.hero_eyebrow}
             </span>
             <h1 style={{
-              fontSize: language === 'bn' ? '48px' : '56px',
+              fontSize: language === 'bn' ? '32px' : '36px',
               fontWeight: 800,
               lineHeight: 1.2,
               marginBottom: '24px',
@@ -644,7 +788,7 @@ export default function DonorsPage() {
 
       {/* Stats Section */}
       <section style={{
-        padding: '80px 32px',
+        padding: '60px 32px',
         background: 'white'
       }}>
         <div style={{
@@ -861,7 +1005,8 @@ export default function DonorsPage() {
             background: 'white',
             borderRadius: '24px',
             overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+            height: '350px'
           }}>
             <div style={{
               padding: '24px 32px',

@@ -39,38 +39,25 @@ body {
 
 /* Mobile responsive fixes */
 @media (max-width: 480px) {
-  * {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  
   html, body {
     width: 100% !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
+    box-sizing: border-box !important;
   }
-  
+
   body {
     font-size: 14px;
   }
-  
+
   img, video, iframe {
     max-width: 100% !important;
     height: auto !important;
   }
-  
-  div, section, article, main, aside, nav, header, footer {
+
+  section, main, article, header, footer, .container {
     max-width: 100% !important;
-    width: 100% !important;
-  }
-  
-  [style*="width:"] {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-  
-  [style*="max-width:"] {
-    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -1291,6 +1278,8 @@ nav.solid {
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  flex-shrink: 0;
+  min-width: 0;
 }
 .nav-logo-icon {
   font-size: 32px;
@@ -3137,4 +3126,11 @@ body::after {
   .form-input,.form-select{ overflow:visible; padding-bottom:20px; }
   .s-title{ font-size:clamp(24px, 6vw, 32px); }
   .s-desc{ font-size:13px; }
+}
+
+/* Fix for "Saves Life" outline text */
+.m-line3 {
+  -webkit-text-stroke: 0 !important;
+  -webkit-text-fill-color: inherit !important;
+  color: var(--ink) !important;
 }

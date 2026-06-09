@@ -8,6 +8,7 @@ export default function Eligibility() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [language, setLanguage] = useState('en');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [eligAge, setEligAge] = useState('');
   const [eligWeight, setEligWeight] = useState('');
   const [eligHealth, setEligHealth] = useState('');
@@ -82,6 +83,214 @@ export default function Eligibility() {
 
   return (
     <div>
+      {/* Navigation */}
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        padding: '16px 32px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        zIndex: 1000,
+        boxShadow: '0 2px 20px rgba(0, 0, 0, 0.08)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <span style={{ fontSize: '28px' }}>🩸</span>
+          <span style={{
+            fontSize: '24px',
+            fontWeight: 800,
+            color: '#8B1A1A',
+            whiteSpace: 'nowrap'
+          }}>
+            {language === 'bn' ? 'রক্তকরবী' : 'RoktoKorobi'}
+          </span>
+        </div>
+        <div className="elig-nav-links" style={{
+          display: 'flex',
+          gap: '32px',
+          alignItems: 'center'
+        }}>
+          <a href="/" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '16px',
+            transition: 'color 0.3s ease'
+          }}>
+            {language === 'bn' ? 'হোম' : 'Home'}
+          </a>
+          <a href="/donors" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '16px',
+            transition: 'color 0.3s ease'
+          }}>
+            {language === 'bn' ? 'দাতা' : 'Donors'}
+          </a>
+          <a href="/eligibility" style={{
+            textDecoration: 'none',
+            color: '#8B1A1A',
+            fontWeight: 700,
+            fontSize: '16px'
+          }}>
+            {language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}
+          </a>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setLanguage('en')}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '20px',
+                background: language === 'en' ? '#8B1A1A' : 'transparent',
+                color: language === 'en' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '14px'
+              }}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLanguage('bn')}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '20px',
+                background: language === 'bn' ? '#8B1A1A' : 'transparent',
+                color: language === 'bn' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '14px'
+              }}
+            >
+              বাংলা
+            </button>
+          </div>
+        </div>
+        <button
+          className="elig-hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{
+            display: 'none',
+            flexDirection: 'column',
+            gap: '5px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px'
+          }}
+        >
+          <span style={{
+            width: '24px',
+            height: '2px',
+            background: '#8B1A1A',
+            transition: 'all 0.3s ease'
+          }} />
+          <span style={{
+            width: '24px',
+            height: '2px',
+            background: '#8B1A1A',
+            transition: 'all 0.3s ease'
+          }} />
+          <span style={{
+            width: '24px',
+            height: '2px',
+            background: '#8B1A1A',
+            transition: 'all 0.3s ease'
+          }} />
+        </button>
+      </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: '72px',
+          left: 0,
+          right: 0,
+          background: 'white',
+          padding: '24px',
+          zIndex: 999,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+          <a href="/" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '18px',
+            padding: '12px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            {language === 'bn' ? 'হোম' : 'Home'}
+          </a>
+          <a href="/donors" style={{
+            textDecoration: 'none',
+            color: '#1A1A1A',
+            fontWeight: 600,
+            fontSize: '18px',
+            padding: '12px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            {language === 'bn' ? 'দাতা' : 'Donors'}
+          </a>
+          <a href="/eligibility" style={{
+            textDecoration: 'none',
+            color: '#8B1A1A',
+            fontWeight: 700,
+            fontSize: '18px',
+            padding: '12px',
+            borderBottom: '1px solid #e0e0e0'
+          }}>
+            {language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}
+          </a>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+            <button
+              onClick={() => setLanguage('en')}
+              style={{
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '24px',
+                background: language === 'en' ? '#8B1A1A' : 'transparent',
+                color: language === 'en' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '16px'
+              }}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLanguage('bn')}
+              style={{
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '24px',
+                background: language === 'bn' ? '#8B1A1A' : 'transparent',
+                color: language === 'bn' ? 'white' : '#8B1A1A',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontSize: '16px'
+              }}
+            >
+              বাংলা
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Eligibility Section */}
       <section className="eligibility py-16 lg:py-24" style={{ paddingTop: '120px', background: '#faf5f0', minHeight: '100vh' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -101,30 +310,30 @@ export default function Eligibility() {
                   : 'Are you eligible to donate blood? Check the detailed information here.'}
               </p>
               <div className="criteria-list space-y-4">
-                <div className="crit-item flex gap-4 p-4 bg-white rounded-lg">
+                <div className="crit-item flex gap-4 p-4 bg-white rounded-lg" style={{ boxSizing: 'border-box', overflow: 'hidden', width: '100%' }}>
                   <div className="crit-icon w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0">✓</div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0, wordWrap: 'break-word' }}>
                     <h4 className="crit-title font-semibold">{language === 'bn' ? 'বয়স: ১৮-৬৫ বছর' : 'Age: 18-65 years'}</h4>
                     <p className="crit-desc text-gray-600">{language === 'bn' ? 'সুস্থ প্রাপ্তবয়স্করা দাতা হতে পারেন' : 'Healthy adults can be donors'}</p>
                   </div>
                 </div>
-                <div className="crit-item flex gap-4 p-4 bg-white rounded-lg">
+                <div className="crit-item flex gap-4 p-4 bg-white rounded-lg" style={{ boxSizing: 'border-box', overflow: 'hidden', width: '100%' }}>
                   <div className="crit-icon w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0">✓</div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0, wordWrap: 'break-word' }}>
                     <h4 className="crit-title font-semibold">{language === 'bn' ? 'ওজন: ৫০ কেজি বা তার বেশি' : 'Weight: 50kg or more'}</h4>
                     <p className="crit-desc text-gray-600">{language === 'bn' ? 'ন্যূনতম ওজন প্রয়োজন' : 'Minimum weight required'}</p>
                   </div>
                 </div>
-                <div className="crit-item flex gap-4 p-4 bg-white rounded-lg">
+                <div className="crit-item flex gap-4 p-4 bg-white rounded-lg" style={{ boxSizing: 'border-box', overflow: 'hidden', width: '100%' }}>
                   <div className="crit-icon w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0">✓</div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0, wordWrap: 'break-word' }}>
                     <h4 className="crit-title font-semibold">{language === 'bn' ? 'স্বাস্থ্য ভালো থাকতে হবে' : 'Must be in good health'}</h4>
                     <p className="crit-desc text-gray-600">{language === 'bn' ? 'কোনো গুরুতর রোগ নেই' : 'No serious illnesses'}</p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="elig-card bg-white rounded-2xl shadow-2xl p-8 lg:p-10 border border-gray-100">
+            <div className="elig-card bg-white rounded-2xl shadow-2xl p-8 lg:p-10 border border-gray-100" style={{ boxSizing: 'border-box', overflow: 'hidden', width: '100%' }}>
               <div className="sc-title text-2xl font-bold mb-8 text-center" style={{ color: '#1A0F0A' }}>
                 {language === 'bn' ? 'যোগ্যতা পরীক্ষা করুন' : 'Check Eligibility'}
               </div>
@@ -416,6 +625,13 @@ export default function Eligibility() {
           
           button[type="submit"] svg {
             display: none;
+          }
+
+          .elig-nav-links {
+            display: none !important;
+          }
+          .elig-hamburger {
+            display: flex !important;
           }
         }
       `}</style>

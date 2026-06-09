@@ -67,6 +67,12 @@ const CSS = `
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-track { background:${CREAM}; }
   ::-webkit-scrollbar-thumb { background:${CR}; border-radius:2px; }
+
+  @media (max-width: 768px) {
+    .blog-post-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
 `;
 
 const TAG_C = {
@@ -366,7 +372,7 @@ export function BlogSection({ data, onSeeAll, language }) {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: "24px",
               marginBottom: "64px",
             }}
@@ -429,7 +435,7 @@ export function BlogSection({ data, onSeeAll, language }) {
   const side = posts.slice(1, 4);
 
   return (
-    <section ref={ref} style={{ background: DCREAM, padding:'80px 24px', overflow:'hidden' }}>
+    <section ref={ref} style={{ background: DCREAM, padding:'60px 24px', overflow:'hidden' }}>
       <style dangerouslySetInnerHTML={{ __html: CSS }}/>
       <div style={{ maxWidth:1140, margin:'0 auto' }}>
 
@@ -461,7 +467,7 @@ export function BlogSection({ data, onSeeAll, language }) {
 
         {/* Magazine grid: featured left + 3 stacked right */}
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, alignItems:'start' }}
-          className={`rk-reveal ${vis?'rk-vis':''}`} >
+          className={`rk-reveal ${vis?'rk-vis':''} blog-post-grid`} >
 
           {/* Featured post — tall card */}
           <div className="rk-bcard" style={{ height:'100%', borderLeft:`5px solid ${CR}` }}>
