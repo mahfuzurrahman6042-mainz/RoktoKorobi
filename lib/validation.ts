@@ -26,9 +26,10 @@ export const phoneSchema = z.string()
   .regex(/^(?:\+880|0)?1[3-9]\d{8}$/, 'Invalid Bangladesh phone number');
 
 // Blood group validation schema
-export const bloodGroupSchema = z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'], {
-  errorMap: () => ({ message: 'Invalid blood group' })
-});
+export const bloodGroupSchema = z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+  .refine((val) => ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(val), {
+    message: 'Invalid blood group'
+  });
 
 // District validation schema
 export const districtSchema = z.string()
@@ -70,9 +71,10 @@ export const bloodRequestSchema = z.object({
   hospital: z.string().min(2, 'Hospital name is required'),
   district: districtSchema,
   phone: phoneSchema,
-  urgency: z.enum(['low', 'medium', 'high', 'critical'], {
-    errorMap: () => ({ message: 'Invalid urgency level' })
-  }),
+  urgency: z.enum(['low', 'medium', 'high', 'critical'])
+    .refine((val) => ['low', 'medium', 'high', 'critical'].includes(val), {
+      message: 'Invalid urgency level'
+    }),
   message: z.string().max(500, 'Message must be less than 500 characters').optional(),
   requiredDate: z.string().optional()
 });

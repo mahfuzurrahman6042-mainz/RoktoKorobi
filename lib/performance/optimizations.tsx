@@ -1,4 +1,4 @@
-import { memo, useMemo, useCallback, lazy, Suspense } from 'react';
+import React, { memo, useMemo, useCallback, lazy, Suspense, useEffect } from 'react';
 
 // React.memo wrapper for component memoization
 export function memoize<P extends object>(
@@ -22,7 +22,7 @@ export function useStableCallback<T extends (...args: any[]) => any>(
 }
 
 // Dynamic import wrapper for code splitting
-export function dynamicImport<T>(
+export function dynamicImport<T extends React.ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ReactNode
 ) {

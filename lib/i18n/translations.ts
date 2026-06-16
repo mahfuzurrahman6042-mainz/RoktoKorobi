@@ -191,7 +191,7 @@ export interface Translations {
     viewFullGallery: string;
     artwork: string;
     artist: string;
-    title: string;
+    artworkTitle: string;
     noArtworks: string;
   };
   features: {
@@ -437,7 +437,7 @@ export const translations: Record<Language, Translations> = {
       viewFullGallery: 'View Full Gallery',
       artwork: 'Artwork',
       artist: 'Artist',
-      title: 'Title',
+      artworkTitle: 'Title',
       noArtworks: 'No artworks yet',
     },
     features: {
@@ -681,7 +681,7 @@ export const translations: Record<Language, Translations> = {
       viewFullGallery: 'সম্পূর্ণ গ্যালারি দেখুন',
       artwork: 'শিল্পকর্ম',
       artist: 'শিল্পী',
-      title: 'শিরোনাম',
+      artworkTitle: 'শিরোনাম',
       noArtworks: 'এখনো কোন শিল্পকর্ম নেই',
     },
     features: {
