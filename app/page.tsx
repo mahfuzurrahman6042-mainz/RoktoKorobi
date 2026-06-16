@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals } from "@/lib/firebase";
+import { listAllHospitals, getUserData } from "@/lib/firebase";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -141,6 +141,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
   const [hospitals, setHospitals] = useState<any[]>([]);
+  const [userData, setUserData] = useState<{ name: string; bloodGroup: string } | null>(null);
 
   // Mock donor data with Bangladesh locations - removed, using Firebase instead
   const mockDonors: any[] = [];
@@ -155,7 +156,13 @@ export default function Home() {
     
     // Check authentication status
     const loginStatus = localStorage.getItem('isLoggedIn');
+    const userEmail = localStorage.getItem('userEmail');
     setIsLoggedIn(loginStatus === 'true');
+
+    // Fetch user data if logged in
+    if (loginStatus === 'true' && userEmail) {
+      fetchUserData(userEmail);
+    }
 
     // Fetch hospitals from Firebase
     const fetchHospitals = async () => {
@@ -170,6 +177,21 @@ export default function Home() {
 
     fetchHospitals();
   }, []);
+
+  const fetchUserData = async (email: string) => {
+    try {
+      const userId = email.replace(/\./g, '_').replace(/@/g, '_');
+      const data = await getUserData(userId);
+      if (data) {
+        setUserData({
+          name: data.name || 'User',
+          bloodGroup: data.bloodGroup || 'N/A'
+        });
+      }
+    } catch (error) {
+      console.log('Error fetching user data:', error);
+    }
+  };
 
   const handleBloodTypeSelect = (type: string) => {
     setSelectedBloodType(type);
@@ -956,12 +978,19 @@ export default function Home() {
           <>
             <li role="none"><Link href="/dashboard" role="menuitem" aria-label="Dashboard">Dashboard</Link></li>
             <li role="none"><Link href="/profile" role="menuitem" aria-label="Profile">Profile</Link></li>
+            <li role="none" className="user-profile-section">
+              <div className="user-profile-info">
+                <span className="user-name">{userData?.name || 'User'}</span>
+                <span className="user-blood-group">{userData?.bloodGroup || 'N/A'}</span>
+              </div>
+            </li>
             <li role="none">
               <button 
                 onClick={() => {
                   localStorage.removeItem('isLoggedIn');
                   localStorage.removeItem('userEmail');
                   setIsLoggedIn(false);
+                  setUserData(null);
                   router.push('/');
                 }}
                 style={{

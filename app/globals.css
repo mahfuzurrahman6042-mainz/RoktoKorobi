@@ -56,6 +56,38 @@ html { scroll-behavior: smooth; font-size: 16px; width: 100%; overflow-x: hidden
   top: 0;
 }
 
+/* User profile section in navigation */
+.user-profile-section {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(220, 38, 38, 0.1);
+  border-radius: 8px;
+  margin-left: 8px;
+}
+
+.user-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.user-blood-group {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blood);
+  background: rgba(220, 38, 38, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
 body {
   font-family: 'Hind Siliguri', 'Tiro Bangla', 'Noto Sans Bengali', 'DM Sans', sans-serif;
   background: var(--cream);
