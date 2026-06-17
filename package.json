@@ -1,6 +1,6 @@
 {
   "name": "roktokorobi",
-  "version": "22.0.0",
+  "version": "22.0.1",
   "description": "Blood Donation Platform - Connecting Donors with Recipients",
   "main": "next dev",
   "scripts": {
