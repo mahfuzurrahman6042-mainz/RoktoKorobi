@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CR = '#8B1A1A', LCR = '#C41E3A', CREAM = '#F5F0E8', DCREAM = '#EDE0CF', DK = '#1A0808', WM = '#6B5045';
 const HF = "'Playfair Display', serif";
@@ -177,9 +178,9 @@ function ArtTile({ a, i }) {
 }
 
 export default function IllustrationsPage() {
-  const [lang, setLang] = useState('en');
-  const d = DATA[lang];
-  const bf = lang === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
+  const { language } = useLanguage();
+  const d = DATA[language];
+  const bf = language === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
 
   return (
     <div style={{ fontFamily:bf,background:CREAM,minHeight:'100vh' }}>
@@ -215,7 +216,7 @@ export default function IllustrationsPage() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#A93226'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C0392B'}
               >
-                {lang === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'} →
+                {language === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'} →
               </button>
             </div>
             <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24 }}>

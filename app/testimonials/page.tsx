@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTestimonials, useTestimonialActions } from "@/hooks/useTestimonial";
 import { getAuth } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CR = '#8B1A1A', LCR = '#C41E3A', CREAM = '#F5F0E8', DCREAM = '#EDE0CF', DK = '#1A0808', WM = '#6B5045';
 const HF = "'Playfair Display', serif";
@@ -201,13 +202,13 @@ function StoryCard({ s, i, currentUser, onDelete, onEdit }) {
 }
 
 export default function TestimonialsPage() {
-  const [lang, setLang] = useState('en');
+  const { language } = useLanguage();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { testimonials, loading } = useTestimonials();
   const { deleteTestimonial } = useTestimonialActions();
   const router = useRouter();
-  const d = DATA[lang];
-  const bf = lang === 'bn' ? `'Noto Serif Bengali', sans-serif` : `'DM Sans', sans-serif`;
+  const d = DATA[language];
+  const bf = language === 'bn' ? `'Noto Serif Bengali', sans-serif` : `'DM Sans', sans-serif`;
 
   useEffect(() => {
     const unsubscribe = auth?.onAuthStateChanged((user) => {
@@ -217,7 +218,7 @@ export default function TestimonialsPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (confirm(lang === 'bn' ? 'আপনি কি এই সাক্ষ্য মুছে ফেলতে চান?' : 'Are you sure you want to delete this testimonial?')) {
+    if (confirm(language === 'bn' ? 'আপনি কি এই সাক্ষ্য মুছে ফেলতে চান?' : 'Are you sure you want to delete this testimonial?')) {
       await deleteTestimonial(id);
     }
   };
@@ -242,9 +243,9 @@ export default function TestimonialsPage() {
 
   // Dynamic stats based on real data
   const dynamicStats = [
-    { n: allStories.length.toString(), l: lang === 'bn' ? 'গল্প' : 'Stories' },
-    { n: '0', l: lang === 'bn' ? 'দাতা' : 'Donors' },
-    { n: '0', l: lang === 'bn' ? 'জীবন রক্ষা' : 'Lives Saved' }
+    { n: allStories.length.toString(), l: language === 'bn' ? 'গল্প' : 'Stories' },
+    { n: '0', l: language === 'bn' ? 'দাতা' : 'Donors' },
+    { n: '0', l: language === 'bn' ? 'জীবন রক্ষা' : 'Lives Saved' }
   ];
 
   return (
@@ -268,7 +269,7 @@ export default function TestimonialsPage() {
             </div>
             {loading ? (
               <div style={{ textAlign:'center',padding:40 }}>
-                <p style={{ color:WM }}>{lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</p>
+                <p style={{ color:WM }}>{language === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</p>
               </div>
             ) : (
               <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24 }}>

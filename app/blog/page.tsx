@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CR = '#8B1A1A', LCR = '#C41E3A', CREAM = '#F5F0E8', DCREAM = '#EDE0CF', DK = '#1A0808', WM = '#6B5045';
 const HF = "'Playfair Display', serif";
@@ -173,9 +174,9 @@ function PageHero({ bg, label, t1, t2, desc, back }) {
 }
 
 export default function BlogPage() {
-  const [lang, setLang] = useState('en');
-  const d = DATA[lang];
-  const bf = lang === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
+  const { language } = useLanguage();
+  const d = DATA[language];
+  const bf = language === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
 
   return (
     <div style={{ fontFamily:bf,background:CREAM,minHeight:'100vh' }}>
