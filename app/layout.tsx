@@ -6,6 +6,9 @@ import { HtmlLang } from '@/components/HtmlLang';
 export const metadata = {
   title: 'Roktokorobi - Blood Donation Platform',
   description: 'Connecting donors with recipients to save lives',
+  icons: {
+    icon: '/roktokorobi-logo.png',
+  },
 };
 
 export const viewport = {
@@ -24,6 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        <link rel="icon" href="/roktokorobi-logo.png" />
       </head>
       <body>
         <LanguageProvider>

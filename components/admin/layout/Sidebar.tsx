@@ -112,9 +112,11 @@ export default function Sidebar({ user }: SidebarProps) {
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">RK</span>
-            </div>
+            <img 
+              src="/roktokorobi-logo.png" 
+              alt="Roktokorobi — Blood Donation Organization Logo" 
+              style={{ height: '32px', width: 'auto', display: 'block' }}
+            />
             <span className="font-bold text-lg text-gray-900 dark:text-white">Admin</span>
           </div>
         </div>

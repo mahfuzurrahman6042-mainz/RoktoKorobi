@@ -64,10 +64,10 @@ const CSS = `
   .at:hover { transform:scale(1.04); box-shadow:0 20px 50px rgba(139,26,26,.2)!important; }
   .at .ao { opacity:0; transition:opacity .4s ease; backdrop-filter:blur(4px); }
   .at:hover .ao { opacity:1; }
-  
+
   .at-info { transition:all .3s ease; }
   .at:hover .at-info { transform:translateY(-4px); }
-  
+
   .at-btn { transition:all .3s cubic-bezier(.22,1,.36,1); }
   .at:hover .at-btn { background:white; color:CR; transform:scale(1.05); }
 
@@ -96,81 +96,89 @@ const CSS = `
 
 const DATA = {
   en: {
-    lbl:'CHITROKOTHON', t1:'Artwork', t2:'Gallery',
-    desc:'Artwork by our community, created in the spirit of saving lives.',
-    back:'← Back', all:'View Full Gallery',
-    arts:[],
+    lbl: 'CHITROKOTHON', t1: 'Artwork', t2: 'Gallery',
+    desc: 'Artwork by our community, created in the spirit of saving lives.',
+    back: '← Back', all: 'View Full Gallery',
+    artworkLabel: 'ARTWORK',
+    viewArtwork: 'View Artwork',
+    arts: [],
   },
   bn: {
-    lbl:'চিত্রকথন', t1:'শিল্পকর্ম', t2:'গ্যালারি',
-    desc:'জীবন বাঁচানোর অনুপ্রেরণায় আমাদের সম্প্রদায়ের শিল্পকর্ম।',
-    back:'← ফিরুন', all:'পূর্ণ গ্যালারি দেখুন',
-    arts:[],
+    lbl: 'চিত্রকথন', t1: 'শিল্পকর্ম', t2: 'গ্যালারি',
+    desc: 'জীবন বাঁচানোর অনুপ্রেরণায় আমাদের সম্প্রদায়ের শিল্পকর্ম।',
+    back: '← ফিরুন', all: 'পূর্ণ গ্যালারি দেখুন',
+    artworkLabel: 'শিল্পকর্ম',
+    viewArtwork: 'শিল্প দেখুন',
+    arts: [],
   },
 };
 
-const SLabel = ({ label, dark }) => (
-  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-    <div style={{ width:22, height:1, background: dark ? 'rgba(255,110,110,0.42)' : CR }}/>
-    <span style={{ fontSize:9, fontWeight:800, letterSpacing:'0.26em', textTransform:'uppercase',
-      color: dark ? 'rgba(255,170,170,0.78)' : CR }}>{label}</span>
+const SLabel = ({ label, dark }: { label: string; dark?: boolean }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+    <div style={{ width: 22, height: 1, background: dark ? 'rgba(255,110,110,0.42)' : CR }} />
+    <span style={{
+      fontSize: 9, fontWeight: 800, letterSpacing: '0.26em', textTransform: 'uppercase',
+      color: dark ? 'rgba(255,170,170,0.78)' : CR
+    }}>{label}</span>
   </div>
 );
 
-function PageHero({ bg, label, t1, t2, desc, back }) {
+function PageHero({ bg, label, t1, t2, desc, back }: any) {
   return (
-    <div style={{ background:bg,padding:'60px 24px',position:'relative',overflow:'hidden' }}>
-      <div style={{ position:'absolute',top:0,right:0,width:260,height:260,borderRadius:'50%',
-        background:'rgba(255,255,255,0.05)',transform:'translate(28%,-28%)' }}/>
-      <div style={{ maxWidth:1100,margin:'0 auto',position:'relative' }}>
+    <div style={{ background: bg, padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{
+        position: 'absolute', top: 0, right: 0, width: 260, height: 260, borderRadius: '50%',
+        background: 'rgba(255,255,255,0.05)', transform: 'translate(28%,-28%)'
+      }} />
+      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
         <Link href="/" className="nl"
-          style={{ color:'rgba(255,210,210,0.72)',fontSize:11,marginBottom:20,display:'block',textDecoration:'none' }}>
+          style={{ color: 'rgba(255,210,210,0.72)', fontSize: 11, marginBottom: 20, display: 'block', textDecoration: 'none' }}>
           {back}
         </Link>
-        <SLabel label={label} dark/>
-        <h1 style={{ fontFamily:HF,fontSize:'clamp(30px,5vw,58px)',fontWeight:900,color:'white',lineHeight:1.1 }}>
-          {t1} <em style={{ fontStyle:'italic',color:'#FFD0D0' }}>{t2}</em>
+        <SLabel label={label} dark />
+        <h1 style={{ fontFamily: HF, fontSize: 'clamp(30px,5vw,58px)', fontWeight: 900, color: 'white', lineHeight: 1.1 }}>
+          {t1} <em style={{ fontStyle: 'italic', color: '#FFD0D0' }}>{t2}</em>
         </h1>
-        <p style={{ color:'rgba(255,215,215,0.72)',fontSize:14,marginTop:10,maxWidth:520 }}>{desc}</p>
+        <p style={{ color: 'rgba(255,215,215,0.72)', fontSize: 14, marginTop: 10, maxWidth: 520 }}>{desc}</p>
       </div>
     </div>
   );
 }
 
-function ArtTile({ a, i }) {
+function ArtTile({ a, i, d }: any) {
   return (
-    <div className={`fcard u${(i%2)+1}`}
-      style={{ flex:'1 1 280px',maxWidth:360,boxShadow:'0 8px 34px rgba(0,0,0,0.30)' }}>
-      <div className="c-bar" style={{ height:3,borderRadius:'18px 18px 0 0' }}/>
-      <div className="fbody" style={{ padding:'40px 34px 42px',position:'relative' }}>
+    <div className={`fcard u${(i % 2) + 1}`}
+      style={{ flex: '1 1 280px', maxWidth: 360, boxShadow: '0 8px 34px rgba(0,0,0,0.30)' }}>
+      <div className="c-bar" style={{ height: 3, borderRadius: '18px 18px 0 0' }} />
+      <div className="fbody" style={{ padding: '40px 34px 42px', position: 'relative' }}>
         <div className="c-num" style={{
-          fontFamily:HF,fontSize:96,fontWeight:900,lineHeight:1,
-          position:'absolute',top:8,right:16,letterSpacing:'-0.05em',
-          userSelect:'none',pointerEvents:'none',
-          color:'rgba(139,26,26,0.055)',
-        }}>{i+1}</div>
+          fontFamily: HF, fontSize: 96, fontWeight: 900, lineHeight: 1,
+          position: 'absolute', top: 8, right: 16, letterSpacing: '-0.05em',
+          userSelect: 'none', pointerEvents: 'none',
+          color: 'rgba(139,26,26,0.055)',
+        }}>{i + 1}</div>
         <div className="c-iwr" style={{
-          width:56,height:56,borderRadius:'50%',border:'1px solid',
-          display:'flex',alignItems:'center',justifyContent:'center',marginBottom:28,
-          background:a.g
+          width: 56, height: 56, borderRadius: '50%', border: '1px solid',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 28,
+          background: a.g
         }}>
           <svg width={22} height={22} viewBox="0 0 24 24" fill="none" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="c-svg">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
           </svg>
         </div>
-        <div style={{ display:'flex',alignItems:'center',gap:10,marginBottom:16 }}>
-          <span className="c-lbl" style={{ fontSize:9,fontWeight:800,letterSpacing:'0.26em',textTransform:'uppercase',whiteSpace:'nowrap' }}>ARTWORK</span>
-          <div className="c-div" style={{ flex:1,height:1 }}/>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <span className="c-lbl" style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.26em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{d.artworkLabel}</span>
+          <div className="c-div" style={{ flex: 1, height: 1 }} />
         </div>
-        <div style={{ marginBottom:14 }}>
-          <span className="c-head" style={{ fontFamily:HF,fontSize:27,fontWeight:900,display:'block',lineHeight:1.18 }}>{a.title}</span>
-          <em className="c-ital" style={{ fontFamily:HF,fontSize:27,fontWeight:700,display:'block',lineHeight:1.18 }}>{a.artist}</em>
+        <div style={{ marginBottom: 14 }}>
+          <span className="c-head" style={{ fontFamily: HF, fontSize: 27, fontWeight: 900, display: 'block', lineHeight: 1.18 }}>{a.title}</span>
+          <em className="c-ital" style={{ fontFamily: HF, fontSize: 27, fontWeight: 700, display: 'block', lineHeight: 1.18 }}>{a.artist}</em>
         </div>
-        <p className="c-desc" style={{ fontSize:13,lineHeight:1.7,marginBottom:30 }}>{a.desc}</p>
-        <button className="c-cta" style={{ fontSize:11,fontWeight:700,letterSpacing:'0.1em',padding:'10px 22px',borderRadius:8 }}>
-          View Artwork <span className="c-arr">→</span>
+        <p className="c-desc" style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 30 }}>{a.desc}</p>
+        <button className="c-cta" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', padding: '10px 22px', borderRadius: 8 }}>
+          {d.viewArtwork} <span className="c-arr">→</span>
         </button>
       </div>
     </div>
@@ -179,29 +187,31 @@ function ArtTile({ a, i }) {
 
 export default function IllustrationsPage() {
   const { language } = useLanguage();
-  const d = DATA[language];
+  // Safe fallback: if `language` ever returns something other than 'en'/'bn'
+  // (e.g. during initial hydration), default to English instead of crashing.
+  const d = DATA[language as keyof typeof DATA] || DATA.en;
   const bf = language === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
 
   return (
-    <div style={{ fontFamily:bf,background:CREAM,minHeight:'100vh' }}>
-      <style dangerouslySetInnerHTML={{ __html: CSS }}/>
+    <div style={{ fontFamily: bf, background: CREAM, minHeight: '100vh' }}>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="pi">
         <PageHero
           bg={`linear-gradient(148deg,${CR} 0%,${LCR} 100%)`}
           label={d.lbl} t1={d.t1} t2={d.t2} desc={d.desc} back={d.back}
         />
-        <div style={{ background:CREAM,minHeight:'55vh' }}>
-          <div style={{ maxWidth:1100,margin:'0 auto',padding:'48px 24px' }}>
+        <div style={{ background: CREAM, minHeight: '55vh' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 24px' }}>
             {/* Section Header */}
-            <div style={{ marginBottom:40, display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+            <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
               <div>
-                <SLabel label={d.all} dark={false}/>
-                <h2 style={{ fontFamily:HF,fontSize:32,fontWeight:900,color:DK,lineHeight:1.2 }}>
-                  {d.t1} <em style={{ fontStyle:'italic',color:CR }}>{d.t2}</em>
+                <SLabel label={d.all} dark={false} />
+                <h2 style={{ fontFamily: HF, fontSize: 32, fontWeight: 900, color: DK, lineHeight: 1.2 }}>
+                  {d.t1} <em style={{ fontStyle: 'italic', color: CR }}>{d.t2}</em>
                 </h2>
-                <div style={{ width:60,height:3,background:`linear-gradient(90deg,${CR},${LCR})`,marginTop:16 }}/>
+                <div style={{ width: 60, height: 3, background: `linear-gradient(90deg,${CR},${LCR})`, marginTop: 16 }} />
               </div>
-              <button 
+              <button
                 className="btn-gallery"
                 style={{
                   backgroundColor: '#C0392B',
@@ -216,12 +226,12 @@ export default function IllustrationsPage() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#A93226'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C0392B'}
               >
-                {language === 'bn' ? 'পুরো গ্যালারি দেখুন' : 'View Full Gallery'} →
+                {d.all} →
               </button>
             </div>
-            <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24 }}>
-              {d.arts.map((a, i) => (
-                <ArtTile key={i} a={a} i={i}/>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 24 }}>
+              {d.arts.map((a: any, i: number) => (
+                <ArtTile key={i} a={a} i={i} d={d} />
               ))}
             </div>
           </div>

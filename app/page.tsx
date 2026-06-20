@@ -935,11 +935,11 @@ export default function Home() {
       {/* Navigation with Mobile Responsive */}
       <nav className={`nav ${navSolid ? 'solid' : ''} ${mobileOpen ? 'mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-logo" aria-label="RoktoKorobi - Home" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, minWidth: 0 }}>
-          <span className="nav-logo-emoji">🩸</span>
-          <div>
-            <span className="nav-logo-text">রক্তকরবী</span>
-            <span className="nav-logo-sub">RoktoKorobi</span>
-          </div>
+          <img 
+            src="/roktokorobi-logo.png" 
+            alt="Roktokorobi — Blood Donation Organization Logo" 
+            style={{ height: '36px', width: 'auto', display: 'block' }}
+          />
         </Link>
         
         {/* Desktop Navigation */}
