@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import RoktokorobiLogo from '@/src/assets/roktokorobi-logo.png';
 
 interface SidebarProps {
   user: any;
@@ -113,12 +112,15 @@ export default function Sidebar({ user }: SidebarProps) {
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <img 
-              src={RoktokorobiLogo.src} 
-              alt="Roktokorobi — Blood Donation Organization Logo" 
-              style={{ height: '32px', width: 'auto', display: 'block' }}
-            />
-            <span className="font-bold text-lg text-gray-900 dark:text-white">Admin</span>
+            <svg width="26" height="32" viewBox="0 0 32 38" fill="none">
+              <path d="M16 2C16 2 2 16 2 24C2 31.2 8.3 36 16 36C23.7 36 30 31.2 30 24C30 16 16 2 16 2Z" fill="#dc2626" opacity=".15"/>
+              <path d="M16 6C16 6 5 18 5 25C5 30.5 10 35 16 35C22 35 27 30.5 27 25C27 18 16 6 16 6Z" fill="#dc2626"/>
+            </svg>
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: '#dc2626' }}>রক্তকরবী</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: 2.5, color: '#c4a0a0', textTransform: 'uppercase' }}>roktokorobi</span>
+            </div>
+            <span className="font-bold text-lg text-gray-900 dark:text-white ml-2">Admin</span>
           </div>
         </div>
 

@@ -11,7 +11,6 @@ import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
 import { listAllHospitals, getUserData } from "@/lib/firebase";
-import RoktokorobiLogo from '@/src/assets/roktokorobi-logo.png';
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -936,11 +935,14 @@ export default function Home() {
       {/* Navigation with Mobile Responsive */}
       <nav className={`nav ${navSolid ? 'solid' : ''} ${mobileOpen ? 'mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-logo" aria-label="RoktoKorobi - Home" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, minWidth: 0 }}>
-          <img 
-            src={RoktokorobiLogo.src} 
-            alt="Roktokorobi — Blood Donation Organization Logo" 
-            style={{ height: '36px', width: 'auto', display: 'block' }}
-          />
+          <svg width="26" height="32" viewBox="0 0 32 38" fill="none">
+            <path d="M16 2C16 2 2 16 2 24C2 31.2 8.3 36 16 36C23.7 36 30 31.2 30 24C30 16 16 2 16 2Z" fill="#dc2626" opacity=".15"/>
+            <path d="M16 6C16 6 5 18 5 25C5 30.5 10 35 16 35C22 35 27 30.5 27 25C27 18 16 6 16 6Z" fill="#dc2626"/>
+          </svg>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: '#dc2626' }}>রক্তকরবী</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: 2.5, color: '#c4a0a0', textTransform: 'uppercase' }}>roktokorobi</span>
+          </div>
         </Link>
         
         {/* Desktop Navigation */}
