@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import RoktokorobiLogo from '@/src/assets/roktokorobi-logo.png';
 
 interface SidebarProps {
   user: any;
@@ -113,7 +114,7 @@ export default function Sidebar({ user }: SidebarProps) {
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <img 
-              src="/roktokorobi-logo.png" 
+              src={RoktokorobiLogo.src} 
               alt="Roktokorobi — Blood Donation Organization Logo" 
               style={{ height: '32px', width: 'auto', display: 'block' }}
             />

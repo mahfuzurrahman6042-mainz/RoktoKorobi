@@ -11,6 +11,7 @@ import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
 import { listAllHospitals, getUserData } from "@/lib/firebase";
+import RoktokorobiLogo from '@/src/assets/roktokorobi-logo.png';
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -936,7 +937,7 @@ export default function Home() {
       <nav className={`nav ${navSolid ? 'solid' : ''} ${mobileOpen ? 'mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-logo" aria-label="RoktoKorobi - Home" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, minWidth: 0 }}>
           <img 
-            src="/roktokorobi-logo.png" 
+            src={RoktokorobiLogo.src} 
             alt="Roktokorobi — Blood Donation Organization Logo" 
             style={{ height: '36px', width: 'auto', display: 'block' }}
           />
