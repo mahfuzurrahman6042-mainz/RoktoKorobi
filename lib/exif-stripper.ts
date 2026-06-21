@@ -35,7 +35,7 @@ export class ExifStripper {
 
       // Create new file without EXIF data
       const strippedFile = new File(
-        [processedBuffer],
+        [new Uint8Array(processedBuffer)],
         file.name.replace(/\.[^/.]+$/, '.jpg'), // Convert to JPEG
         { type: 'image/jpeg', lastModified: file.lastModified }
       );
@@ -137,7 +137,7 @@ export class ExifStripper {
         .toBuffer();
 
       return new File(
-        [optimizedBuffer],
+        [new Uint8Array(optimizedBuffer)],
         file.name.replace(/\.[^/.]+$/, '.jpg'),
         { type: 'image/jpeg', lastModified: file.lastModified }
       );
