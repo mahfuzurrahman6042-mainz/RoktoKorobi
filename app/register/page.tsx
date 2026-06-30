@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 import { registerUser, saveUserData, updateProfile, sendVerificationEmail } from '@/lib/firebase';
 
 export default function RegisterDonor() {
@@ -30,6 +31,7 @@ export default function RegisterDonor() {
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -335,20 +337,39 @@ export default function RegisterDonor() {
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
                     {t('password')} *
                   </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    required
-                    minLength={6}
-                    placeholder={language === 'bn' ? 'কমপক্ষে ৬ অক্ষর' : 'Minimum 6 characters'}
-                    style={{
-                      width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)',
-                      borderRadius: '12px', fontSize: '16px', background: '#F5EDD8',
-                      outline: 'none', transition: 'all 0.3s'
-                    }}
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                      minLength={6}
+                      placeholder={language === 'bn' ? 'কমপক্ষে ৬ অক্ষর' : 'Minimum 6 characters'}
+                      style={{
+                        width: '100%', padding: '14px 18px', paddingRight: '48px', border: '1.5px solid rgba(26,15,10,0.1)',
+                        borderRadius: '12px', fontSize: '16px', background: '#F5EDD8',
+                        outline: 'none', transition: 'all 0.3s'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '14px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#3D2314',
+                        padding: 0
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Contact and Medical Info */}
