@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { registerUser, saveUserData, updateProfile } from '@/lib/firebase';
+import { registerUser, saveUserData, updateProfile, sendVerificationEmail } from '@/lib/firebase';
 
 export default function RegisterDonor() {
   const router = useRouter();
@@ -138,6 +138,14 @@ export default function RegisterDonor() {
       // Update user profile with name
       await updateProfile(userCredential.user, { displayName: formData.name });
 
+      // Send email verification
+      try {
+        await sendVerificationEmail(userCredential.user);
+      } catch (verifyError) {
+        console.error('Email verification error:', verifyError);
+        // Continue with registration even if verification fails
+      }
+
       // Save donor data to Firestore
       const donorData = {
         name: formData.name,
@@ -160,7 +168,7 @@ export default function RegisterDonor() {
         donations: 0,
         fulfilledRequests: 0,
         rating: 4.8,
-        emailVerified: false
+        emailVerified: userCredential.user.emailVerified
       };
 
       // Save to Firestore

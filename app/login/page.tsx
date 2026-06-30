@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginUser, getCurrentUser, onAuthStateChange } from '@/lib/firebase';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function Login() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -196,19 +198,36 @@ export default function Login() {
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
                   {t('password')} *
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  placeholder={language === 'bn' ? 'আপনার পাসওয়ার্ড লিখুন' : 'Enter your password'}
-                  style={{
-                    width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)',
-                    borderRadius: '12px', fontSize: '16px', background: '#F5EDD8',
-                    outline: 'none', transition: 'all 0.3s'
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    placeholder={language === 'bn' ? 'আপনার পাসওয়ার্ড লিখুন' : 'Enter your password'}
+                    style={{
+                      width: '100%', padding: '14px 18px', paddingRight: '48px', border: '1.5px solid rgba(26,15,10,0.1)',
+                      borderRadius: '12px', fontSize: '16px', background: '#F5EDD8',
+                      outline: 'none', transition: 'all 0.3s'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                  >
+                    {showPassword ? (
+                      <EyeOff size={20} color="#3D2314" />
+                    ) : (
+                      <Eye size={20} color="#3D2314" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Remember Me & Forgot Password */}

@@ -1,153 +1,113 @@
-// @ts-nocheck - Supabase type inference issues with Database types
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { assignSuperAdminRole, isFirstUser } from '../actions/assignSuperAdmin';
+import { setSuperAdmin } from '@/lib/firebase';
+import { Crown, CheckCircle, AlertCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function SuperAdminSetup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [isSetupAllowed, setIsSetupAllowed] = useState<boolean | null>(null);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
-  const supabase = createClient();
-
-  const checkSetupAllowed = async () => {
-    const allowed = await isFirstUser();
-    setIsSetupAllowed(allowed);
-    return allowed;
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSetSuperAdmin = async () => {
     setLoading(true);
     setMessage('');
-
+    
     try {
-      // Check if setup is allowed
-      const allowed = await checkSetupAllowed();
-      if (!allowed) {
-        setMessage('Setup is only allowed for the first user. Super Admin already exists.');
-        return;
-      }
-
-      // Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (authError) {
-        setMessage(`Error: ${authError.message}`);
-        return;
-      }
-
-      if (authData.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            user_id: authData.user.id,
-            full_name: email.split('@')[0], // Use email prefix as name
-          });
-
-        if (profileError) {
-          setMessage(`Error creating profile: ${profileError.message}`);
-          return;
-        }
-
-        // Assign Super Admin role
-        const { success, error: roleError } = await assignSuperAdminRole(authData.user.id);
-
-        if (success) {
-          setMessage('Success! Super Admin account created. You can now login to the admin dashboard.');
-        } else {
-          setMessage(`Error assigning role: ${roleError}`);
-        }
+      const result = await setSuperAdmin('mahfuzurrahman6042@gmail.com');
+      
+      if (result.success) {
+        setSuccess(true);
+        setMessage('Successfully set mahfuzurrahman6042@gmail.com as Super Admin! You can now login to access the admin dashboard.');
+        
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
+      } else {
+        setSuccess(false);
+        setMessage('Failed to set Super Admin. Please try again.');
       }
     } catch (error) {
-      setMessage('An unexpected error occurred');
+      setSuccess(false);
+      setMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8">
+        <div className="text-center">
+          <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <Crown size={40} className="text-red-600" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900">
             Super Admin Setup
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Create the first Super Admin account for RoktoKorobi
+          <p className="mt-2 text-gray-600">
+            Set up the Super Admin for RoktoKorobi Foundation
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Super Admin Email
+            </label>
+            <div className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-3">
+              <span className="text-gray-900 font-medium">mahfuzurrahman6042@gmail.com</span>
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? 'Creating Account...' : 'Create Super Admin Account'}
-            </button>
-          </div>
+          <button
+            onClick={handleSetSuperAdmin}
+            disabled={loading || success}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Setting up...
+              </>
+            ) : success ? (
+              <>
+                <CheckCircle size={20} />
+                Setup Complete
+              </>
+            ) : (
+              <>
+                <Crown size={20} />
+                Set as Super Admin
+              </>
+            )}
+          </button>
 
           {message && (
-            <div className={`text-center p-3 rounded-md ${
-              message.includes('Success') 
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+            <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 ${
+              success 
+                ? 'bg-green-50 text-green-800 border border-green-200'
+                : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
-              {message}
+              {success ? (
+                <CheckCircle size={20} className="flex-shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
+              )}
+              <p className="text-sm">{message}</p>
             </div>
           )}
-        </form>
+        </div>
 
         <div className="text-center">
           <a
-            href="/admin"
-            className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+            href="/login"
+            className="text-red-600 hover:text-red-700 font-medium"
           >
-            Already have an account? Sign in
+            Go to Login Page
           </a>
         </div>
       </div>

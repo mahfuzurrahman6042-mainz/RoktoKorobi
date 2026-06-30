@@ -2,60 +2,119 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { 
-  Home, Users, Heart, FileText, FileImage, Image, Settings, 
-  MapPin, Phone, Clock, Calendar, Star, MessageCircle, 
-  Menu, X, Search, Bell, User, ChevronDown, Droplets,
-  Activity, Shield, Globe, Filter, LogOut
-} from 'lucide-react';
-import { logoutUser, getCurrentUser, getUserData, updateUserData, onAuthStateChange } from '@/lib/firebase';
+import { getCurrentUser, getUserData, logoutUser } from '@/lib/firebase';
 
 export default function Dashboard() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState('en');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeSection, setActiveSection] = useState('overview');
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [kebabOpen, setKebabOpen] = useState(false);
   const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'test@example.com',
+    name: 'Mahfuzur Rahman',
     bloodGroup: 'O+',
     donations: 0,
-    lastDonation: null,
-    phone: '0171-1234567',
-    location: 'Dhaka',
-    rating: 4.8,
-    isDonor: false,
-    fulfilledRequests: 0
+    fulfilledRequests: 0,
+    rating: 0
   });
-  const [loading, setLoading] = useState(true);
-  const [loggingOut, setLoggingOut] = useState(false);
+
+  const translations = {
+    en: {
+      brandSub: 'RoktoKorobi',
+      quickActions: 'Quick actions',
+      quickHome: 'Go to home',
+      quickHomeSub: 'Back to the main site',
+      quickRequest: 'Request blood',
+      quickRequestSub: 'Start a verified request',
+      quickEligibility: 'Check eligibility',
+      quickEligibilitySub: 'Confirm you\'re ready to give',
+      quickChitrokothon: 'Visit Chitrokothon',
+      quickChitrokothonSub: 'Stories from real donors',
+      quickBlog: 'Blog',
+      quickBlogSub: 'Read our latest posts',
+      quickTestimonials: 'Testimonials',
+      quickTestimonialsSub: 'Stories from donors',
+      quickProfile: 'Complete your profile',
+      quickProfileSub: 'Add your blood type & location',
+      profileVerified: 'Verified donor',
+      logout: 'Log out',
+      langBtn: 'English',
+      newRequest: 'New request',
+      greeting: 'Good morning',
+      greetingSub: 'Here\'s what\'s happening with your donor account today.',
+      sectionHeading: 'Overview',
+      viewAll: 'View all activity →',
+      trendAll: 'All time',
+      trendCommunity: 'Community',
+      stat1Label: 'Total donations',
+      stat1Foot: 'No donations logged yet',
+      stat2Label: 'Fulfilled requests',
+      stat2Foot: 'Waiting on your first match',
+      stat3Label: 'Donor rating',
+      stat3Foot: 'No ratings yet',
+      panelRecent: 'Recent activity',
+      emptyTitle: 'No activity yet',
+      emptyText: "Once you respond to a request or complete a donation, it'll show up here so you can track your impact over time.",
+      checkEligibility: 'Check your eligibility',
+      panelQuick: 'Quick actions'
+    },
+    bn: {
+      brandSub: 'রক্তদান নেটওয়ার্ক',
+      quickActions: 'দ্রুত পদক্ষেপ',
+      quickHome: 'হোমে যান',
+      quickHomeSub: 'মূল সাইটে ফিরে যান',
+      quickRequest: 'রক্ত চাই',
+      quickRequestSub: 'একটি যাচাইকৃত আবেদন শুরু করুন',
+      quickEligibility: 'যোগ্যতা যাচাই করুন',
+      quickEligibilitySub: 'আপনি প্রস্তুত কিনা নিশ্চিত করুন',
+      quickChitrokothon: 'চিত্রকথন দেখুন',
+      quickChitrokothonSub: 'সত্যিকারের দাতাদের গল্প',
+      quickBlog: 'ব্লগ',
+      quickBlogSub: 'আমাদের সাম্প্রতিক পোস্ট পড়ুন',
+      quickTestimonials: 'সাক্ষ্যকথা',
+      quickTestimonialsSub: 'দাতাদের গল্প',
+      quickProfile: 'প্রোফাইল সম্পূর্ণ করুন',
+      quickProfileSub: 'আপনার ব্লাড গ্রুপ ও ঠিকানা যুক্ত করুন',
+      profileVerified: 'যাচাইকৃত দাতা',
+      logout: 'লগ আউট',
+      langBtn: 'বাংলা',
+      newRequest: 'নতুন আবেদন',
+      greeting: 'শুভ সকাল',
+      greetingSub: 'আজ আপনার দাতা অ্যাকাউন্টে কী ঘটছে তা এখানে দেখুন।',
+      sectionHeading: 'সারসংক্ষেপ',
+      viewAll: 'সব কার্যক্রম দেখুন →',
+      trendAll: 'সর্বমোট',
+      trendCommunity: 'কমিউনিটি',
+      stat1Label: 'মোট রক্তদান',
+      stat1Foot: 'এখনও কোনো রক্তদান হয়নি',
+      stat2Label: 'পূর্ণকৃত আবেদন',
+      stat2Foot: 'প্রথম মিলের অপেক্ষায়',
+      stat3Label: 'দাতার রেটিং',
+      stat3Foot: 'এখনও কোনো রেটিং নেই',
+      panelRecent: 'সাম্প্রতিক কার্যক্রম',
+      emptyTitle: 'এখনও কোনো কার্যক্রম নেই',
+      emptyText: 'আপনি কোনো আবেদনে সাড়া দিলে বা রক্তদান সম্পন্ন করলে, তা এখানে দেখা যাবে যাতে আপনি সময়ের সাথে আপনার অবদান পর্যবেক্ষণ করতে পারেন।',
+      checkEligibility: 'আপনার যোগ্যতা যাচাই করুন',
+      panelQuick: 'দ্রুত পদক্ষেপ'
+    }
+  };
+
+  const t = translations[language];
 
   useEffect(() => {
-    setMounted(true);
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
-    
-    // Check Firebase authentication
+
     const checkAuth = async () => {
       try {
         const user = await getCurrentUser();
-        if (user) {
-          setCurrentUser(user);
-          try {
-            const data = await getUserData(user.uid);
-            if (data) {
-              setUserData(prev => ({ ...prev, ...data }));
-            } else {
-              setUserData(prev => ({ ...prev, email: user.email || '', name: user.displayName || 'User' }));
-            }
-          } catch (error) {
-            console.error('Error fetching user data:', error);
-          }
-        } else {
+        if (!user) {
           router.push('/login');
+        } else {
+          const data = await getUserData(user.uid);
+          if (data) {
+            setUserData(prev => ({ ...prev, ...data }));
+          }
         }
       } catch (error) {
         router.push('/login');
@@ -66,37 +125,15 @@ export default function Dashboard() {
     checkAuth();
   }, [router]);
 
-  const handleLogout = async () => {
-    if (!confirm(language === 'bn' ? 'আপনি কি লগআউট করতে চান?' : 'Are you sure you want to logout?')) {
-      return;
-    }
-
-    setLoggingOut(true);
-    try {
-      await logoutUser();
-      // Clear local storage
-      localStorage.removeItem('language');
-      setCurrentUser(null);
-      setUserData({
-        name: 'John Doe',
-        email: 'test@example.com',
-        bloodGroup: 'O+',
-        donations: 0,
-        lastDonation: null,
-        phone: '0171-1234567',
-        location: 'Dhaka',
-        rating: 4.8,
-        isDonor: false,
-        fulfilledRequests: 0
-      });
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      alert(language === 'bn' ? 'লগআউট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Logout failed. Please try again.');
-    } finally {
-      setLoggingOut(false);
-    }
-  };
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (kebabOpen) {
+        setKebabOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [kebabOpen]);
 
   const toggleLanguage = () => {
     const newLang = language === 'en' ? 'bn' : 'en';
@@ -104,45 +141,27 @@ export default function Dashboard() {
     localStorage.setItem('language', newLang);
   };
 
-  // Navigation items - match homepage navigation
-  const navigationItems = [
-    { id: 'home', label: language === 'bn' ? 'হোম' : 'Home', icon: Home },
-    { id: 'donors', label: language === 'bn' ? 'রক্তদাতা' : 'Donors', icon: Users },
-    { id: 'request', label: language === 'bn' ? 'রক্তের প্রয়োজন' : 'Request Blood', icon: Heart },
-    { id: 'eligibility', label: language === 'bn' ? 'যোগ্যতা' : 'Eligibility', icon: Shield },
-    { id: 'blog', label: language === 'bn' ? 'ব্লগ' : 'Blog', icon: FileText },
-    { id: 'illustrations', label: language === 'bn' ? 'চিত্রকথন' : 'Chitrokothon', icon: Image },
-    { id: 'testimonials', label: language === 'bn' ? 'অভিজ্ঞতা' : 'Testimonials', icon: MessageCircle },
-    { id: 'profile', label: language === 'bn' ? 'প্রোফাইল' : 'Profile', icon: User },
-  ];
-
-  const t = (key: string) => {
-    const translations: Record<string, any> = {
-      welcome: { en: 'Welcome back', bn: 'স্বাগতম ফিরে' },
-      dashboard: { en: 'Dashboard', bn: 'ড্যাশবোর্ড' },
-      profile: { en: 'My Profile', bn: 'আমার প্রোফাইল' },
-      donations: { en: 'My Donations', bn: 'আমার রক্তদান' },
-      requests: { en: 'Blood Requests', bn: 'রক্তের অনুরোধ' },
-      settings: { en: 'Settings', bn: 'সেটিংস' },
-      logout: { en: 'Logout', bn: 'লগআউট' },
-      totalDonations: { en: 'Total Donations', bn: 'মোট রক্তদান' },
-      lastDonation: { en: 'Last Donation', bn: 'সর্বশেষ রক্তদান' },
-      bloodGroup: { en: 'Blood Group', bn: 'রক্তের গ্রুপ' },
-      never: { en: 'Never', bn: 'কখনও না' },
-      findDonors: { en: 'Find Donors', bn: 'দাতা খুঁজুন' },
-      requestBlood: { en: 'Request Blood', bn: 'রক্তের অনুরোধ করুন' },
-      editProfile: { en: 'Edit Profile', bn: 'প্রোফাইল সম্পাদনা করুন' }
-    };
-    return translations[key]?.[language] || key;
+  const handleLogout = async () => {
+    setKebabOpen(false);
+    if (!confirm(language === 'bn' ? 'আপনি কি লগআউট করতে চান?' : 'Are you sure you want to logout?')) {
+      return;
+    }
+    await logoutUser();
+    router.push('/login');
   };
 
-  if (!mounted) return null;
+  const openSidebar = () => setSidebarOpen(true);
+  const closeSidebar = () => setSidebarOpen(false);
+  const toggleKebab = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setKebabOpen(!kebabOpen);
+  };
+
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#F5EDD8' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#FBF6EE' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🩸</div>
-          <p style={{ fontSize: '18px', color: '#666' }}>{language === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
@@ -151,1511 +170,671 @@ export default function Dashboard() {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+        
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+          --crimson: #B3221C;
+          --crimson-deep: #8C1B16;
+          --gold: #C99A2E;
+          --gold-soft: #E3C988;
+          --cream: #FBF6EE;
+          --cream-dim: #F0E8D8;
+          --ink: #241B16;
+          --ink-soft: #6E6258;
+          --line: #E7DCC8;
+          --white: #FFFFFF;
+          --radius: 14px;
+          --shadow: 0 1px 3px rgba(36,27,22,0.06), 0 8px 24px -8px rgba(36,27,22,0.12);
+          --sidebar-w: 268px;
+        }
+
+        html, body {
+          height: 100%;
+          background: var(--cream);
+          color: var(--ink);
+          font-family: ${language === 'bn' ? "'Noto Sans Bengali', 'DM Sans', sans-serif" : "'DM Sans', sans-serif"};
+          -webkit-font-smoothing: antialiased;
+          overflow-x: hidden;
+        }
+
+        .layout {
+          display: flex;
+          flex-direction: row;
+          align-items: stretch;
+          min-height: 100vh;
+          width: 100%;
+        }
+
+        .sidebar {
+          width: var(--sidebar-w);
+          min-width: var(--sidebar-w);
+          max-width: var(--sidebar-w);
+          flex-shrink: 0;
+          height: 100vh;
+          position: sticky;
+          top: 0;
+          left: 0;
+          background: var(--white);
+          border-right: 1px solid var(--line);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          z-index: 100;
+          transition: transform .25s cubic-bezier(.4,0,.2,1);
+        }
+
         @media (max-width: 768px) {
           .sidebar {
-            transform: translateX(-100%) !important;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            transform: translateX(-100%);
+            box-shadow: 4px 0 24px rgba(36,27,22,0.15);
           }
           .sidebar.open {
-            transform: translateX(0) !important;
+            transform: translateX(0);
           }
-          .main-content {
-            margin-left: 0 !important;
+          .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(36,27,22,0.35);
+            z-index: 90;
           }
-          .stats-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .form-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .donor-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .overlay.open { display: block; }
         }
+
+        .sidebar-brand {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 11px;
+          padding: 20px 18px 18px;
+          border-bottom: 1px solid var(--line);
+          flex-shrink: 0;
+        }
+        .brand-left { display: flex; align-items: center; gap: 11px; }
+        .brand-icon {
+          width: 36px; height: 36px;
+          border-radius: 10px;
+          background: linear-gradient(145deg, var(--crimson) 0%, var(--crimson-deep) 100%);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 3px 8px -2px rgba(140,27,22,0.50);
+        }
+        .brand-icon svg { width: 17px; height: 17px; }
+        .brand-text-bn {
+          font-family: 'Noto Sans Bengali', sans-serif;
+          font-size: 17px; font-weight: 700;
+          color: var(--crimson); line-height: 1.1;
+        }
+        .brand-text-en {
+          font-size: 10px; font-weight: 600;
+          letter-spacing: .13em; text-transform: uppercase;
+          color: var(--ink-soft); margin-top: 2px;
+        }
+        .sidebar-close {
+          display: none;
+          width: 30px; height: 30px;
+          border-radius: 8px; border: 1px solid var(--line);
+          background: var(--cream-dim);
+          align-items: center; justify-content: center;
+          cursor: pointer; color: var(--ink-soft);
+          flex-shrink: 0;
+        }
+        .sidebar-close svg { width: 15px; height: 15px; }
+        @media (max-width: 768px) { .sidebar-close { display: flex; } }
+
+        .sidebar-actions {
+          padding: 12px 12px 4px;
+          flex: 1;
+          overflow-y: auto;
+        }
+        .sidebar-actions-label {
+          font-size: 10px; font-weight: 700;
+          letter-spacing: .12em; text-transform: uppercase;
+          color: var(--ink-soft); opacity: .55;
+          padding: 4px 8px 8px;
+        }
+        .action-link {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 9px 10px;
+          border-radius: 9px;
+          text-decoration: none;
+          color: var(--ink);
+          transition: background .14s;
+          width: 100%;
+        }
+        .action-link:hover { background: var(--cream-dim); }
+        .action-icon {
+          width: 30px; height: 30px;
+          border-radius: 8px;
+          background: rgba(179,34,28,0.08);
+          color: var(--crimson);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        .action-icon svg { width: 14px; height: 14px; }
+        .action-text-main { font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.2; }
+        .action-text-sub  { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+        .action-chev { margin-left: auto; color: var(--ink-soft); flex-shrink: 0; }
+        .action-chev svg { width: 12px; height: 12px; }
+
+        .sidebar-footer {
+          border-top: 1px solid var(--line);
+          padding: 10px 12px;
+          flex-shrink: 0;
+          position: relative;
+        }
+
+        .user-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 10px;
+          transition: background .14s;
+        }
+        .user-row:hover { background: var(--cream-dim); }
+        .user-avatar {
+          width: 34px; height: 34px; border-radius: 50%;
+          background: linear-gradient(145deg, var(--crimson) 0%, var(--crimson-deep) 100%);
+          color: #fff;
+          display: flex; align-items: center; justify-content: center;
+          font-weight: 700; font-size: 13px; flex-shrink: 0;
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name {
+          font-size: 13px; font-weight: 600; color: var(--ink);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .user-badge { font-size: 11px; color: var(--ink-soft); }
+
+        .kebab-wrap { position: relative; flex-shrink: 0; }
+        .kebab-btn {
+          width: 26px; height: 26px;
+          border-radius: 7px; border: none;
+          background: transparent;
+          display: flex; align-items: center; justify-content: center;
+          color: var(--ink-soft); cursor: pointer;
+        }
+        .kebab-btn:hover { background: var(--line); color: var(--ink); }
+        .kebab-btn svg { width: 15px; height: 15px; }
+        .kebab-drop {
+          position: absolute;
+          bottom: calc(100% + 6px);
+          right: 0;
+          background: var(--white);
+          border: 1px solid var(--line);
+          border-radius: 10px;
+          box-shadow: 0 8px 24px -4px rgba(36,27,22,0.18);
+          padding: 5px;
+          min-width: 148px;
+          display: none;
+          z-index: 200;
+        }
+        .kebab-drop.open { display: block; }
+        .kebab-item {
+          display: flex; align-items: center; gap: 9px;
+          padding: 9px 12px; border-radius: 7px;
+          font-size: 13px; font-weight: 500;
+          color: var(--crimson); cursor: pointer;
+          transition: background .14s;
+          border: none; background: transparent;
+          width: 100%; font-family: inherit;
+        }
+        .kebab-item:hover { background: rgba(179,34,28,0.07); }
+        .kebab-item svg { width: 14px; height: 14px; }
+
+        .main {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          background: var(--cream);
+          overflow-y: auto;
+        }
+
+        .topbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 18px 32px;
+          background: var(--cream);
+          border-bottom: 1px solid var(--line);
+          flex-shrink: 0;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          gap: 12px;
+        }
+        .topbar-left  { display: flex; align-items: center; gap: 8px; }
+        .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+        .hamburger {
+          width: 38px; height: 38px;
+          border-radius: 9px;
+          border: 1px solid var(--line);
+          background: var(--white);
+          display: none;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4.5px;
+          cursor: pointer;
+          box-shadow: var(--shadow);
+          flex-shrink: 0;
+        }
+        .hamburger span {
+          display: block;
+          width: 16px; height: 1.8px;
+          background: var(--ink);
+          border-radius: 2px;
+          transition: all .2s;
+        }
+        @media (max-width: 768px) { .hamburger { display: flex; } }
+
+        .lang-btn {
+          display: flex; align-items: center; gap: 6px;
+          border: 1px solid var(--line); background: var(--white);
+          color: var(--ink); font-size: 13px; font-weight: 600;
+          height: 36px; padding: 0 14px; border-radius: 999px;
+          cursor: pointer; font-family: inherit;
+          box-shadow: var(--shadow); transition: border-color .14s;
+        }
+        .lang-btn:hover { border-color: var(--gold); }
+        .lang-btn svg { width: 14px; height: 14px; }
+
+        .notif-btn {
+          width: 36px; height: 36px; border-radius: 50%;
+          border: 1px solid var(--line); background: var(--white);
+          display: flex; align-items: center; justify-content: center;
+          color: var(--ink-soft); cursor: pointer;
+          box-shadow: var(--shadow); position: relative;
+          transition: border-color .14s, color .14s;
+        }
+        .notif-btn:hover { color: var(--crimson); border-color: var(--gold); }
+        .notif-btn svg { width: 16px; height: 16px; }
+        .notif-dot {
+          position: absolute; top: 6px; right: 7px;
+          width: 7px; height: 7px; border-radius: 50%;
+          background: var(--gold); border: 2px solid var(--white);
+        }
+
+        .new-req-btn {
+          display: flex; align-items: center; gap: 6px;
+          background: var(--crimson); color: #fff;
+          border: none; border-radius: 999px;
+          font-size: 13px; font-weight: 600;
+          height: 36px; padding: 0 16px;
+          cursor: pointer; font-family: inherit;
+          transition: background .14s;
+          box-shadow: 0 2px 8px -2px rgba(140,27,22,0.4);
+          white-space: nowrap;
+        }
+        .new-req-btn:hover { background: var(--crimson-deep); }
+        .new-req-btn svg { width: 14px; height: 14px; }
+
+        .page-header { padding: 26px 32px 0; }
+        .page-title {
+          font-family: 'Sora', sans-serif;
+          font-size: 23px; font-weight: 700;
+          color: var(--ink); letter-spacing: -0.01em;
+        }
+        .page-sub { font-size: 13.5px; color: var(--ink-soft); margin-top: 4px; }
+
+        .content {
+          padding: 22px 32px 48px;
+          display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .section-row {
+          display: flex; align-items: center;
+          justify-content: space-between; margin-bottom: 14px;
+        }
+        .section-title {
+          font-family: 'Sora', sans-serif;
+          font-size: 15px; font-weight: 600; color: var(--ink);
+        }
+        .view-all {
+          font-size: 12.5px; font-weight: 600;
+          color: var(--crimson); text-decoration: none;
+        }
+        .view-all:hover { text-decoration: underline; }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 15px;
+        }
+        .stat-card {
+          background: var(--white);
+          border: 1px solid var(--line);
+          border-radius: var(--radius);
+          padding: 20px 20px 16px;
+          box-shadow: var(--shadow);
+          display: flex; flex-direction: column;
+          min-height: 148px;
+          transition: transform .18s, box-shadow .18s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -10px rgba(36,27,22,0.16); }
+        .stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .stat-icon { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon svg { width: 16px; height: 16px; }
+        .stat-icon.red   { background: rgba(179,34,28,0.09);  color: var(--crimson); }
+        .stat-icon.green { background: rgba(47,122,77,0.10);  color: #2F7A4D; }
+        .stat-icon.gold  { background: rgba(201,154,46,0.13); color: #9C7820; }
+        .stat-badge {
+          font-size: 11px; font-weight: 600; color: var(--ink-soft);
+          background: var(--cream-dim); padding: 3px 9px; border-radius: 999px;
+        }
+        .stat-number {
+          font-family: 'Sora', sans-serif;
+          font-size: 34px; font-weight: 700;
+          color: var(--ink); line-height: 1; letter-spacing: -0.02em;
+          display: block;
+        }
+        .stat-label { font-size: 13px; color: var(--ink-soft); font-weight: 500; margin-top: 5px; }
+        .stat-note {
+          margin-top: auto; padding-top: 12px;
+          font-size: 11.5px; color: var(--ink-soft);
+          display: flex; align-items: center; gap: 6px;
+        }
+        .stat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+        .bottom-grid {
+          display: grid;
+          grid-template-columns: 1.35fr 1fr;
+          gap: 15px;
+        }
+        .panel {
+          background: var(--white); border: 1px solid var(--line);
+          border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+        }
+        .panel-title {
+          font-family: 'Sora', sans-serif;
+          font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px;
+        }
+
+        .empty {
+          display: flex; flex-direction: column;
+          align-items: center; text-align: center; padding: 28px 16px 12px;
+        }
+        .empty-ring {
+          width: 50px; height: 50px; border-radius: 50%;
+          background: var(--cream-dim); border: 1.5px dashed var(--gold-soft);
+          display: flex; align-items: center; justify-content: center;
+          color: var(--crimson); margin-bottom: 12px;
+        }
+        .empty-ring svg { width: 21px; height: 21px; }
+        .empty-head { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+        .empty-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; max-width: 290px; margin-bottom: 14px; }
+        .cta-link {
+          font-size: 12.5px; font-weight: 600; color: var(--crimson);
+          display: inline-flex; align-items: center; gap: 5px;
+          border-bottom: 1.5px solid transparent; text-decoration: none;
+          transition: border-color .14s;
+        }
+        .cta-link:hover { border-color: var(--crimson); }
+        .cta-link svg { width: 12px; height: 12px; }
+
+        .quick-list { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
+        .quick-row {
+          display: flex; align-items: center; gap: 10px;
+          padding: 9px 8px; border-radius: 9px;
+          text-decoration: none; color: inherit;
+          transition: background .14s;
+        }
+        .quick-row:hover { background: var(--cream-dim); }
+        .quick-icon {
+          width: 29px; height: 29px; border-radius: 8px;
+          background: rgba(179,34,28,0.08); color: var(--crimson);
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .quick-icon svg { width: 13px; height: 13px; }
+        .quick-label { font-size: 12.5px; font-weight: 500; color: var(--ink); }
+        .quick-sub   { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+        .quick-chev  { margin-left: auto; color: var(--ink-soft); }
+        .quick-chev svg { width: 12px; height: 12px; }
+
+        @media (max-width: 1024px) {
+          .stats-grid  { grid-template-columns: 1fr 1fr; }
+          .bottom-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+          .page-header { padding: 20px 18px 0; }
+          .content     { padding: 18px 18px 40px; }
+          .topbar      { padding: 14px 18px; }
+          .stats-grid  { grid-template-columns: 1fr; }
+        }
+
+        :focus-visible { outline: 2px solid var(--crimson); outline-offset: 2px; border-radius: 6px; }
       `}</style>
-      <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F5EDD8' }}>
-      
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        style={{
-          position: 'fixed',
-          top: '16px',
-          left: '16px',
-          zIndex: 1001,
-          backgroundColor: '#dc2626',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          padding: '12px',
-          cursor: 'pointer',
-          display: window.innerWidth <= 768 ? 'flex' : 'none',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <Menu size={24} />
-      </button>
 
-      {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={{
-        width: sidebarOpen ? '280px' : '80px',
-        backgroundColor: '#1A0F0A',
-        color: 'white',
-        transition: 'transform 0.3s ease, width 0.3s ease',
-        position: 'fixed',
-        height: '100vh',
-        left: 0,
-        top: 0,
-        zIndex: 1000,
-        overflow: 'hidden',
-        transform: window.innerWidth <= 768 && !sidebarOpen ? 'translateX(-100%)' : 'translateX(0)'
-      }}>
-        
-        {/* Sidebar Header */}
-        <div style={{
-          padding: '20px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: sidebarOpen ? 'space-between' : 'center'
-        }}>
-          {sidebarOpen && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '32px' }}>🩸</span>
-              <div>
-                <div style={{ fontFamily: 'serif', fontSize: '20px', color: '#dc2626', letterSpacing: '-0.01em' }}>রক্তকরবী</div>
-                <div style={{ fontSize: '10px', color: '#1B5E6B', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase' }}>RoktoKorobi</div>
+      <div className="layout">
+        <div className={`overlay ${sidebarOpen ? 'open' : ''}`} onClick={closeSidebar}></div>
+
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-brand">
+            <div className="brand-left">
+              <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+                <div>
+                  <div className="brand-text-bn">রক্তকরবী</div>
+                  <div className="brand-text-en">{t.brandSub}</div>
+                </div>
               </div>
             </div>
-          )}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
+            <button className="sidebar-close" onClick={closeSidebar} aria-label="Close menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
 
-        {/* Navigation Items */}
-        <div style={{ padding: '20px 0' }}>
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <button
-                  onClick={() => {
-                    if (item.id === 'home') router.push('/');
-                    else if (item.id === 'donors') router.push('/donors');
-                    else if (item.id === 'request') router.push('/request');
-                    else if (item.id === 'eligibility') router.push('/eligibility');
-                    else if (item.id === 'blog') router.push('/blog');
-                    else if (item.id === 'illustrations') router.push('/illustrations');
-                    else if (item.id === 'testimonials') router.push('/testimonials');
-                    else if (item.id === 'profile') router.push('/profile');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: sidebarOpen ? '12px 20px' : '12px',
-                    border: 'none',
-                    background: 'transparent',
-                    color: 'white',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    gap: sidebarOpen ? '12px' : '0',
-                    transition: 'all 0.2s ease',
-                    fontSize: '14px',
-                    fontWeight: 400,
-                    textAlign: 'left'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(192,21,42,0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <Icon size={20} />
-                  {sidebarOpen && <span style={{ marginLeft: '8px', textAlign: 'left' }}>{item.label}</span>}
+          <div className="sidebar-actions">
+            <div className="sidebar-actions-label">{t.quickActions}</div>
+
+            <div className="action-link" onClick={() => router.push('/')}>
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></div>
+              <div><div className="action-text-main">{t.quickHome}</div><div className="action-text-sub">{t.quickHomeSub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div className="action-link" onClick={() => router.push('/request')}>
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 20.5s-7-4.4-7-9.8A4 4 0 0 1 12 7.9 4 4 0 0 1 19 10.7c0 5.4-7 9.8-7 9.8Z"/></svg></div>
+              <div><div className="action-text-main">{t.quickRequest}</div><div className="action-text-sub">{t.quickRequestSub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div className="action-link" onClick={() => router.push('/eligibility')}>
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 12.5 11 14.5 15.5 9.5"/><circle cx="12" cy="12" r="8.5"/></svg></div>
+              <div><div className="action-text-main">{t.quickEligibility}</div><div className="action-text-sub">{t.quickEligibilitySub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div className="action-link" onClick={() => router.push('/illustrations')}>
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><rect x="3.5" y="4.5" width="17" height="14" rx="2"/><path d="m3.5 15 4.5-4.5 3 3L17 8l3.5 4"/></svg></div>
+              <div><div className="action-text-main">{t.quickChitrokothon}</div><div className="action-text-sub">{t.quickChitrokothonSub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div className="action-link">
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M5 4.5h11l3 3V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5.5a1 1 0 0 1 1-1Z"/><path d="M8 9h7M8 12.5h7M8 16h4"/></svg></div>
+              <div><div className="action-text-main">{t.quickBlog}</div><div className="action-text-sub">{t.quickBlogSub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div className="action-link">
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 14h5"/></svg></div>
+              <div><div className="action-text-main">{t.quickTestimonials}</div><div className="action-text-sub">{t.quickTestimonialsSub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+
+            <div className="action-link" onClick={() => router.push('/profile')}>
+              <div className="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="8.2" r="3.2"/><path d="M5.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg></div>
+              <div><div className="action-text-main">{t.quickProfile}</div><div className="action-text-sub">{t.quickProfileSub}</div></div>
+              <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+          </div>
+
+          <div className="sidebar-footer">
+            <div className="user-row">
+              <div className="user-avatar">{userData.name.charAt(0)}</div>
+              <div className="user-info">
+                <div className="user-name">{userData.name}</div>
+                <div className="user-badge">{userData.bloodGroup} · {t.profileVerified}</div>
+              </div>
+              <div className="kebab-wrap">
+                <button className="kebab-btn" onClick={toggleKebab} aria-label="Options">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="5"  r="1" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                    <circle cx="12" cy="19" r="1" fill="currentColor"/>
+                  </svg>
                 </button>
+                <div className={`kebab-drop ${kebabOpen ? 'open' : ''}`}>
+                  <button className="kebab-item" onClick={handleLogout}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    {t.logout}
+                  </button>
+                </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* User Profile Section */}
-        {sidebarOpen && (
-          <div style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '20px',
-            right: '20px',
-            padding: '16px',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                backgroundColor: '#dc2626',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 'bold',
-                fontSize: '16px'
-              }}>
-                {userData.name.charAt(0)}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 600 }}>{userData.name}</div>
-                <div style={{ fontSize: '12px', opacity: 0.7 }}>{userData.bloodGroup}</div>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              style={{
-                width: '100%',
-                padding: '8px',
-                background: 'rgba(192,21,42,0.2)',
-                border: '1px solid rgba(192,21,42,0.3)',
-                color: 'white',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-            >
-              <LogOut size={14} />
-              {t('logout')}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Main Content Area */}
-      <div className="main-content" style={{
-        marginLeft: sidebarOpen ? '280px' : '80px',
-        flex: 1,
-        transition: 'margin-left 0.3s ease',
-        minHeight: '100vh'
-      }}>
-        
-        {/* Top Header */}
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px 32px',
-          borderBottom: '1px solid #E0DDD6',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1A0F0A', margin: 0 }}>
-              {navigationItems.find(item => item.id === activeSection)?.label || t('dashboard')}
-            </h1>
-            <p style={{ fontSize: '14px', color: '#666', margin: '4px 0 0 0' }}>
-              {language === 'bn' ? 'আপনার রক্তদান কার্যক্রম পরিচালনা করুন' : 'Manage your blood donation activities'}
-            </p>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button
-              onClick={() => router.push('/')}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#1B5E6B',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontWeight: '500',
-                textAlign: 'center'
-              }}
-            >
-              <Home size={16} />
-              <span style={{ marginLeft: '8px' }}>{language === 'bn' ? 'হোমপেজ' : 'Go to Home'}</span>
-            </button>
-            
-            <button
-              onClick={toggleLanguage}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#F5EDD8',
-                border: '1px solid #E0DDD6',
-                borderRadius: '8px',
-                fontSize: '14px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontWeight: '500',
-                textAlign: 'center'
-              }}
-            >
-              <Globe size={16} />
-              <span style={{ marginLeft: '8px' }}>{language === 'bn' ? 'বাংলা' : 'English'}</span>
-            </button>
-            
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: '#dc2626',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}>
-              {userData.name.charAt(0)}
             </div>
           </div>
-        </div>
+        </aside>
 
-        {/* Dynamic Content Area */}
-        <div style={{ padding: '32px' }}>
-          {activeSection === 'overview' && (
+        <main className="main">
+          <div className="topbar">
+            <div className="topbar-left">
+              <button className="hamburger" onClick={openSidebar} aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+              </button>
+              <button className="lang-btn" onClick={toggleLanguage}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.3 2.5 3.5 5.6 3.5 9s-1.2 6.5-3.5 9c-2.3-2.5-3.5-5.6-3.5-9s1.2-6.5-3.5-9Z"/></svg>
+                {t.langBtn}
+              </button>
+              <button className="notif-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 9.5a6 6 0 1 1 12 0c0 3.2 1 4.6 2 6H4c1-1.4 2-2.8 2-6Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+                <span className="notif-dot"></span>
+              </button>
+            </div>
+            <div className="topbar-right">
+              <button className="new-req-btn" onClick={() => router.push('/request')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                {t.newRequest}
+              </button>
+            </div>
+          </div>
+
+          <div className="page-header">
+            <div className="page-title">{t.greeting}, {userData.name} 👋</div>
+            <div className="page-sub">{t.greetingSub}</div>
+          </div>
+
+          <div className="content">
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>
-                {language === 'bn' ? 'ওভারভিউ' : 'Overview'}
-              </h2>
-              <p style={{ color: '#666', textAlign: 'center' }}>
-                {language === 'bn' ? 'আপনার রক্তদান কার্যক্রম পরিচালনা করুন' : 'Summary of your blood donation activities'}
-              </p>
+              <div className="section-row">
+                <span className="section-title">{t.sectionHeading}</span>
+                <a href="#" className="view-all">{t.viewAll}</a>
+              </div>
+              <div className="stats-grid">
 
-              {/* Stats Cards */}
-              <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '32px' }}>
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                  border: '1px solid #E0DDD6',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#dc2626', marginBottom: '8px' }}>
-                    {userData.donations}
+                <div className="stat-card">
+                  <div className="stat-top">
+                    <div className="stat-icon red">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 21s-7.5-5.1-7.5-11A4.5 4.5 0 0 1 12 6.8 4.5 4.5 0 0 1 19.5 10c0 5.9-7.5 11-7.5 11Z"/></svg>
+                    </div>
+                    <span className="stat-badge">{t.trendAll}</span>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                    {language === 'bn' ? 'মোট রক্তদান' : 'Total Donations'}
-                  </div>
+                  <span className="stat-number">{userData.donations}</span>
+                  <div className="stat-label">{t.stat1Label}</div>
+                  <div className="stat-note"><span className="stat-dot"></span>{t.stat1Foot}</div>
                 </div>
 
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                  border: '1px solid #E0DDD6',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#22C55E', marginBottom: '8px' }}>
-                    {userData.fulfilledRequests}
+                <div className="stat-card">
+                  <div className="stat-top">
+                    <div className="stat-icon green">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
+                    </div>
+                    <span className="stat-badge">{t.trendAll}</span>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                    {language === 'bn' ? 'সম্পন্ন অনুরোধ' : 'Fulfilled Requests'}
-                  </div>
+                  <span className="stat-number">{userData.fulfilledRequests}</span>
+                  <div className="stat-label">{t.stat2Label}</div>
+                  <div className="stat-note"><span className="stat-dot"></span>{t.stat2Foot}</div>
                 </div>
 
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                  border: '1px solid #E0DDD6',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#1B5E6B', marginBottom: '8px' }}>
-                    {userData.rating}
+                <div className="stat-card">
+                  <div className="stat-top">
+                    <div className="stat-icon gold">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 4.5 14.6 9.6 20.5 10.5 16.2 14.5 17.3 20.3 12 17.5 6.7 20.3 7.8 14.5 3.5 10.5 9.4 9.6 12 4.5Z"/></svg>
+                    </div>
+                    <span className="stat-badge">{t.trendCommunity}</span>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                    {language === 'bn' ? 'রেটিং' : 'Rating'}
-                  </div>
+                  <span className="stat-number">{userData.rating}</span>
+                  <div className="stat-label">{t.stat3Label}</div>
+                  <div className="stat-note"><span className="stat-dot"></span>{t.stat3Foot}</div>
                 </div>
+
               </div>
             </div>
-          )}
-          
-          {activeSection === 'donors' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>
-                {language === 'bn' ? 'রক্তদাতা খুঁজুন' : 'Find Donors'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px', textAlign: 'center' }}>
-                {language === 'bn' ? 'রক্তের গ্রুপ এবং অবস্থান অনুযায়ী রক্তদাতা খুঁজুন' : 'Search for donors by blood group and location'}
-              </p>
-              
-              {/* Donor Search Section */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                border: '1px solid #E0DDD6',
-                marginBottom: '24px'
-              }}>
-                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রক্তের গ্রুপ' : 'Blood Group'}
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="all">{language === 'bn' ? 'সব গ্রুপ' : 'All Groups'}</option>
-                      <option value="A+">A+</option>
-                      <option value="A-">A-</option>
-                      <option value="B+">B+</option>
-                      <option value="B-">B-</option>
-                      <option value="AB+">AB+</option>
-                      <option value="AB-">AB-</option>
-                      <option value="O+">O+</option>
-                      <option value="O-">O-</option>
-                    </select>
+
+            <div className="bottom-grid">
+
+              <div className="panel">
+                <div className="panel-title">{t.panelRecent}</div>
+                <div className="empty">
+                  <div className="empty-ring">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 19V7l8-4 8 4v12"/><path d="M9 19v-6h6v6"/></svg>
                   </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'জেলা' : 'District'}
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="all">{language === 'bn' ? 'সব জেলা' : 'All Districts'}</option>
-                      <option value="dhaka">{language === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
-                      <option value="chattogram">{language === 'bn' ? 'চট্টগ্রাম' : 'Chattogram'}</option>
-                      <option value="rajshahi">{language === 'bn' ? 'রাজশাহী' : 'Rajshahi'}</option>
-                      <option value="khulna">{language === 'bn' ? 'খুলনা' : 'Khulna'}</option>
-                      <option value="sylhet">{language === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
-                    </select>
+                  <div className="empty-head">{t.emptyTitle}</div>
+                  <div className="empty-body">{t.emptyText}</div>
+                  <a href="/eligibility" className="cta-link">
+                    {t.checkEligibility}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </a>
+                </div>
+              </div>
+
+              <div className="panel">
+                <div className="panel-title">{t.panelQuick}</div>
+                <div className="quick-list">
+                  <div className="quick-row" onClick={() => router.push('/')}>
+                    <div className="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></div>
+                    <div><div className="quick-label">{t.quickHome}</div><div className="quick-sub">{t.quickHomeSub}</div></div>
+                    <span className="quick-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
                   </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'অনুসন্ধান' : 'Search'}
-                    </label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="text"
-                        placeholder={language === 'bn' ? 'নাম বা অবস্থান...' : 'Name or location...'}
-                        style={{
-                          flex: 1,
-                          padding: '10px 12px',
-                          border: '1px solid #E0DDD6',
-                          borderRadius: '8px',
-                          fontSize: '14px'
-                        }}
-                      />
-                      <button style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#dc2626',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <Search size={16} />
-                        {language === 'bn' ? 'খুঁজুন' : 'Search'}
-                      </button>
-                    </div>
+                  <div className="quick-row" onClick={() => router.push('/request')}>
+                    <div className="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 20.5s-7-4.4-7-9.8A4 4 0 0 1 12 7.9 4 4 0 0 1 19 10.7c0 5.4-7 9.8-7 9.8Z"/></svg></div>
+                    <div><div className="quick-label">{t.quickRequest}</div><div className="quick-sub">{t.quickRequestSub}</div></div>
+                    <span className="quick-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+                  </div>
+                  <div className="quick-row" onClick={() => router.push('/eligibility')}>
+                    <div className="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M9 12.5 11 14.5 15.5 9.5"/><circle cx="12" cy="12" r="8.5"/></svg></div>
+                    <div><div className="quick-label">{t.quickEligibility}</div><div className="quick-sub">{t.quickEligibilitySub}</div></div>
+                    <span className="quick-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+                  </div>
+                  <div className="quick-row" onClick={() => router.push('/illustrations')}>
+                    <div className="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><rect x="3.5" y="4.5" width="17" height="14" rx="2"/><path d="m3.5 15 4.5-4.5 3 3L17 8l3.5 4"/></svg></div>
+                    <div><div className="quick-label">{t.quickChitrokothon}</div><div className="quick-sub">{t.quickChitrokothonSub}</div></div>
+                    <span className="quick-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+                  </div>
+                  <div className="quick-row" onClick={() => router.push('/profile')}>
+                    <div className="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><circle cx="12" cy="8.2" r="3.2"/><path d="M5.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg></div>
+                    <div><div className="quick-label">{t.quickProfile}</div><div className="quick-sub">{t.quickProfileSub}</div></div>
+                    <span className="quick-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
                   </div>
                 </div>
               </div>
 
-              {/* Donor Results */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                border: '1px solid #E0DDD6'
-              }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#1A0F0A' }}>
-                  {language === 'bn' ? 'উপলব্ধ রক্তদাতা' : 'Available Donors'}
-                </h3>
-                
-                {/* Donor Cards */}
-                <div className="donor-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-                  {/* Sample Donor Card */}
-                  <div style={{
-                    border: '1px solid #E0DDD6',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    backgroundColor: '#FDFAF4'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                      <div style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
-                        backgroundColor: '#dc2626',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '18px'
-                      }}>
-                        ম
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0', color: '#1A0F0A' }}>
-                          মোঃ রহিম
-                        </h4>
-                        <p style={{ fontSize: '14px', color: '#666', margin: '2px 0' }}>
-                          ঢাকা মেডিকেল
-                        </p>
-                      </div>
-                      <div style={{
-                        backgroundColor: '#dc2626',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}>
-                        A+
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '14px', color: '#666' }}>
-                      <Phone size={14} />
-                      <span>0171-1234567</span>
-                      <span style={{ marginLeft: 'auto', color: '#22C55E', fontWeight: '500' }}>
-                        ✓ {language === 'bn' ? 'উপলব্ধ' : 'Available'}
-                      </span>
-                    </div>
-                    
-                    <button style={{
-                      width: '100%',
-                      padding: '8px',
-                      backgroundColor: '#1B5E6B',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px'
-                    }}>
-                      <MessageCircle size={14} />
-                      {language === 'bn' ? 'যোগাযোগ করুন' : 'Contact'}
-                    </button>
-                  </div>
-                  
-                  {/* More donor cards would go here */}
-                </div>
-              </div>
             </div>
-          )}
-          
-          {activeSection === 'request' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>
-                {language === 'bn' ? 'রক্ত অনুরোধ' : 'Request Blood'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px', textAlign: 'center' }}>
-                {language === 'bn' ? 'জরুরি রক্ত প্রয়ে আমার বাবার জীবন বাঁচাল। ধন্যবাদ রক্তকরবী।' : 'Submit blood request for emergency needs'}
-              </p>
-              
-              {/* Blood Request Form */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                border: '1px solid #E0DDD6'
-              }}>
-                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রোগীর নাম' : 'Patient Name'} *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={language === 'bn' ? 'রোগীর নাম লিখুন' : 'Enter patient name'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রক্তের গ্রুপ' : 'Blood Group'} *
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="">{language === 'bn' ? 'নির্বাচন করুন' : 'Select'}</option>
-                      <option value="A+">A+</option>
-                      <option value="A-">A-</option>
-                      <option value="B+">B+</option>
-                      <option value="B-">B-</option>
-                      <option value="AB+">AB+</option>
-                      <option value="AB-">AB-</option>
-                      <option value="O+">O+</option>
-                      <option value="O-">O-</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'হাসপাতাল' : 'Hospital'} *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={language === 'bn' ? 'হাসপাতালের নাম' : 'Hospital name'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'জেলা' : 'District'} *
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="">{language === 'bn' ? 'নির্বাচন করুন' : 'Select'}</option>
-                      <option value="dhaka">{language === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
-                      <option value="chattogram">{language === 'bn' ? 'চট্টগ্রাম' : 'Chattogram'}</option>
-                      <option value="rajshahi">{language === 'bn' ? 'রাজশাহী' : 'Rajshahi'}</option>
-                      <option value="khulna">{language === 'bn' ? 'খুলনা' : 'Khulna'}</option>
-                      <option value="sylhet">{language === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'যোগাযোগ নম্বর' : 'Contact Number'} *
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder={language === 'bn' ? 'ফোন নম্বর' : 'Phone number'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রক্তের পরিমাণ (ব্যাগ)' : 'Blood Units (bags)'} *
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder="1"
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'অনুরোধের বিবরণ' : 'Request Details'}
-                    </label>
-                    <textarea
-                      rows={4}
-                      placeholder={language === 'bn' ? 'অনুরোধের বিস্তারিত বিবরণ...' : 'Detailed request description...'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        resize: 'vertical'
-                      }}
-                    />
-                  </div>
-                  
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#666' }}>
-                      <input
-                        type="checkbox"
-                        style={{ width: '16px', height: '16px' }}
-                      />
-                      {language === 'bn' ? 'এটি জরুরি অনুরোধ' : 'This is an emergency request'}
-                    </label>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#dc2626',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <Heart size={16} />
-                    {language === 'bn' ? 'অনুরোধ জমা দিন' : 'Submit Request'}
-                  </button>
-                  
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#F5EDD8',
-                    color: '#1A0F0A',
-                    border: '1px solid #E0DDD6',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}>
-                    {language === 'bn' ? 'পরিষ্কার করুন' : 'Clear'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'blog' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>
-                {language === 'bn' ? 'ব্লগ' : 'Blog'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px', textAlign: 'center' }}>
-                {language === 'bn' ? 'রক্তদান সম্পর্কিত আর্টিকেল এবং তথ্য' : 'Blood donation articles and information'}
-              </p>
-              
-              {/* Blog Categories */}
-              <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                {['All', 'Donation Tips', 'Success Stories', 'Health', 'Events'].map((category) => (
-                  <button
-                    key={category}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: category === 'All' ? '#dc2626' : '#F5EDD8',
-                      color: category === 'All' ? 'white' : '#1A0F0A',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '20px',
-                      fontSize: '14px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {language === 'bn' ? 
-                      category === 'All' ? 'সব' :
-                      category === 'Donation Tips' ? 'দান টিপস' :
-                      category === 'Success Stories' ? 'সাফল্যের গল্প' :
-                      category === 'Health' ? 'স্বাস্থ্য' : 'ইভেন্টিস'
-                      : category}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Blog Posts Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
-                {/* Blog Post 1 */}
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                  border: '1px solid #E0DDD6'
-                }}>
-                  <div style={{
-                    height: '200px',
-                    backgroundColor: 'linear-gradient(135deg, #dc2626, #1B5E6B)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '48px'
-                  }}>
-                    🩸
-                  </div>
-                  <div style={{ padding: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{
-                        backgroundColor: '#dc2626',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}>
-                        {language === 'bn' ? 'দান টিপস' : 'Donation Tips'}
-                      </span>
-                      <span style={{ fontSize: '12px', color: '#666' }}>
-                        {language === 'bn' ? '২ দিন আগে' : '2 days ago'}
-                      </span>
-                    </div>
-                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রক্তদানের আগে যা করণীয়' : 'What to Do Before Donating Blood'}
-                    </h3>
-                    <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', lineHeight: '1.5' }}>
-                      {language === 'bn' ? 
-                        'রক্তদানের আগে প্রয়োজনীয় প্রস্তুতি এবং সতর্কতা অবলম্বন করা উচিত। এটি আপনার এবং প্রাপক উভয়ের জন্যই নিরাপদ।' :
-                        'Essential preparations and precautions before donating blood ensure safety for both you and the recipient.'
-                      }
-                    </p>
-                    <button style={{
-                      padding: '8px 16px',
-                      backgroundColor: 'transparent',
-                      color: '#dc2626',
-                      border: '1px solid #dc2626',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      fontWeight: '500'
-                    }}>
-                      {language === 'bn' ? 'আরও পড়ুন' : 'Read More'}
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Blog Post 2 */}
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                  border: '1px solid #E0DDD6'
-                }}>
-                  <div style={{
-                    height: '200px',
-                    backgroundColor: 'linear-gradient(135deg, #1B5E6B, #22C55E)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '48px'
-                  }}>
-                    ❤️
-                  </div>
-                  <div style={{ padding: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      <span style={{
-                        backgroundColor: '#1B5E6B',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}>
-                        {language === 'bn' ? 'সাফল্যের গল্প' : 'Success Stories'}
-                      </span>
-                      <span style={{ fontSize: '12px', color: '#666' }}>
-                        {language === 'bn' ? '১ সপ্তাহ আগে' : '1 week ago'}
-                      </span>
-                    </div>
-                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'একজন রক্তদাতার অনুপ্রেরণামূলক গল্প' : 'An Inspiring Donor Story'}
-                    </h3>
-                    <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', lineHeight: '1.5' }}>
-                      {language === 'bn' ? 
-                        'কীভাবে নিয়মিত রক্তদান একজন মানুষের জীবন বদলে দিয়েছিল এবং সমাজে পরিবর্তন আনতে সাহায্য করেছিল।' :
-                        'How regular blood donation transformed one person\'s life and helped bring change to society.'
-                      }
-                    </p>
-                    <button style={{
-                      padding: '8px 16px',
-                      backgroundColor: 'transparent',
-                      color: '#1B5E6B',
-                      border: '1px solid #1B5E6B',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      fontWeight: '500'
-                    }}>
-                      {language === 'bn' ? 'আরও পড়ুন' : 'Read More'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'become-donor' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
-                {language === 'bn' ? 'দাতা হন' : 'Become a Donor'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px' }}>
-                {language === 'bn' ? 'রক্তদান করে জীবন বাঁচান, একজন দাতা হিসাবে নিবন্ধন করুন' : 'Save lives by donating blood, register as a donor'}
-              </p>
-              
-              {/* Donor Registration Form */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                border: '1px solid #E0DDD6'
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'পুরো নাম' : 'Full Name'} *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={language === 'bn' ? 'আপনার পুরো নাম' : 'Your full name'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'ইমেল ঠিকানা' : 'Email Address'} *
-                    </label>
-                    <input
-                      type="email"
-                      placeholder={language === 'bn' ? 'ইমেল ঠিকানা' : 'Email address'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'ফোন নম্বর' : 'Phone Number'} *
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder={language === 'bn' ? 'ফোন নম্বর' : 'Phone number'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রক্তের গ্রুপ' : 'Blood Group'} *
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="">{language === 'bn' ? 'নির্বাচন করুন' : 'Select'}</option>
-                      <option value="A+">A+</option>
-                      <option value="A-">A-</option>
-                      <option value="B+">B+</option>
-                      <option value="B-">B-</option>
-                      <option value="AB+">AB+</option>
-                      <option value="AB-">AB-</option>
-                      <option value="O+">O+</option>
-                      <option value="O-">O-</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'জন্ম তারিখ' : 'Date of Birth'} *
-                    </label>
-                    <input
-                      type="date"
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'লিঙ্গ' : 'Gender'} *
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="">{language === 'bn' ? 'নির্বাচন করুন' : 'Select'}</option>
-                      <option value="male">{language === 'bn' ? 'পুরুষ' : 'Male'}</option>
-                      <option value="female">{language === 'bn' ? 'মহিলা' : 'Female'}</option>
-                      <option value="other">{language === 'bn' ? 'অন্যান্য' : 'Other'}</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'জেলা' : 'District'} *
-                    </label>
-                    <select style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #E0DDD6',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      backgroundColor: 'white'
-                    }}>
-                      <option value="">{language === 'bn' ? 'নির্বাচন করুন' : 'Select'}</option>
-                      <option value="dhaka">{language === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
-                      <option value="chattogram">{language === 'bn' ? 'চট্টগ্রাম' : 'Chattogram'}</option>
-                      <option value="rajshahi">{language === 'bn' ? 'রাজশাহী' : 'Rajshahi'}</option>
-                      <option value="khulna">{language === 'bn' ? 'খুলনা' : 'Khulna'}</option>
-                      <option value="sylhet">{language === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'ঠিকানা' : 'Address'}
-                    </label>
-                    <textarea
-                      rows={2}
-                      placeholder={language === 'bn' ? 'আপনার ঠিকানা' : 'Your address'}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        resize: 'vertical'
-                      }}
-                    />
-                  </div>
-                  
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#666' }}>
-                      <input
-                        type="checkbox"
-                        style={{ width: '16px', height: '16px' }}
-                      />
-                      {language === 'bn' ? 'আমি রক্তদানের শর্তাবলী সম্পর্কে সম্মতি দিচ্ছি' : 'I agree to the blood donation terms and conditions'}
-                    </label>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#dc2626',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <Droplets size={16} />
-                    {language === 'bn' ? 'নিবন্ধন করুন' : 'Register as Donor'}
-                  </button>
-                  
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#F5EDD8',
-                    color: '#1A0F0A',
-                    border: '1px solid #E0DDD6',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}>
-                    {language === 'bn' ? 'পরিষ্কার করুন' : 'Clear'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'illustrations' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>
-                {language === 'bn' ? 'রক্তকরবী চিত্রকথন' : 'RoktoKorobi Chitrokothon'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px', textAlign: 'center' }}>
-                {language === 'bn' ? 'রক্তদান বিষয়ক চিত্রকল্পনা' : 'Blood donation awareness illustrations'}
-              </p>
-              
-              {/* RoktoKorobi Chitrokothon Gallery */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-                {[1, 2, 3, 4, 5, 6].map((item) => (
-                  <div key={item} style={{
-                    backgroundColor: 'white',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                    border: '1px solid #E0DDD6',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease'
-                  }}>
-                    <div style={{
-                      height: '200px',
-                      backgroundColor: `linear-gradient(135deg, #${item % 2 === 0 ? 'dc2626' : '1B5E6B'}, #${item % 2 === 0 ? '1B5E6B' : '22C55E'})`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '64px'
-                    }}>
-                      {item % 2 === 0 ? '🩸' : '❤️'}
-                    </div>
-                    <div style={{ padding: '16px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px', color: '#1A0F0A' }}>
-                        {language === 'bn' ? `চিত্রকল্পনা ${item}` : `Illustration ${item}`}
-                      </h3>
-                      <p style={{ fontSize: '14px', color: '#666', marginBottom: '12px' }}>
-                        {language === 'bn' ? 
-                          `রক্তদান সচেতনতার জন্য চিত্রকল্পনা ${item}` :
-                          `Blood donation awareness illustration ${item}`
-                        }
-                      </p>
-                      <button style={{
-                        padding: '6px 12px',
-                        backgroundColor: 'transparent',
-                        color: '#dc2626',
-                        border: '1px solid #dc2626',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        fontWeight: '500'
-                      }}>
-                        {language === 'bn' ? 'দেখুন' : 'View'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'testimonials' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
-                {language === 'bn' ? 'সাক্ষ্য' : 'Testimonials'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px' }}>
-                {language === 'bn' ? 'রক্তদাতা এবং প্রাপকদের অভিজ্ঞতা' : 'Experiences from donors and recipients'}
-              </p>
-              
-              {/* Testimonials List */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px' }}>
-                {[
-                  { name: 'মোঃ রহিম', enName: 'Rahim Uddin', role: 'donor', bloodGroup: 'A+', rating: 5, message: 'রক্তদান করে আমি অনেক খুশি। আমার ১০তম রক্তদান হল।' },
-                  { name: 'সারা আক্তার', enName: 'Sara Akter', role: 'recipient', bloodGroup: 'O+', rating: 5, message: 'জরুরি মুহূর্তে রক্ত পেয়ে আমার বাবার জীবন বাঁচাল। ধন্যবাদ রক্তকরবী।' },
-                  { name: 'কামাল হোসেন', enName: 'Kamal Hossain', role: 'volunteer', bloodGroup: 'B+', rating: 4, message: 'স্বেচ্ছাসে রক্তদান ক্যাম্পেইন করতে পারি। সবাইকে এগিয়ে আসুন।' }
-                ].map((testimonial, index) => (
-                  <div key={index} style={{
-                    backgroundColor: 'white',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                    border: '1px solid #E0DDD6'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                      <div style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
-                        backgroundColor: '#dc2626',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '18px'
-                      }}>
-                        {testimonial.name.charAt(0)}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0', color: '#1A0F0A' }}>
-                          {testimonial.name}
-                        </h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#666' }}>
-                          <span style={{
-                            backgroundColor: '#dc2626',
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}>
-                            {testimonial.bloodGroup}
-                          </span>
-                          <span>•</span>
-                          <span>{language === 'bn' ? 
-                            testimonial.role === 'donor' ? 'দাতা' :
-                            testimonial.role === 'recipient' ? 'প্রাপক' : 'স্বেচ্ছাসকারী'
-                            : testimonial.role === 'donor' ? 'Donor' :
-                            testimonial.role === 'recipient' ? 'Recipient' : 'Volunteer'
-                          }</span>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '2px' }}>
-                        {[...Array(5)].map((_, i) => (
-                          <div key={i} style={{
-                            width: '16px',
-                            height: '16px',
-                            backgroundColor: i < testimonial.rating ? '#FFC107' : '#E0DDD6',
-                            borderRadius: '50%',
-                            fontSize: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: i < testimonial.rating ? 'white' : '#666'
-                          }}>
-                            ★
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <p style={{ fontSize: '14px', color: '#666', lineHeight: '1.5', fontStyle: 'italic' }}>
-                      "{testimonial.message}"
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'profile' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
-                {language === 'bn' ? 'প্রোফাইল' : 'Profile'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px' }}>
-                {language === 'bn' ? 'আপনার প্রোফাইল তথ্য পরিচালনা করুন' : 'Manage your profile information'}
-              </p>
-              
-              {/* Profile Form */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                border: '1px solid #E0DDD6'
-              }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'পুরো নাম' : 'Full Name'}
-                    </label>
-                    <input
-                      type="text"
-                      value={userData.name}
-                      onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'ইমেল ঠিকানা' : 'Email Address'}
-                    </label>
-                    <input
-                      type="email"
-                      value={userData.email}
-                      onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'ফোন নম্বর' : 'Phone Number'}
-                    </label>
-                    <input
-                      type="tel"
-                      value={userData.phone}
-                      onChange={(e) => setUserData(prev => ({ ...prev, phone: e.target.value }))}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'রক্তের গ্রুপ' : 'Blood Group'}
-                    </label>
-                    <select
-                      value={userData.bloodGroup}
-                      onChange={(e) => setUserData(prev => ({ ...prev, bloodGroup: e.target.value }))}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        backgroundColor: 'white'
-                      }}>
-                      <option value="A+">A+</option>
-                      <option value="A-">A-</option>
-                      <option value="B+">B+</option>
-                      <option value="B-">B-</option>
-                      <option value="AB+">AB+</option>
-                      <option value="AB-">AB-</option>
-                      <option value="O+">O+</option>
-                      <option value="O-">O-</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#1A0F0A' }}>
-                      {language === 'bn' ? 'অবস্থান' : 'Location'}
-                    </label>
-                    <input
-                      type="text"
-                      value={userData.location}
-                      onChange={(e) => setUserData(prev => ({ ...prev, location: e.target.value }))}
-                      style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#dc2626',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <User size={16} />
-                    {language === 'bn' ? 'আপডেট করুন' : 'Update Profile'}
-                  </button>
-                  
-                  <button style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#F5EDD8',
-                    color: '#1A0F0A',
-                    border: '1px solid #E0DDD6',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}>
-                    {language === 'bn' ? 'বাতিল করুন' : 'Cancel'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'settings' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>
-                {language === 'bn' ? 'সেটিংস' : 'Settings'}
-              </h2>
-              <p style={{ color: '#666', marginBottom: '24px' }}>
-                {language === 'bn' ? 'অ্যাপ্লিকেশন সেটিংস পরিচালনা করুন' : 'Manage application settings'}
-              </p>
-              
-              {/* Settings Options */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 20px rgba(26,15,10,0.08)',
-                border: '1px solid #E0DDD6'
-              }}>
-                <div style={{ display: 'grid', gap: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #E0DDD6', borderRadius: '8px' }}>
-                    <div>
-                      <h4 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0', color: '#1A0F0A' }}>
-                        {language === 'bn' ? 'ইমেল বিজ্ঞপ্তি' : 'Email Notifications'}
-                      </h4>
-                      <p style={{ fontSize: '14px', color: '#666', margin: '4px 0 0 0' }}>
-                        {language === 'bn' ? 'রক্তদান সম্পর্কিত ইমেল পান' : 'Receive blood donation related emails'}
-                      </p>
-                    </div>
-                    <div style={{
-                      width: '48px',
-                      height: '24px',
-                      backgroundColor: '#dc2626',
-                      borderRadius: '12px',
-                      position: 'relative',
-                      cursor: 'pointer'
-                    }}>
-                      <div style={{
-                        position: 'absolute',
-                        top: '2px',
-                        left: '2px',
-                        width: '20px',
-                        height: '20px',
-                        backgroundColor: 'white',
-                        borderRadius: '10px',
-                        transition: 'transform 0.2s ease'
-                      }}></div>
-                    </div>
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #E0DDD6', borderRadius: '8px' }}>
-                    <div>
-                      <h4 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0', color: '#1A0F0A' }}>
-                        {language === 'bn' ? 'ভাষা' : 'Language'}
-                      </h4>
-                      <p style={{ fontSize: '14px', color: '#666', margin: '4px 0 0 0' }}>
-                        {language === 'bn' ? 'অ্যাপ্লিকেশন ভাষা নির্বাচন করুন' : 'Choose application language'}
-                      </p>
-                    </div>
-                    <select
-                      value={language}
-                      onChange={toggleLanguage}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        backgroundColor: 'white'
-                      }}>
-                      <option value="en">English</option>
-                      <option value="bn">বাংলা</option>
-                    </select>
-                  </div>
-                  
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', border: '1px solid #E0DDD6', borderRadius: '8px' }}>
-                    <div>
-                      <h4 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0', color: '#1A0F0A' }}>
-                        {language === 'bn' ? 'ডাটা মুছে ফেলা' : 'Delete Account'}
-                      </h4>
-                      <p style={{ fontSize: '14px', color: '#666', margin: '4px 0 0 0' }}>
-                        {language === 'bn' ? 'আপনার অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলুন' : 'Permanently delete your account'}
-                      </p>
-                    </div>
-                    <button style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#DC2626',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      fontWeight: '500'
-                    }}>
-                      {language === 'bn' ? 'মুছে ফেলুন' : 'Delete'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+
+          </div>
+        </main>
+
       </div>
     </>
   );
