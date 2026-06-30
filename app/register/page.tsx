@@ -499,14 +499,70 @@ export default function RegisterDonor() {
                       }}
                     >
                       <option value="">{language === 'bn' ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
-                      <option value="Dhaka">{language === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
-                      <option value="Chattogram">{language === 'bn' ? 'চট্টগ্রাম' : 'Chattogram'}</option>
-                      <option value="Rajshahi">{language === 'bn' ? 'রাজশাহী' : 'Rajshahi'}</option>
-                      <option value="Khulna">{language === 'bn' ? 'খুলনা' : 'Khulna'}</option>
-                      <option value="Sylhet">{language === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
+                      <option value="Bagerhat">{language === 'bn' ? 'বাগেরহাট' : 'Bagerhat'}</option>
+                      <option value="Bandarban">{language === 'bn' ? 'বান্দরবান' : 'Bandarban'}</option>
+                      <option value="Barguna">{language === 'bn' ? 'বরগুনা' : 'Barguna'}</option>
                       <option value="Barishal">{language === 'bn' ? 'বরিশাল' : 'Barishal'}</option>
-                      <option value="Rangpur">{language === 'bn' ? 'রংপুর' : 'Rangpur'}</option>
+                      <option value="Bhola">{language === 'bn' ? 'ভোলা' : 'Bhola'}</option>
+                      <option value="Bogura">{language === 'bn' ? 'বগুড়া' : 'Bogura'}</option>
+                      <option value="Brahmanbaria">{language === 'bn' ? 'ব্রাহ্মণবাড়িয়া' : 'Brahmanbaria'}</option>
+                      <option value="Chandpur">{language === 'bn' ? 'চাঁদপুর' : 'Chandpur'}</option>
+                      <option value="Chattogram">{language === 'bn' ? 'চট্টগ্রাম' : 'Chattogram'}</option>
+                      <option value="Chuadanga">{language === 'bn' ? 'চুয়াডাঙা' : 'Chuadanga'}</option>
+                      <option value="Comilla">{language === 'bn' ? 'কুমিল্লা' : 'Comilla'}</option>
+                      <option value="Coxs Bazar">{language === 'bn' ? 'কক্সবাজার' : 'Coxs Bazar'}</option>
+                      <option value="Dhaka">{language === 'bn' ? 'ঢাকা' : 'Dhaka'}</option>
+                      <option value="Dinajpur">{language === 'bn' ? 'দিনাজপুর' : 'Dinajpur'}</option>
+                      <option value="Faridpur">{language === 'bn' ? 'ফরিদপুর' : 'Faridpur'}</option>
+                      <option value="Feni">{language === 'bn' ? 'ফেনী' : 'Feni'}</option>
+                      <option value="Gaibandha">{language === 'bn' ? 'গাইবান্ধা' : 'Gaibandha'}</option>
+                      <option value="Gazipur">{language === 'bn' ? 'গাজীপুর' : 'Gazipur'}</option>
+                      <option value="Gopalganj">{language === 'bn' ? 'গোপালগঞ্জ' : 'Gopalganj'}</option>
+                      <option value="Habiganj">{language === 'bn' ? 'হবিগঞ্জ' : 'Habiganj'}</option>
+                      <option value="Jamalpur">{language === 'bn' ? 'জামালপুর' : 'Jamalpur'}</option>
+                      <option value="Jashore">{language === 'bn' ? 'যশোর' : 'Jashore'}</option>
+                      <option value="Jhalokati">{language === 'bn' ? 'ঝালকাঠি' : 'Jhalokati'}</option>
+                      <option value="Jhenaidah">{language === 'bn' ? 'ঝিনাইদহ' : 'Jhenaidah'}</option>
+                      <option value="Joypurhat">{language === 'bn' ? 'জয়পুরহাট' : 'Joypurhat'}</option>
+                      <option value="Khagrachhari">{language === 'bn' ? 'খাগড়াছড়ি' : 'Khagrachhari'}</option>
+                      <option value="Khulna">{language === 'bn' ? 'খুলনা' : 'Khulna'}</option>
+                      <option value="Kishoreganj">{language === 'bn' ? 'কিশোরগঞ্জ' : 'Kishoreganj'}</option>
+                      <option value="Kurigram">{language === 'bn' ? 'কুড়িগ্রাম' : 'Kurigram'}</option>
+                      <option value="Kushtia">{language === 'bn' ? 'কুষ্টিয়া' : 'Kushtia'}</option>
+                      <option value="Lakshmipur">{language === 'bn' ? 'লক্ষ্মীপুর' : 'Lakshmipur'}</option>
+                      <option value="Lalmonirhat">{language === 'bn' ? 'লালমনিরহাট' : 'Lalmonirhat'}</option>
+                      <option value="Madaripur">{language === 'bn' ? 'মাদারীপুর' : 'Madaripur'}</option>
+                      <option value="Magura">{language === 'bn' ? 'মাগুরা' : 'Magura'}</option>
+                      <option value="Manikganj">{language === 'bn' ? 'মানিকগঞ্জ' : 'Manikganj'}</option>
+                      <option value="Meherpur">{language === 'bn' ? 'মেহেরপুর' : 'Meherpur'}</option>
+                      <option value="Moulvibazar">{language === 'bn' ? 'মৌলভীবাজার' : 'Moulvibazar'}</option>
+                      <option value="Munshiganj">{language === 'bn' ? 'মুন্সিগঞ্জ' : 'Munshiganj'}</option>
                       <option value="Mymensingh">{language === 'bn' ? 'ময়মনসিংহ' : 'Mymensingh'}</option>
+                      <option value="Naogaon">{language === 'bn' ? 'নওগাঁ' : 'Naogaon'}</option>
+                      <option value="Narail">{language === 'bn' ? 'নড়াইল' : 'Narail'}</option>
+                      <option value="Narayanganj">{language === 'bn' ? 'নারায়ণগঞ্জ' : 'Narayanganj'}</option>
+                      <option value="Narsingdi">{language === 'bn' ? 'নরসিংদী' : 'Narsingdi'}</option>
+                      <option value="Natore">{language === 'bn' ? 'নাটোর' : 'Natore'}</option>
+                      <option value="Nawabganj">{language === 'bn' ? 'নবাবগঞ্জ' : 'Nawabganj'}</option>
+                      <option value="Netrokona">{language === 'bn' ? 'নেত্রকোনা' : 'Netrokona'}</option>
+                      <option value="Nilphamari">{language === 'bn' ? 'নীলফামারী' : 'Nilphamari'}</option>
+                      <option value="Noakhali">{language === 'bn' ? 'নোয়াখালী' : 'Noakhali'}</option>
+                      <option value="Pabna">{language === 'bn' ? 'পাবনা' : 'Pabna'}</option>
+                      <option value="Panchagarh">{language === 'bn' ? 'পঞ্চগড়' : 'Panchagarh'}</option>
+                      <option value="Patuakhali">{language === 'bn' ? 'পটুয়াখালী' : 'Patuakhali'}</option>
+                      <option value="Pirojpur">{language === 'bn' ? 'পিরোজপুর' : 'Pirojpur'}</option>
+                      <option value="Rajbari">{language === 'bn' ? 'রাজবাড়ী' : 'Rajbari'}</option>
+                      <option value="Rajshahi">{language === 'bn' ? 'রাজশাহী' : 'Rajshahi'}</option>
+                      <option value="Rangamati">{language === 'bn' ? 'রাঙামাটি' : 'Rangamati'}</option>
+                      <option value="Rangpur">{language === 'bn' ? 'রংপুর' : 'Rangpur'}</option>
+                      <option value="Satkhira">{language === 'bn' ? 'সাতক্ষীরা' : 'Satkhira'}</option>
+                      <option value="Shariatpur">{language === 'bn' ? 'শরীয়তপুর' : 'Shariatpur'}</option>
+                      <option value="Sherpur">{language === 'bn' ? 'শেরপুর' : 'Sherpur'}</option>
+                      <option value="Sirajganj">{language === 'bn' ? 'সিরাজগঞ্জ' : 'Sirajganj'}</option>
+                      <option value="Sunamganj">{language === 'bn' ? 'সুনামগঞ্জ' : 'Sunamganj'}</option>
+                      <option value="Sylhet">{language === 'bn' ? 'সিলেট' : 'Sylhet'}</option>
+                      <option value="Tangail">{language === 'bn' ? 'টাঙ্গাইল' : 'Tangail'}</option>
+                      <option value="Thakurgaon">{language === 'bn' ? 'ঠাকুরগাঁও' : 'Thakurgaon'}</option>
                     </select>
                   </div>
                   <div>
