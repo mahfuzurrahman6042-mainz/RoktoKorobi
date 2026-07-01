@@ -1036,6 +1036,17 @@ export default function Home() {
             className="mobile-menu-close"
             onClick={() => setMobileOpen(false)}
             aria-label="Close mobile menu"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: '8px',
+              zIndex: 1000,
+              position: 'relative',
+              pointerEvents: 'auto'
+            }}
           >
             ✕
           </button>
