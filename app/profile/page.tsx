@@ -123,7 +123,7 @@ export default function Profile() {
       contactInfo: 'যোগাযোগ তথ্য',
       donationHistory: 'রক্তদানের ইতিহাস',
       settings: 'সেটিংস',
-      save: 'সংরক্ষ করুন',
+      save: 'সংরক্ষণ করুন',
       fullName: 'পুরো নাম',
       email: 'ইমেল ঠিকানা',
       phone: 'ফোন নম্বর',
