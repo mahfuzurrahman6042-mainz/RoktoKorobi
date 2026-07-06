@@ -1,37 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Building2, 
-  FileText, 
-  MessageSquare, 
-  Heart, 
+import {
+  Users,
+  ShieldCheck,
+  Building2,
+  FileText,
+  MessageSquare,
+  HeartPulse,
   Activity,
   Settings,
   LogOut,
-  Menu,
-  X,
-  Shield,
-  UserCog,
   Home
 } from 'lucide-react';
 import { logoutUser } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
-const allMenuItems = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', permission: '/admin' },
-  { href: '/admin/users', icon: Users, label: 'Users', permission: '/admin/users' },
-  { href: '/admin/roles', icon: Shield, label: 'Roles', permission: '/admin/roles' },
-  { href: '/admin/hospitals', icon: Building2, label: 'Hospitals', permission: '/admin/hospitals' },
-  { href: '/admin/blogs', icon: FileText, label: 'Blogs', permission: '/admin/blogs' },
-  { href: '/admin/testimonials', icon: MessageSquare, label: 'Testimonials', permission: '/admin/testimonials' },
-  { href: '/admin/requests', icon: Heart, label: 'Blood Requests', permission: '/admin/requests' },
-  { href: '/admin/activity', icon: Activity, label: 'Activity Log', permission: '/admin/activity' },
-  { href: '/admin/settings', icon: Settings, label: 'Settings', permission: '/admin/settings' },
+const NAV_ITEMS = [
+  { key: 'users', label: 'Users', icon: Users, href: '/admin/users' },
+  { key: 'roles', label: 'Roles', icon: ShieldCheck, href: '/admin/roles' },
+  { key: 'hospitals', label: 'Hospitals', icon: Building2, href: '/admin/hospitals' },
+  { key: 'blogs', label: 'Blogs', icon: FileText, href: '/admin/blogs' },
+  { key: 'testimonials', label: 'Testimonials', icon: MessageSquare, href: '/admin/testimonials' },
+  { key: 'requests', label: 'Blood Requests', icon: HeartPulse, href: '/admin/requests' },
+  { key: 'activity', label: 'Activity Log', icon: Activity, href: '/admin/activity' },
+  { key: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
 
 interface AdminSidebarProps {
@@ -41,7 +36,6 @@ interface AdminSidebarProps {
 }
 
 export default function AdminSidebar({ isSuperAdmin = false, userRole = null, userPermissions = [] }: AdminSidebarProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -55,56 +49,52 @@ export default function AdminSidebar({ isSuperAdmin = false, userRole = null, us
   };
 
   // Filter menu items based on permissions
-  const filteredMenuItems = isSuperAdmin 
-    ? allMenuItems 
-    : allMenuItems.filter(item => 
-        userPermissions.includes('/admin/all') || 
-        userPermissions.includes(item.permission)
+  const filteredMenuItems = isSuperAdmin
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter(item =>
+        userPermissions.includes('/admin/all') ||
+        userPermissions.includes(item.href)
       );
 
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex flex-col h-full">
+      <aside className="fixed left-0 top-0 h-screen w-64 z-40"
+        style={{ background: 'var(--surface)', borderRight: '1px solid var(--line)', height: '100vh' }}>
+        <div className="flex flex-col h-full" style={{ height: '100vh' }}>
           {/* Logo */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 flex-shrink-0" style={{ borderBottom: '1px solid var(--line)' }}>
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--crimson)' }}>
                 <span className="text-white text-xl">🩸</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">রক্তকরবী</h1>
-                <p className="text-xs text-gray-500">{isSuperAdmin ? 'Super Admin' : 'Admin Panel'}</p>
+                <h1 className="text-xl font-bold" style={{ color: 'var(--ink)' }}>রক্তকরবী</h1>
+                <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>{isSuperAdmin ? 'Super Admin' : 'Admin Panel'}</p>
               </div>
             </Link>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 overflow-y-auto">
+          <nav className="flex-1 p-4 overflow-y-auto" style={{ overflowY: 'auto' }}>
             <ul className="space-y-1">
               {filteredMenuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
-                
+
                 return (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                         isActive
-                          ? 'bg-red-50 text-red-600 font-medium'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'font-medium'
+                          : ''
                       }`}
+                      style={{
+                        background: isActive ? 'var(--crimson-tint)' : 'transparent',
+                        color: isActive ? 'var(--crimson)' : 'var(--ink-muted)',
+                      }}
                     >
                       <Icon size={20} />
                       <span>{item.label}</span>
@@ -116,17 +106,29 @@ export default function AdminSidebar({ isSuperAdmin = false, userRole = null, us
           </nav>
 
           {/* User section */}
-          <div className="p-4 border-t border-gray-200 space-y-2">
+          <div className="p-4 space-y-2 flex-shrink-0" style={{ borderTop: '1px solid var(--line)' }}>
             <Link
               href="/dashboard"
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors"
+              style={{ color: 'var(--ink-muted)' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--canvas)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               <Home size={20} />
               <span>User Dashboard</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors"
+              style={{ color: 'var(--ink-muted)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--crimson-tint)';
+                e.currentTarget.style.color = 'var(--crimson)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--ink-muted)';
+              }}
             >
               <LogOut size={20} />
               <span>Logout</span>
@@ -134,14 +136,6 @@ export default function AdminSidebar({ isSuperAdmin = false, userRole = null, us
           </div>
         </div>
       </aside>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
     </>
   );
 }

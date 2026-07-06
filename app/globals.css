@@ -1,6 +1,10 @@
 /* Font imports - must come first */
 @import url('https://fonts.googleapis.com/css2?family=Tiro+Bangla&family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --cream: #F5EDD8;
   --cream-dark: #EDE0C4;
@@ -16,6 +20,21 @@
   --gold-light: #F0B84A;
   --white: #FDFAF4;
   --shadow: rgba(26,15,10,0.12);
+
+  /* Admin Design System Variables */
+  --crimson: #dc2626;
+  --crimson-dark: #991b1b;
+  --crimson-tint: rgba(220, 38, 38, 0.08);
+  --navy: #1e3a5f;
+  --navy-tint: rgba(30, 58, 95, 0.08);
+  --amber: #f59e0b;
+  --amber-tint: rgba(245, 158, 11, 0.08);
+  --green: #10b981;
+  --green-tint: rgba(16, 185, 129, 0.08);
+  --surface: #ffffff;
+  --canvas: #f8fafc;
+  --line: #e2e8f0;
+  --ink-muted: #64748b;
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }

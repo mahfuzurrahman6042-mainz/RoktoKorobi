@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { database, ref, get } from '@/lib/firebase';
-import { Users, Building2, FileText, MessageSquare, Heart, Activity, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Users, Building2, FileText, MessageSquare, Heart, Activity, UserPlus, PenLine, ImageIcon, Eye, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface DashboardStats {
   totalUsers: number;
@@ -16,7 +17,76 @@ interface DashboardStats {
   recentActivities: any[];
 }
 
+const PRIMARY_STATS = [
+  { key: 'users', label: 'Total Users', icon: Users, tone: 'navy', value: 0 },
+  { key: 'hospitals', label: 'Hospitals', icon: Building2, tone: 'green', value: 0 },
+  { key: 'blogs', label: 'Blog Posts', icon: FileText, tone: 'navy', value: 0 },
+  { key: 'testimonials', label: 'Testimonials', icon: MessageSquare, tone: 'amber', value: 0 },
+];
+
+const SECONDARY_STATS = [
+  { key: 'requests', label: 'Blood Requests', icon: Heart, tone: 'crimson', value: 0 },
+  { key: 'pending', label: 'Pending Requests', icon: Activity, tone: 'amber', value: 0 },
+  { key: 'critical', label: 'Critical Requests', icon: Activity, tone: 'crimson', value: 0 },
+  { key: 'verified', label: 'Verified Testimonials', icon: MessageSquare, tone: 'green', value: 0 },
+];
+
+const TONE = {
+  crimson: { bg: 'var(--crimson-tint)', fg: 'var(--crimson)' },
+  navy: { bg: 'var(--navy-tint)', fg: 'var(--navy)' },
+  amber: { bg: 'var(--amber-tint)', fg: 'var(--amber)' },
+  green: { bg: 'var(--green-tint)', fg: 'var(--green)' },
+  ink: { bg: '#EEF0F1', fg: 'var(--ink)' },
+};
+
+const ACTIVITY_META = {
+  user: { label: 'User', tone: 'navy' },
+  role: { label: 'Role change', tone: 'crimson' },
+  ban: { label: 'Ban / unban', tone: 'amber' },
+  hospital: { label: 'Hospital', tone: 'green' },
+  blog: { label: 'Blog', tone: 'navy' },
+  chitrokothon: { label: 'Chitrokothon', tone: 'crimson' },
+  request: { label: 'Blood request', tone: 'crimson' },
+  testimonial: { label: 'Testimonial', tone: 'amber' },
+};
+
+function StatCard({ stat, size = 'lg' }: { stat: any; size?: 'lg' | 'sm' }) {
+  const tone = TONE[stat.tone as keyof typeof TONE] || TONE.ink;
+  const Icon = stat.icon;
+  return (
+    <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 16 }} className={`flex flex-col ${size === 'lg' ? 'p-5 gap-4' : 'p-4 gap-3'} transition hover:shadow-sm`}>
+      <div style={{ background: tone.bg, color: tone.fg }} className={`flex items-center justify-center rounded-full ${size === 'lg' ? 'w-10 h-10' : 'w-8 h-8'}`}>
+        <Icon size={size === 'lg' ? 18 : 15} strokeWidth={2} />
+      </div>
+      <div>
+        <div className={size === 'lg' ? 'text-3xl font-medium leading-none' : 'text-xl font-medium leading-none'}>
+          {stat.value}
+        </div>
+        <div style={{ color: 'var(--ink-muted)' }} className={`mt-2 ${size === 'lg' ? 'text-sm' : 'text-xs'}`}>
+          {stat.label}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PulseLine({ height = 36 }: { height?: number }) {
+  const width = 400;
+  const path = `M0,20 L${width * 0.32},20 L${width * 0.38},4 L${width * 0.44},36 L${width * 0.5},10 L${width * 0.56},20 L${width},20`;
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height, display: 'block' }} preserveAspectRatio="none">
+      <path d={path} fill="none" stroke="var(--crimson)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.55" />
+    </svg>
+  );
+}
+
+function fmtTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
 export default function AdminDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalHospitals: 0,
@@ -65,15 +135,15 @@ export default function AdminDashboard() {
       const requests = Object.keys(requestsData);
       const totalRequests = requests.length;
       const pendingRequests = requests.filter(key => !requestsData[key].fulfilled).length;
-      const criticalRequests = requests.filter(key => 
+      const criticalRequests = requests.filter(key =>
         !requestsData[key].fulfilled && requestsData[key].urgency === 'Critical'
       ).length;
-      
+
       const activitiesData = activitiesSnapshot.exists() ? activitiesSnapshot.val() : {};
       const recentActivities = Object.keys(activitiesData)
         .map(key => ({ id: key, ...activitiesData[key] }))
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 10);
+        .slice(0, 3);
 
       setStats({
         totalUsers: users,
@@ -93,159 +163,149 @@ export default function AdminDashboard() {
     }
   };
 
-  const statCards = [
-    {
-      name: 'Total Users',
-      value: stats.totalUsers,
-      icon: Users,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-100',
-      textColor: 'text-blue-600'
-    },
-    {
-      name: 'Hospitals',
-      value: stats.totalHospitals,
-      icon: Building2,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-100',
-      textColor: 'text-green-600'
-    },
-    {
-      name: 'Blog Posts',
-      value: stats.totalBlogs,
-      icon: FileText,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-100',
-      textColor: 'text-purple-600'
-    },
-    {
-      name: 'Testimonials',
-      value: stats.totalTestimonials,
-      icon: MessageSquare,
-      color: 'bg-orange-500',
-      bgColor: 'bg-orange-100',
-      textColor: 'text-orange-600'
-    },
-    {
-      name: 'Blood Requests',
-      value: stats.totalRequests,
-      icon: Heart,
-      color: 'bg-red-500',
-      bgColor: 'bg-red-100',
-      textColor: 'text-red-600'
-    },
-    {
-      name: 'Pending Requests',
-      value: stats.pendingRequests,
-      icon: Activity,
-      color: 'bg-yellow-500',
-      bgColor: 'bg-yellow-100',
-      textColor: 'text-yellow-600'
-    },
-    {
-      name: 'Critical Requests',
-      value: stats.criticalRequests,
-      icon: AlertTriangle,
-      color: 'bg-red-600',
-      bgColor: 'bg-red-100',
-      textColor: 'text-red-600'
-    },
-    {
-      name: 'Pending Testimonials',
-      value: stats.pendingTestimonials,
-      icon: TrendingUp,
-      color: 'bg-indigo-500',
-      bgColor: 'bg-indigo-100',
-      textColor: 'text-indigo-600'
-    }
+  const quickActions = [
+    { key: 'user', label: 'Add a user', desc: 'Search users and assign roles', icon: UserPlus, page: 'users' },
+    { key: 'hospital', label: 'Add a hospital', desc: 'Register a new partner facility', icon: Building2, page: 'hospitals' },
+    { key: 'blog', label: 'Write a blog post', desc: 'Share news, guidance, or a donor story', icon: PenLine, page: 'blogs' },
+    { key: 'chitrokothon', label: 'Post Chitrokothon', desc: 'Share an illustrated story with a caption', icon: ImageIcon, page: 'testimonials' },
+    { key: 'requests', label: 'View requests', desc: 'Review incoming blood requests', icon: Eye, page: 'requests' },
   ];
+
+  const primaryStatsWithValues = PRIMARY_STATS.map(stat => {
+    switch (stat.key) {
+      case 'users': return { ...stat, value: stats.totalUsers };
+      case 'hospitals': return { ...stat, value: stats.totalHospitals };
+      case 'blogs': return { ...stat, value: stats.totalBlogs };
+      case 'testimonials': return { ...stat, value: stats.totalTestimonials };
+      default: return stat;
+    }
+  });
+
+  const secondaryStatsWithValues = SECONDARY_STATS.map(stat => {
+    switch (stat.key) {
+      case 'requests': return { ...stat, value: stats.totalRequests };
+      case 'pending': return { ...stat, value: stats.pendingRequests };
+      case 'critical': return { ...stat, value: stats.criticalRequests };
+      case 'verified': return { ...stat, value: stats.totalTestimonials - stats.pendingTestimonials };
+      default: return stat;
+    }
+  });
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--crimson)' }}></div>
       </div>
     );
   }
 
+  const now = new Date();
+  const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 18 ? 'Good afternoon' : 'Good evening';
+
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Welcome back! Here's what's happening in your platform.
-        </p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.name} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-500 text-sm">{stat.name}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                </div>
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.bgColor}`}>
-                  <Icon size={24} className={stat.textColor} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <a href="/admin/users" className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <Users size={20} className="text-blue-600" />
-            <span className="font-medium text-gray-900">Manage Users</span>
-          </a>
-          <a href="/admin/hospitals" className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <Building2 size={20} className="text-green-600" />
-            <span className="font-medium text-gray-900">Add Hospital</span>
-          </a>
-          <a href="/admin/blogs" className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <FileText size={20} className="text-purple-600" />
-            <span className="font-medium text-gray-900">Write Blog</span>
-          </a>
-          <a href="/admin/requests" className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <Heart size={20} className="text-red-600" />
-            <span className="font-medium text-gray-900">View Requests</span>
-          </a>
+    <div className="max-w-6xl">
+      <div className="flex items-end justify-between flex-wrap gap-3 mb-8">
+        <div>
+          <h1 style={{ fontFamily: "'IBM Plex Serif', serif" }} className="text-[28px] font-semibold leading-tight">
+            {greeting}, Admin
+          </h1>
+          <p style={{ color: 'var(--ink-muted)' }} className="text-sm mt-1.5">
+            Here's the state of the platform today.
+          </p>
+        </div>
+        <div style={{ color: 'var(--ink-muted)' }} className="text-xs">
+          {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
-        {stats.recentActivities.length > 0 ? (
-          <div className="space-y-4">
-            {stats.recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Activity size={20} className="text-blue-600" />
+      <div className="mb-3 flex items-center gap-2">
+        <span style={{ color: 'var(--crimson-dark)', letterSpacing: '0.1em' }} className="text-[11px] uppercase font-medium">
+          Platform Vitals
+        </span>
+        <span style={{ background: 'var(--crimson)' }} className="w-1.5 h-1.5 rounded-full animate-pulse" />
+      </div>
+      <div className="-mt-1 mb-4">
+        <PulseLine />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-3.5">
+        {primaryStatsWithValues.map((s) => (
+          <StatCard key={s.key} stat={s} size="lg" />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-10">
+        {secondaryStatsWithValues.map((s) => (
+          <StatCard key={s.key} stat={s} size="sm" />
+        ))}
+      </div>
+
+      <div className="mb-10">
+        <h2 className="text-sm font-semibold mb-3.5">Quick actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {quickActions.map((a) => {
+            const Icon = a.icon;
+            return (
+              <button
+                key={a.key}
+                onClick={() => a.page && router.push(`/admin/${a.page}`)}
+                style={{ background: 'var(--surface)', border: '1px solid var(--line)' }}
+                className="group flex items-start gap-3 p-4 rounded-xl text-left transition hover:shadow-sm hover:-translate-y-0.5"
+              >
+                <div style={{ background: 'var(--crimson-tint)', color: 'var(--crimson)' }} className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Icon size={16} strokeWidth={2} />
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900">{activity.action.replace(/_/g, ' ')}</p>
-                  <p className="text-sm text-gray-600">{activity.details}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {activity.performedBy} • {new Date(activity.timestamp).toLocaleString()}
-                  </p>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium flex items-center gap-1">
+                    {a.label}
+                    <ArrowRight size={13} className="opacity-0 group-hover:opacity-100 transition -translate-x-1 group-hover:translate-x-0" style={{ color: 'var(--crimson)' }} />
+                  </div>
+                  <div style={{ color: 'var(--ink-muted)' }} className="text-xs mt-0.5">
+                    {a.desc}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3.5">
+          <h2 className="text-sm font-semibold">Activity</h2>
+          <button onClick={() => router.push('/admin/activity')} style={{ color: 'var(--crimson)' }} className="text-xs font-medium flex items-center gap-1">
+            View all <ArrowRight size={12} />
+          </button>
+        </div>
+        <div style={{ background: 'var(--surface)', border: stats.recentActivities.length ? '1px solid var(--line)' : '1px dashed var(--line)' }} className="rounded-xl overflow-hidden">
+          {stats.recentActivities.length === 0 && (
+            <div className="py-10 flex flex-col items-center text-center">
+              <div style={{ border: '1.5px dashed var(--line)' }} className="w-11 h-11 rounded-full flex items-center justify-center mb-3">
+                <Activity size={18} style={{ color: 'var(--ink-muted)' }} />
+              </div>
+              <div className="text-sm font-medium">No recent activity yet</div>
+              <p style={{ color: 'var(--ink-muted)' }} className="text-xs mt-1 max-w-xs">
+                Actions across users, hospitals, and requests will show up here as they happen.
+              </p>
+            </div>
+          )}
+          {stats.recentActivities.map((a, i) => {
+            const meta = ACTIVITY_META[a.action as keyof typeof ACTIVITY_META] || ACTIVITY_META.user;
+            const Icon = Activity;
+            return (
+              <div key={a.id} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--line)' }} className="flex items-center gap-3.5 px-5 py-3.5">
+                <div style={{ background: TONE[meta.tone].bg, color: TONE[meta.tone].fg }} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon size={14} />
+                </div>
+                <div className="min-w-0 flex-1 text-sm">
+                  <span className="font-medium">{a.performedBy}</span> {a.action}
+                  {a.entity && <span className="font-medium"> {a.entity}</span>}
+                </div>
+                <div style={{ color: 'var(--ink-muted)' }} className="text-xs flex-shrink-0">
+                  {fmtTime(a.timestamp)}
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Activity size={48} className="mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">No recent activity</p>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -466,7 +466,7 @@ export default function Home() {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: clamp(80px, 25vw, 180px);
+          font-size: clamp(40px, 15vw, 180px);
           font-weight: 800;
           color: rgba(255, 255, 255, 0.12);
           white-space: nowrap;
@@ -476,6 +476,13 @@ export default function Home() {
           line-height: 1;
           font-family: 'Hind Siliguri', sans-serif;
           z-index: 0;
+        }
+
+        @media (max-width: 768px) {
+          .btn-watermark-wrap .watermark {
+            color: rgba(255, 255, 255, 0.18);
+            font-size: clamp(35px, 12vw, 120px);
+          }
         }
 
         .btn-watermark-wrap .card-btn-secondary {
@@ -982,32 +989,36 @@ export default function Home() {
           </li>
           {isLoggedIn ? (
           <>
-            <li role="none"><Link href="/dashboard" role="menuitem" aria-label="Dashboard">Dashboard</Link></li>
-            <li role="none"><Link href="/profile" role="menuitem" aria-label="Profile">Profile</Link></li>
-            <li role="none" className="user-profile-section">
-              <div className="user-profile-info">
-                <span className="user-name">{userData?.name || 'User'}</span>
-                <span className="user-blood-group">{userData?.bloodGroup || 'N/A'}</span>
-              </div>
-            </li>
             <li role="none">
               <button
-                onClick={async () => {
-                  await logoutUser();
-                  setIsLoggedIn(false);
-                  setUserData(null);
-                  router.push('/');
-                }}
+                onClick={() => router.push('/dashboard')}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '14px',
+                  background: 'rgba(220, 38, 38, 0.2)',
+                  border: '1px solid rgba(220, 38, 38, 0.3)',
+                  color: '#dc2626',
+                  fontSize: '16px',
+                  fontWeight: '600',
                   cursor: 'pointer',
-                  padding: '8px 16px'
+                  padding: '8px 16px',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s'
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(220, 38, 38, 0.3)';
+                  e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(220, 38, 38, 0.2)';
+                  e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.3)';
+                }}
+                aria-label="Go to dashboard"
               >
-                Log Out
+                {(userData?.name || 'U').charAt(0).toUpperCase()}
               </button>
             </li>
           </>

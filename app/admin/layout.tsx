@@ -74,10 +74,10 @@ export default function AdminLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--canvas)' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading admin panel...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--crimson)' }}></div>
+          <p style={{ color: 'var(--ink-muted)' }}>Loading admin panel...</p>
         </div>
       </div>
     );
@@ -88,19 +88,19 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminSidebar 
+    <div className="min-h-screen" style={{ background: 'var(--canvas)' }}>
+      <AdminSidebar
         isSuperAdmin={isSuperAdminUser}
         userRole={userRole}
         userPermissions={userPermissions}
       />
       <div className="lg:pl-64">
-        <AdminHeader 
-          user={currentUser} 
+        <AdminHeader
+          user={currentUser}
           isSuperAdmin={isSuperAdminUser}
           userRole={userRole}
         />
-        <main className="p-6 lg:p-8">
+        <main className="p-6 lg:p-8" style={{ fontFamily: "'DM Sans', sans-serif" }}>
           {children}
         </main>
       </div>
