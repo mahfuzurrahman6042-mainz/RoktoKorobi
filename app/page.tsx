@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals, getUserData } from "@/lib/firebase";
+import { listAllHospitals, getUserData, getCurrentUser, onAuthStateChange, logoutUser } from "@/lib/firebase";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -153,16 +153,18 @@ export default function Home() {
     setMounted(true);
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
-    
-    // Check authentication status
-    const loginStatus = localStorage.getItem('isLoggedIn');
-    const userEmail = localStorage.getItem('userEmail');
-    setIsLoggedIn(loginStatus === 'true');
 
-    // Fetch user data if logged in
-    if (loginStatus === 'true' && userEmail) {
-      fetchUserData(userEmail);
-    }
+    // Check authentication status using Firebase
+    const unsubscribe = onAuthStateChange((user) => {
+      if (user) {
+        setIsLoggedIn(true);
+        // Fetch user data using Firebase user ID
+        fetchUserData(user.uid);
+      } else {
+        setIsLoggedIn(false);
+        setUserData(null);
+      }
+    });
 
     // Fetch hospitals from Firebase
     const fetchHospitals = async () => {
@@ -176,11 +178,12 @@ export default function Home() {
     };
 
     fetchHospitals();
+
+    return () => unsubscribe();
   }, []);
 
-  const fetchUserData = async (email: string) => {
+  const fetchUserData = async (userId: string) => {
     try {
-      const userId = email.replace(/\./g, '_').replace(/@/g, '_');
       const data = await getUserData(userId);
       if (data) {
         setUserData({
@@ -988,10 +991,9 @@ export default function Home() {
               </div>
             </li>
             <li role="none">
-              <button 
-                onClick={() => {
-                  localStorage.removeItem('isLoggedIn');
-                  localStorage.removeItem('userEmail');
+              <button
+                onClick={async () => {
+                  await logoutUser();
                   setIsLoggedIn(false);
                   setUserData(null);
                   router.push('/');
