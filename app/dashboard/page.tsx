@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, getUserData, logoutUser } from '@/lib/firebase';
+import { getCurrentUser, getUserData, logoutUser, isSuperAdmin } from '@/lib/firebase';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [language, setLanguage] = useState('en');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [kebabOpen, setKebabOpen] = useState(false);
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [userData, setUserData] = useState({
     name: 'Mahfuzur Rahman',
     bloodGroup: 'O+',
@@ -115,6 +116,9 @@ export default function Dashboard() {
           if (data) {
             setUserData(prev => ({ ...prev, ...data }));
           }
+          // Check if user is super admin
+          const adminCheck = await isSuperAdmin(user.email || '');
+          setIsSuperAdminUser(adminCheck);
         }
       } catch (error) {
         router.push('/login');
@@ -677,6 +681,14 @@ export default function Dashboard() {
               <div><div className="action-text-main">{t.quickProfile}</div><div className="action-text-sub">{t.quickProfileSub}</div></div>
               <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
             </div>
+
+            {isSuperAdminUser && (
+              <div className="action-link" onClick={() => router.push('/admin')} style={{ background: 'rgba(179,34,28,0.08)', border: '1px solid rgba(179,34,28,0.2)' }}>
+                <div className="action-icon" style={{ background: 'var(--crimson)', color: 'white' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+                <div><div className="action-text-main" style={{ color: 'var(--crimson)' }}>Admin Dashboard</div><div className="action-text-sub">Manage system</div></div>
+                <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
+              </div>
+            )}
           </div>
 
           <div className="sidebar-footer">
