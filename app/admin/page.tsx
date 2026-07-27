@@ -32,11 +32,11 @@ const SECONDARY_STATS = [
 ];
 
 const TONE = {
-  crimson: { bg: 'var(--crimson-tint)', fg: 'var(--crimson)' },
-  navy: { bg: 'var(--navy-tint)', fg: 'var(--navy)' },
-  amber: { bg: 'var(--amber-tint)', fg: 'var(--amber)' },
-  green: { bg: 'var(--green-tint)', fg: 'var(--green)' },
-  ink: { bg: '#EEF0F1', fg: 'var(--ink)' },
+  crimson: { bg: 'rgba(220, 38, 38, 0.08)', fg: '#dc2626' },
+  navy: { bg: 'rgba(30, 58, 95, 0.08)', fg: '#1e3a5f' },
+  amber: { bg: 'rgba(245, 158, 11, 0.08)', fg: '#f59e0b' },
+  green: { bg: 'rgba(16, 185, 129, 0.08)', fg: '#10b981' },
+  ink: { bg: '#EEF0F1', fg: '#1A0F0A' },
 };
 
 const ACTIVITY_META = {
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--crimson)' }}></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#dc2626' }}></div>
       </div>
     );
   }
@@ -209,20 +209,20 @@ export default function AdminDashboard() {
           <h1 style={{ fontFamily: "'IBM Plex Serif', serif" }} className="text-[28px] font-semibold leading-tight">
             {greeting}, Admin
           </h1>
-          <p style={{ color: 'var(--ink-muted)' }} className="text-sm mt-1.5">
+          <p style={{ color: '#64748b' }} className="text-sm mt-1.5">
             Here's the state of the platform today.
           </p>
         </div>
-        <div style={{ color: 'var(--ink-muted)' }} className="text-xs">
+        <div style={{ color: '#64748b' }} className="text-xs">
           {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
         </div>
       </div>
 
       <div className="mb-3 flex items-center gap-2">
-        <span style={{ color: 'var(--crimson-dark)', letterSpacing: '0.1em' }} className="text-[11px] uppercase font-medium">
+        <span style={{ color: '#991b1b', letterSpacing: '0.1em' }} className="text-[11px] uppercase font-medium">
           Platform Vitals
         </span>
-        <span style={{ background: 'var(--crimson)' }} className="w-1.5 h-1.5 rounded-full animate-pulse" />
+        <span style={{ background: '#dc2626' }} className="w-1.5 h-1.5 rounded-full animate-pulse" />
       </div>
       <div className="-mt-1 mb-4">
         <PulseLine />
@@ -247,18 +247,18 @@ export default function AdminDashboard() {
               <button
                 key={a.key}
                 onClick={() => a.page && router.push(`/admin/${a.page}`)}
-                style={{ background: 'var(--surface)', border: '1px solid var(--line)' }}
+                style={{ background: '#ffffff', border: '1px solid #e2e8f0' }}
                 className="group flex items-start gap-3 p-4 rounded-xl text-left transition hover:shadow-sm hover:-translate-y-0.5"
               >
-                <div style={{ background: 'var(--crimson-tint)', color: 'var(--crimson)' }} className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div style={{ background: 'rgba(220, 38, 38, 0.08)', color: '#dc2626' }} className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Icon size={16} strokeWidth={2} />
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-medium flex items-center gap-1">
                     {a.label}
-                    <ArrowRight size={13} className="opacity-0 group-hover:opacity-100 transition -translate-x-1 group-hover:translate-x-0" style={{ color: 'var(--crimson)' }} />
+                    <ArrowRight size={13} className="opacity-0 group-hover:opacity-100 transition -translate-x-1 group-hover:translate-x-0" style={{ color: '#dc2626' }} />
                   </div>
-                  <div style={{ color: 'var(--ink-muted)' }} className="text-xs mt-0.5">
+                  <div style={{ color: '#64748b' }} className="text-xs mt-0.5">
                     {a.desc}
                   </div>
                 </div>
@@ -271,18 +271,18 @@ export default function AdminDashboard() {
       <div>
         <div className="flex items-center justify-between mb-3.5">
           <h2 className="text-sm font-semibold">Activity</h2>
-          <button onClick={() => router.push('/admin/activity')} style={{ color: 'var(--crimson)' }} className="text-xs font-medium flex items-center gap-1">
+          <button onClick={() => router.push('/admin/activity')} style={{ color: '#dc2626' }} className="text-xs font-medium flex items-center gap-1">
             View all <ArrowRight size={12} />
           </button>
         </div>
-        <div style={{ background: 'var(--surface)', border: stats.recentActivities.length ? '1px solid var(--line)' : '1px dashed var(--line)' }} className="rounded-xl overflow-hidden">
+        <div style={{ background: '#ffffff', border: stats.recentActivities.length ? '1px solid #e2e8f0' : '1px dashed #e2e8f0' }} className="rounded-xl overflow-hidden">
           {stats.recentActivities.length === 0 && (
             <div className="py-10 flex flex-col items-center text-center">
-              <div style={{ border: '1.5px dashed var(--line)' }} className="w-11 h-11 rounded-full flex items-center justify-center mb-3">
-                <Activity size={18} style={{ color: 'var(--ink-muted)' }} />
+              <div style={{ border: '1.5px dashed #e2e8f0' }} className="w-11 h-11 rounded-full flex items-center justify-center mb-3">
+                <Activity size={18} style={{ color: '#64748b' }} />
               </div>
               <div className="text-sm font-medium">No recent activity yet</div>
-              <p style={{ color: 'var(--ink-muted)' }} className="text-xs mt-1 max-w-xs">
+              <p style={{ color: '#64748b' }} className="text-xs mt-1 max-w-xs">
                 Actions across users, hospitals, and requests will show up here as they happen.
               </p>
             </div>
@@ -291,7 +291,7 @@ export default function AdminDashboard() {
             const meta = ACTIVITY_META[a.action as keyof typeof ACTIVITY_META] || ACTIVITY_META.user;
             const Icon = Activity;
             return (
-              <div key={a.id} style={{ borderTop: i === 0 ? 'none' : '1px solid var(--line)' }} className="flex items-center gap-3.5 px-5 py-3.5">
+              <div key={a.id} style={{ borderTop: i === 0 ? 'none' : '1px solid #e2e8f0' }} className="flex items-center gap-3.5 px-5 py-3.5">
                 <div style={{ background: TONE[meta.tone].bg, color: TONE[meta.tone].fg }} className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
                   <Icon size={14} />
                 </div>
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
                   <span className="font-medium">{a.performedBy}</span> {a.action}
                   {a.entity && <span className="font-medium"> {a.entity}</span>}
                 </div>
-                <div style={{ color: 'var(--ink-muted)' }} className="text-xs flex-shrink-0">
+                <div style={{ color: '#64748b' }} className="text-xs flex-shrink-0">
                   {fmtTime(a.timestamp)}
                 </div>
               </div>

@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { getCurrentUser, isSuperAdmin, getUserRole, getRolePermissions, hasPageAccess } from '@/lib/firebase';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
-import '../globals.css';
 
 export default function AdminLayout({
   children,
@@ -85,11 +84,17 @@ export default function AdminLayout({
   }
 
   if (!hasAccess) {
-    return null;
+    return (
+      <div className="flex items-center justify-center" style={{ background: 'var(--canvas)', height: '100vh' }}>
+        <div className="text-center">
+          <p style={{ color: 'var(--ink-muted)' }}>Access denied. Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen lg:flex" style={{ background: 'var(--canvas)' }}>
+    <div className="min-h-screen lg:flex" style={{ background: '#f8fafc' }}>
       <AdminSidebar
         isSuperAdmin={isSuperAdminUser}
         userRole={userRole}

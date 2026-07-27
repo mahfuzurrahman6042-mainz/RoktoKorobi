@@ -39,27 +39,27 @@ export default function AdminHeader({ user, isSuperAdmin = false, userRole = nul
   };
 
   return (
-    <header className="sticky top-0 z-30" style={{ background: 'var(--surface)', borderBottom: '1px solid var(--line)' }}>
+    <header className="sticky top-0 z-30" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
       <div className="flex items-center justify-between px-6 py-4">
         {/* Search */}
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: 'var(--ink-muted)' }} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: '#64748b' }} />
             <input
               type="text"
               placeholder="Search users, requests, hospitals..."
               className="w-full pl-10 pr-4 py-2 rounded-lg text-sm outline-none transition-colors"
               style={{
-                border: '1px solid var(--line)',
-                background: 'var(--canvas)',
-                color: 'var(--ink)',
+                border: '1px solid #e2e8f0',
+                background: '#f8fafc',
+                color: '#1A0F0A',
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--crimson)';
+                e.currentTarget.style.borderColor = '#dc2626';
                 e.currentTarget.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.1)';
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--line)';
+                e.currentTarget.style.borderColor = '#e2e8f0';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             />
@@ -70,29 +70,29 @@ export default function AdminHeader({ user, isSuperAdmin = false, userRole = nul
         <div className="flex items-center gap-4">
           {/* Role badge */}
           {!isSuperAdmin && roleName && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm" style={{ background: 'var(--navy-tint)', color: 'var(--navy)' }}>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm" style={{ background: 'rgba(30, 58, 95, 0.08)', color: '#1e3a5f' }}>
               <ShieldCheck size={16} />
               <span>{roleName}</span>
             </div>
           )}
 
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg transition-colors" style={{ color: 'var(--ink-muted)' }}>
+          <button className="relative p-2 rounded-lg transition-colors" style={{ color: '#64748b' }}>
             <Bell size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: 'var(--crimson)' }}></span>
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: '#dc2626' }}></span>
           </button>
 
           {/* User info */}
-          <div className="flex items-center gap-3 pl-4" style={{ borderLeft: '1px solid var(--line)' }}>
+          <div className="flex items-center gap-3 pl-4" style={{ borderLeft: '1px solid #e2e8f0' }}>
             <div className="text-right">
-              <p className="text-sm font-medium" style={{ color: 'var(--ink)' }}>
+              <p className="text-sm font-medium" style={{ color: '#1A0F0A' }}>
                 {currentUser?.displayName || 'Admin'}
               </p>
-              <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+              <p className="text-xs" style={{ color: '#64748b' }}>
                 {currentUser?.email || 'admin@roktokorobi.com'}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--navy)' }}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#1e3a5f' }}>
               <User size={20} style={{ color: 'white' }} />
             </div>
           </div>
