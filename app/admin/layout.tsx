@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { getCurrentUser, isSuperAdmin, getUserRole, getRolePermissions, hasPageAccess } from '@/lib/firebase';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import '../globals.css';
 
 export default function AdminLayout({
   children,
