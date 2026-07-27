@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { database, ref, get } from "@/lib/firebase";
 
 const CR = '#8B1A1A', LCR = '#C41E3A', CREAM = '#F5F0E8', DCREAM = '#EDE0CF', DK = '#1A0808', WM = '#6B5045';
 const HF = "'Playfair Display', serif";
@@ -132,13 +133,11 @@ const DATA = {
     lbl: 'BLOG', t1: 'Latest', t2: 'Posts',
     desc: 'Discover articles, guides, and stories about blood donation.',
     more: 'Read More →', back: '← Back', all: 'See All Posts',
-    posts: [],
   },
   bn: {
     lbl: 'ব্লগ', t1: 'সর্বশেষ', t2: 'পোস্ট',
     desc: 'রক্তদান বিষয়ক নিবন্ধ, গাইড ও গল্প আবিষ্কার করুন।',
     more: 'আরও পড়ুন →', back: '← ফিরুন', all: 'সব পোস্ট দেখুন',
-    posts: [],
   },
 };
 
@@ -181,10 +180,57 @@ function PageHero({ bg, label, t1, t2, desc, back }: any) {
 
 export default function BlogPage() {
   const { language } = useLanguage();
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentLang, setCurrentLang] = useState('en');
+
+  useEffect(() => {
+    if (language && (language === 'en' || language === 'bn')) {
+      setCurrentLang(language);
+    }
+  }, [language]);
+
+  useEffect(() => {
+    fetchBlogs();
+  }, [currentLang]);
+
+  const fetchBlogs = async () => {
+    try {
+      if (!database) return;
+
+      const blogsRef = ref(database, 'blogPosts');
+      const snapshot = await get(blogsRef);
+
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const blogsArray = Object.keys(data)
+          .map(key => ({
+            id: key,
+            ...data[key]
+          }))
+          .filter((blog: any) => blog.published !== false)
+          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .map((blog: any) => ({
+            id: blog.id,
+            title: currentLang === 'bn' ? blog.titleBn || blog.title : blog.title,
+            ex: currentLang === 'bn' ? blog.excerptBn || blog.excerpt : blog.excerpt,
+            tag: currentLang === 'bn' ? blog.categoryBn || blog.category : blog.category,
+            date: blog.date || new Date(blog.createdAt).toISOString().split('T')[0]
+          }));
+
+        setPosts(blogsArray);
+      }
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Safe fallback: if `language` ever returns something other than 'en'/'bn'
   // (e.g. during initial hydration), default to English instead of crashing.
-  const d = DATA[language as keyof typeof DATA] || DATA.en;
-  const bf = language === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
+  const d = DATA[currentLang as keyof typeof DATA] || DATA.en;
+  const bf = currentLang === 'bn' ? "'Noto Serif Bengali',sans-serif" : "'DM Sans',sans-serif";
 
   return (
     <div style={{ fontFamily: bf, background: CREAM, minHeight: '100vh' }}>
@@ -204,33 +250,47 @@ export default function BlogPage() {
               </h2>
               <div style={{ width: 60, height: 3, background: `linear-gradient(90deg,${CR},${LCR})`, marginTop: 16 }} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 24 }}>
-              {d.posts.map((p: any, i: number) => (
-                <div key={i} className={`fcard u${(i % 2) + 1}`}
-                  style={{ flex: '1 1 280px', maxWidth: 360, boxShadow: '0 8px 34px rgba(0,0,0,0.30)' }}>
-                  <div className="c-bar" style={{ height: 3, borderRadius: '18px 18px 0 0' }} />
-                  <div className="fbody" style={{ padding: '40px 34px 42px', position: 'relative' }}>
-                    <div className="c-num" style={{
-                      fontFamily: HF, fontSize: 96, fontWeight: 900, lineHeight: 1,
-                      position: 'absolute', top: 8, right: 16, letterSpacing: '-0.05em',
-                      userSelect: 'none', pointerEvents: 'none',
-                      color: 'rgba(139,26,26,0.055)',
-                    }}>{i + 1}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-                      <span className="c-lbl" style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.26em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{p.tag}</span>
-                      <span style={{ fontSize: 10, color: WM, fontWeight: 600, letterSpacing: '0.02em' }}>{p.date}</span>
+
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '60px 0' }}>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: CR }}></div>
+              </div>
+            ) : !posts || posts.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 24px', color: WM }}>
+                <p style={{ fontSize: 16, marginBottom: 8 }}>No blog posts yet</p>
+                <p style={{ fontSize: 14 }}>Check back soon for new content!</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 24 }}>
+                {posts.map((p: any, i: number) => (
+                  <Link key={i} href={`/blog/${p.id}`} style={{ textDecoration: 'none' }}>
+                    <div className={`fcard u${(i % 2) + 1}`}
+                      style={{ flex: '1 1 280px', maxWidth: 360, boxShadow: '0 8px 34px rgba(0,0,0,0.30)' }}>
+                      <div className="c-bar" style={{ height: 3, borderRadius: '18px 18px 0 0' }} />
+                      <div className="fbody" style={{ padding: '40px 34px 42px', position: 'relative' }}>
+                        <div className="c-num" style={{
+                          fontFamily: HF, fontSize: 96, fontWeight: 900, lineHeight: 1,
+                          position: 'absolute', top: 8, right: 16, letterSpacing: '-0.05em',
+                          userSelect: 'none', pointerEvents: 'none',
+                          color: 'rgba(139,26,26,0.055)',
+                        }}>{i + 1}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+                          <span className="c-lbl" style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.26em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{p.tag}</span>
+                          <span style={{ fontSize: 10, color: WM, fontWeight: 600, letterSpacing: '0.02em' }}>{p.date}</span>
+                        </div>
+                        <div style={{ marginBottom: 14 }}>
+                          <span className="c-head" style={{ fontFamily: HF, fontSize: 27, fontWeight: 900, display: 'block', lineHeight: 1.18 }}>{p.title}</span>
+                        </div>
+                        <p className="c-desc" style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 30 }}>{p.ex}</p>
+                        <button className="c-cta" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', padding: '10px 22px', borderRadius: 8 }}>
+                          {d.more} <span className="c-arr">→</span>
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ marginBottom: 14 }}>
-                      <span className="c-head" style={{ fontFamily: HF, fontSize: 27, fontWeight: 900, display: 'block', lineHeight: 1.18 }}>{p.title}</span>
-                    </div>
-                    <p className="c-desc" style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 30 }}>{p.ex}</p>
-                    <button className="c-cta" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', padding: '10px 22px', borderRadius: 8 }}>
-                      {d.more} <span className="c-arr">→</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

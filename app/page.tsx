@@ -130,6 +130,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [navSolid, setNavSolid] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileRef = useRef<HTMLLIElement>(null);
   const [selectedBloodType, setSelectedBloodType] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [area, setArea] = useState('');
@@ -393,6 +395,22 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    if (profileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileMenuOpen]);
+
   if (!mounted) return null;
 
   return (
@@ -459,35 +477,6 @@ export default function Home() {
           display: block;
           height: auto;
           min-height: 56px;
-        }
-
-        .btn-watermark-wrap .watermark {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: clamp(40px, 15vw, 180px);
-          font-weight: 800;
-          color: rgba(255, 255, 255, 0.12);
-          white-space: nowrap;
-          pointer-events: none;
-          user-select: none;
-          letter-spacing: -4px;
-          line-height: 1;
-          font-family: 'Hind Siliguri', sans-serif;
-          z-index: 0;
-        }
-
-        @media (max-width: 768px) {
-          .btn-watermark-wrap .watermark {
-            color: rgba(255, 255, 255, 0.18);
-            font-size: clamp(35px, 12vw, 120px);
-          }
-        }
-
-        .btn-watermark-wrap .card-btn-secondary {
-          position: relative;
-          z-index: 1;
         }
 
         .live-badge {
@@ -638,7 +627,7 @@ export default function Home() {
           display: inline-block;
           font-size: clamp(32px, 5vw, 68px);
           font-weight: 800;
-          color: var(--red);
+          color: var(--dark);
           font-style: italic;
           position: relative;
           margin-bottom: 4px;
@@ -648,9 +637,7 @@ export default function Home() {
           display: block;
           font-size: clamp(32px, 5vw, 68px);
           font-weight: 900;
-          color: transparent;
-          -webkit-text-stroke: 2.5px #1A0F0A;
-          paint-order: stroke fill;
+          color: var(--red);
           text-decoration: none !important;
         }
 
@@ -665,10 +652,6 @@ export default function Home() {
           }
           .m-line1, .m-line2, .m-line3 {
             font-size: clamp(20px, 5vw, 32px);
-          }
-          .m-line3 {
-            -webkit-text-stroke: 2px #1A0F0A;
-            text-stroke: 2px #1A0F0A;
           }
           .eligibility-section {
             padding: 40px 16px 32px;
@@ -690,10 +673,6 @@ export default function Home() {
           }
           .m-line1, .m-line2, .m-line3 {
             font-size: clamp(18px, 5vw, 24px);
-          }
-          .m-line3 {
-            -webkit-text-stroke: 1.8px #1A0F0A;
-            text-stroke: 1.8px #1A0F0A;
           }
           .eligibility-section {
             padding: 32px 16px 24px;
@@ -818,20 +797,19 @@ export default function Home() {
         /* ═══════════════════════════════════════
            FABs (Floating Action Buttons)
         ══════════════════════════════════════ */
-        .fabs {
+        .fab-container {
           position: fixed;
-          right: 16px;
           bottom: 24px;
+          right: 24px;
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
-          gap: 10px;
-          z-index: 9999;
-          padding-bottom: env(safe-area-inset-bottom);
+          align-items: center;
+          gap: 12px;
+          z-index: 50;
         }
 
-        .fab-sos { width: 56px; height: 56px; border-radius: 50%; background: var(--red); border: none; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5); animation: sos-pulse 2s infinite; font-family: 'DM Sans', sans-serif; pointer-events: auto; position: static; }
-        @media (max-width: 768px) { .fab-sos { width: 48px; height: 48px; font-size: 11px; } .fabs { right: 12px; bottom: 16px; } }
+        .fab-sos { width: 56px; height: 56px; border-radius: 50%; background: var(--red); border: none; color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5); animation: sos-pulse 2s infinite; font-family: 'DM Sans', sans-serif; pointer-events: auto; position: static; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        @media (max-width: 768px) { .fab-sos { width: 48px; height: 48px; font-size: 11px; } .fab-container { right: 12px; bottom: 16px; } }
 
         @keyframes sos-pulse {
           0%, 100% { box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5), 0 0 0 0 rgba(190, 21, 40, 0.4); }
@@ -842,26 +820,66 @@ export default function Home() {
           width: 48px;
           height: 48px;
           border-radius: 50%;
-          background: #fff;
+          background: #ffffff;
           border: none;
           cursor: pointer;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform .2s, box-shadow .2s;
-          pointer-events: auto;
+          padding: 0;
+          color: #000000;
+          flex-shrink: 0;
+          line-height: 0;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
         .fab-share:hover {
-          transform: scale(1.08);
-          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .fab-share:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .fab-share svg {
-          width: 20px;
-          height: 20px;
-          color: #333;
+          width: 22px;
+          height: 22px;
+          display: block;
+        }
+
+        .fab-share-ring {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 2px solid #ffffff;
+          opacity: 0.8;
+          pointer-events: none;
+          animation: fabSharePulse 0.6s ease-out forwards;
+        }
+
+        @keyframes fabSharePulse {
+          to {
+            transform: scale(1.8);
+            opacity: 0;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .fab-share {
+            width: 44px;
+            height: 44px;
+          }
+          
+          .fab-share svg {
+            width: 20px;
+            height: 20px;
+          }
         }
 
         @media (max-width: 768px) {
@@ -989,37 +1007,158 @@ export default function Home() {
           </li>
           {isLoggedIn ? (
           <>
-            <li role="none">
+            <li role="none" ref={profileRef} style={{ position: 'relative' }}>
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                aria-label="Profile menu"
+                aria-expanded={profileMenuOpen}
                 style={{
-                  background: 'rgba(220, 38, 38, 0.2)',
-                  border: '1px solid rgba(220, 38, 38, 0.3)',
-                  color: '#dc2626',
-                  fontSize: '16px',
-                  fontWeight: '600',
+                  height: '44px',
+                  padding: '0 6px',
+                  borderRadius: '999px',
+                  background: '#ffffff',
+                  border: '1px solid #e8dfd3',
                   cursor: 'pointer',
-                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  flexShrink: 0,
+                  transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#C31432';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(195, 20, 50, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#e8dfd3';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <div style={{
+                  width: '34px',
+                  height: '34px',
                   borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
+                  background: 'linear-gradient(135deg, #C31432, #8f0f24)',
+                  color: 'white',
+                  fontWeight: '500',
+                  fontSize: '13px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.3s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(220, 38, 38, 0.3)';
-                  e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(220, 38, 38, 0.2)';
-                  e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.3)';
-                }}
-                aria-label="Go to dashboard"
-              >
-                {(userData?.name || 'U').charAt(0).toUpperCase()}
+                  flexShrink: 0
+                }}>
+                  {(userData?.name || 'U').charAt(0).toUpperCase()}
+                </div>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    color: '#7a7268',
+                    marginRight: '6px',
+                    transition: 'transform 0.2s ease',
+                    transform: profileMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                  }}
+                >
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
               </button>
+              {profileMenuOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  right: 0,
+                  width: '220px',
+                  background: '#ffffff',
+                  border: '1px solid #e8dfd3',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 24px rgba(44, 38, 32, 0.12)',
+                  overflow: 'hidden',
+                  fontFamily: 'IBM Plex Sans, sans-serif',
+                  zIndex: 50
+                }}>
+                  <div style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #f0ece3',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    <div style={{
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #C31432, #8f0f24)',
+                      color: 'white',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      {(userData?.name || 'U').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: '13px', fontWeight: 500, color: '#2c2620' }}>{userData?.name || 'User'}</p>
+                      <p style={{ margin: 0, fontSize: '11px', color: '#8f887c' }}>{userData?.bloodGroup || 'O+'} Donor</p>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '6px 0' }}>
+                    <a href="/profile" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      My profile
+                    </a>
+                    <a href="/donations" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M12 2.69l5.74 5.88-5.74 5.88-5.74-5.88L12 2.69M12 21.31l-5.74-5.88 5.74-5.88 5.74 5.88-5.74 5.88"/></svg>
+                      Donation history
+                    </a>
+                    <a href="/notifications" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                      Notifications
+                    </a>
+                    <a href="/settings" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                      Settings
+                    </a>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
+                    <button
+                      onClick={() => {
+                        logoutUser();
+                        setIsLoggedIn(false);
+                        setUserData(null);
+                        router.push('/');
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 16px',
+                        fontSize: '13px',
+                        color: '#C31432',
+                        textDecoration: 'none',
+                        transition: 'background 0.12s ease',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        width: '100%',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#C31432', flexShrink: 0 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                      Log out
+                    </button>
+                  </div>
+                </div>
+              )}
             </li>
           </>
         ) : (
@@ -1154,12 +1293,9 @@ export default function Home() {
             {language === 'bn' ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Register as a Blood Donor'}
           </button>
 
-          <div className="btn-watermark-wrap">
-            <div className="watermark">রক্ত</div>
-            <button type="button" className="card-btn-secondary" onClick={() => router.push('/request')}>
-              {language === 'bn' ? 'রক্তের প্রয়োজন?' : 'Need Blood?'}
-            </button>
-          </div>
+          <button type="button" className="card-btn-secondary" onClick={() => router.push('/request')}>
+            {language === 'bn' ? 'রক্তের প্রয়োজন?' : 'Need Blood?'}
+          </button>
         </div>
       </section>
 
@@ -1209,7 +1345,7 @@ export default function Home() {
       </section>
 
       {/* FABs */}
-      <div className="fabs">
+      <div className="fab-container">
         <button
           type="button"
           className="fab-sos"
@@ -1222,13 +1358,18 @@ export default function Home() {
           type="button"
           className="fab-share"
           aria-label="Share"
-          onClick={() => { if (navigator.share) { navigator.share({ title: 'RoktoKorobi', url: window.location.href }); } }}
-          style={{ width: 44, height: 44, borderRadius: '50%', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', pointerEvents: 'auto' }}
+          onClick={() => {
+            if (navigator.share) {
+              navigator.share({ title: 'RoktoKorobi', url: window.location.href });
+            } else {
+              navigator.clipboard.writeText(window.location.href);
+            }
+          }}
         >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-            <polyline points="16 6 12 2 8 6"/>
-            <line x1="12" y1="2" x2="12" y2="15"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v13" />
+            <path d="M7 8l5-5 5 5" />
+            <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
           </svg>
         </button>
       </div>
@@ -1883,6 +2024,7 @@ export default function Home() {
             style={{
               display: "inline-flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: "8px",
               background: "#8B1A1A",
               color: "#F5EFE8",
@@ -1897,7 +2039,7 @@ export default function Home() {
             }}
           >
             {language === 'bn' ? 'সকল দাতা দেখুন' : 'Browse All Donors'}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ display: 'block', flexShrink: 0 }}>
               <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
             </svg>
           </a>
