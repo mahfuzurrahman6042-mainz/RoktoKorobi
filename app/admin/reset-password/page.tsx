@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { auth, updatePassword } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
+import { updatePassword as updatePasswordAuth } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
 export default function ResetPasswordPage() {
@@ -29,9 +30,9 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      await updatePassword(user, newPassword);
+      await updatePasswordAuth(user, newPassword);
       setMessage('Password updated successfully! You can now login with your new password.');
-      
+
       setTimeout(() => {
         router.push('/dashboard');
       }, 2000);

@@ -43,7 +43,7 @@ export default function DevResetPasswordPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F0E8', fontFamily: "'DM Sans', sans-serif', padding: '20px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F0E8', fontFamily: "'DM Sans', sans-serif", padding: '20px' }}>
       <div style={{ background: 'white', padding: '40px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', maxWidth: '450px', width: '100%' }}>
         <div style={{ background: '#FEF3C7', border: '1px solid #F59E0B', padding: '12px', borderRadius: '8px', marginBottom: '24px', fontSize: '12px', color: '#92400E' }}>
           <strong>⚠️ Development Only</strong><br />
