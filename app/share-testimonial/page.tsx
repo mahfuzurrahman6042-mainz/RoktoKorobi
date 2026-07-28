@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ref, set, push } from 'firebase/database';
-import { database } from '@/lib/firebase';
+import { database, auth } from '@/lib/firebase';
 
 const CR = '#C0353A';
 const CR_DARK = '#A32D2D';
@@ -23,6 +23,7 @@ export default function ShareTestimonial() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [rating, setRating] = useState(5);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,6 +31,13 @@ export default function ShareTestimonial() {
     story: ''
   });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+  useEffect(() => {
+    const unsubscribe = auth?.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const enLabels = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
   const bnLabels = ['', 'খারাপ', 'মোটামুটি', 'ভালো', 'খুব ভালো', 'অসাধারণ'];
@@ -67,8 +75,18 @@ export default function ShareTestimonial() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
+      return;
+    }
+
+    if (!currentUser) {
+      setErrors({
+        submit: language === 'bn' ? 'দয়া করে প্রথমে লগ ইন করুন' : 'Please log in first'
+      });
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
       return;
     }
 
@@ -83,7 +101,7 @@ export default function ShareTestimonial() {
 
       const testimonialData = {
         name: formData.name,
-        email: formData.email || '',
+        email: formData.email || currentUser.email || '',
         phone: formData.phone || '',
         rating: rating,
         story: formData.story,
@@ -93,18 +111,18 @@ export default function ShareTestimonial() {
       };
 
       await push(ref(database, 'testimonials'), testimonialData);
-      
+
       setIsSuccess(true);
-      
+
       // Redirect to testimonials page after 3 seconds
       setTimeout(() => {
         router.push('/testimonials');
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error submitting testimonial:', error);
-      setErrors({ 
-        submit: language === 'bn' ? 'জমা দিতে সমস্যা হয়েছে' : 'Error submitting testimonial' 
+      setErrors({
+        submit: language === 'bn' ? 'জমা দিতে সমস্যা হয়েছে' : 'Error submitting testimonial'
       });
     } finally {
       setIsSubmitting(false);
