@@ -7,15 +7,20 @@ import { MessageSquare, Plus, Trash2, Edit, Search, Check, X, Star } from 'lucid
 interface Testimonial {
   id: string;
   name: string;
-  nameBn: string;
-  bloodGroup: string;
-  donations: number;
-  quote: string;
-  quoteBn: string;
-  location: string;
-  verified: boolean;
-  date: string;
+  nameBn?: string;
+  bloodGroup?: string;
+  donations?: number;
+  quote?: string;
+  quoteBn?: string;
+  location?: string;
+  verified?: boolean;
+  approved?: boolean;
+  date?: string;
   createdAt: string;
+  email?: string;
+  phone?: string;
+  testimonial?: string;
+  rating?: string;
 }
 
 export default function TestimonialsPage() {
@@ -108,11 +113,19 @@ export default function TestimonialsPage() {
   const toggleVerified = async (testimonial: Testimonial) => {
     try {
       if (!database) return;
-      
-      await update(ref(database, `testimonials/${testimonial.id}`), {
-        verified: !testimonial.verified,
+
+      const isUserSubmitted = testimonial.testimonial !== undefined;
+      const updateData: any = {
         updatedAt: new Date().toISOString()
-      });
+      };
+
+      if (isUserSubmitted) {
+        updateData.approved = testimonial.approved === false ? true : false;
+      } else {
+        updateData.verified = testimonial.verified === false ? true : false;
+      }
+
+      await update(ref(database, `testimonials/${testimonial.id}`), updateData);
       fetchTestimonials();
     } catch (error) {
       console.error('Error toggling verified status:', error);
@@ -135,16 +148,19 @@ export default function TestimonialsPage() {
   };
 
   const filteredTestimonials = testimonials.filter(testimonial => {
-    const matchesSearch = 
+    const matchesSearch =
       testimonial.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      testimonial.nameBn.includes(searchTerm) ||
-      testimonial.quote.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = 
+      (testimonial.nameBn && testimonial.nameBn.includes(searchTerm)) ||
+      (testimonial.quote && testimonial.quote.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (testimonial.testimonial && testimonial.testimonial.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const isApproved = testimonial.approved !== false;
+    const isVerified = testimonial.verified !== false;
+    const matchesStatus =
       filterStatus === 'all' ||
-      (filterStatus === 'verified' && testimonial.verified) ||
-      (filterStatus === 'unverified' && !testimonial.verified);
-    
+      (filterStatus === 'verified' && (isApproved || isVerified)) ||
+      (filterStatus === 'unverified' && !isApproved && !isVerified);
+
     return matchesSearch && matchesStatus;
   });
 
@@ -210,83 +226,100 @@ export default function TestimonialsPage() {
           <p className="text-3xl font-bold text-gray-900">{testimonials.length}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <p className="text-gray-500 text-sm">Verified</p>
-          <p className="text-3xl font-bold text-green-600">{testimonials.filter(t => t.verified).length}</p>
+          <p className="text-gray-500 text-sm">Approved/Verified</p>
+          <p className="text-3xl font-bold text-green-600">{testimonials.filter(t => t.approved !== false || t.verified !== false).length}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <p className="text-gray-500 text-sm">Pending Review</p>
-          <p className="text-3xl font-bold text-yellow-600">{testimonials.filter(t => !t.verified).length}</p>
+          <p className="text-3xl font-bold text-yellow-600">{testimonials.filter(t => t.approved === false || t.verified === false).length}</p>
         </div>
       </div>
 
       {/* Testimonials Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTestimonials.map((testimonial) => (
-          <div key={testimonial.id} className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <span className="text-red-600 font-bold text-lg">{testimonial.name.charAt(0)}</span>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{testimonial.name}</p>
-                  <p className="text-sm text-gray-500">{testimonial.nameBn}</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => toggleVerified(testimonial)}
-                  className={`p-2 rounded-lg transition-colors ${testimonial.verified ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}
-                  title={testimonial.verified ? 'Unverify' : 'Verify'}
-                >
-                  <Check size={18} />
-                </button>
-                <button
-                  onClick={() => openEditModal(testimonial)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <Edit size={18} className="text-gray-500" />
-                </button>
-                <button
-                  onClick={() => handleDeleteTestimonial(testimonial.id)}
-                  className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                >
-                  <Trash2 size={18} className="text-red-500" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                  {testimonial.bloodGroup}
-                </span>
-                <span className="text-sm text-gray-500">{testimonial.donations} donations</span>
-              </div>
-              <p className="text-sm text-gray-500">{testimonial.location}</p>
-            </div>
-            
-            <div className="space-y-2">
-              <p className="text-gray-700 text-sm italic">"{testimonial.quote}"</p>
-              <p className="text-gray-500 text-sm italic">"{testimonial.quoteBn}"</p>
-            </div>
+        {filteredTestimonials.map((testimonial) => {
+          const isUserSubmitted = testimonial.testimonial !== undefined;
+          const isApproved = testimonial.approved !== false;
+          const isVerified = testimonial.verified !== false;
 
-            <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-              <span className="text-xs text-gray-500">{testimonial.date}</span>
-              {testimonial.verified ? (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  <Check size={12} className="mr-1" />
-                  Verified
-                </span>
+          return (
+            <div key={testimonial.id} className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-red-600 font-bold text-lg">{testimonial.name.charAt(0)}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{testimonial.name}</p>
+                    {testimonial.nameBn && <p className="text-sm text-gray-500">{testimonial.nameBn}</p>}
+                    {testimonial.email && <p className="text-xs text-gray-400">{testimonial.email}</p>}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => toggleVerified(testimonial)}
+                    className={`p-2 rounded-lg transition-colors ${(isApproved || isVerified) ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}
+                    title={isApproved || isVerified ? 'Unapprove' : 'Approve'}
+                  >
+                    <Check size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTestimonial(testimonial.id)}
+                    className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={18} className="text-red-500" />
+                  </button>
+                </div>
+              </div>
+
+              {isUserSubmitted ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    {testimonial.rating && (
+                      <div className="flex items-center">
+                        <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                        <span className="text-sm text-gray-600 ml-1">{testimonial.rating}/5</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-gray-700 text-sm italic">"{testimonial.testimonial}"</p>
+                  {testimonial.phone && <p className="text-xs text-gray-400">{testimonial.phone}</p>}
+                </div>
               ) : (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  <X size={12} className="mr-1" />
-                  Pending
-                </span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    {testimonial.bloodGroup && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        {testimonial.bloodGroup}
+                      </span>
+                    )}
+                    {testimonial.donations && <span className="text-sm text-gray-500">{testimonial.donations} donations</span>}
+                  </div>
+                  {testimonial.location && <p className="text-sm text-gray-500">{testimonial.location}</p>}
+                  <p className="text-gray-700 text-sm italic">"{testimonial.quote}"</p>
+                  {testimonial.quoteBn && <p className="text-gray-500 text-sm italic">"{testimonial.quoteBn}"</p>}
+                </div>
               )}
+
+              <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                <span className="text-xs text-gray-500">
+                  {testimonial.date || new Date(testimonial.createdAt).toLocaleDateString()}
+                </span>
+                {(isApproved || isVerified) ? (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <Check size={12} className="mr-1" />
+                    {isUserSubmitted ? 'Approved' : 'Verified'}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <X size={12} className="mr-1" />
+                    Pending
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {filteredTestimonials.length === 0 && (
