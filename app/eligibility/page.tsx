@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Navbar from '@/components/Navbar';
 
 export default function Eligibility() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [language, setLanguage] = useState('en');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   const [eligAge, setEligAge] = useState('');
   const [eligWeight, setEligWeight] = useState('');
   const [eligHealth, setEligHealth] = useState('');
@@ -19,6 +21,13 @@ export default function Eligibility() {
     setMounted(true);
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
+    
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    if (loggedIn) {
+      const userEmail = localStorage.getItem('userEmail');
+      setUserData({ email: userEmail, name: userEmail?.split('@')[0] || 'User' });
+    }
   }, []);
 
   const handleEligibilityCheck = () => {
@@ -83,233 +92,13 @@ export default function Eligibility() {
 
   return (
     <div>
-      {/* Navigation */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        padding: '16px 32px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        zIndex: 1000,
-        boxShadow: '0 2px 20px rgba(0, 0, 0, 0.08)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-          <button
-            onClick={() => router.back()}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(139, 26, 26, 0.1)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <span style={{ fontSize: '28px' }}>🩸</span>
-          <span style={{
-            fontSize: '24px',
-            fontWeight: 800,
-            color: '#8B1A1A',
-            whiteSpace: 'nowrap'
-          }}>
-            {language === 'bn' ? 'রক্তকরবী' : 'RoktoKorobi'}
-          </span>
-        </div>
-        <div className="elig-nav-links" style={{
-          display: 'flex',
-          gap: '32px',
-          alignItems: 'center'
-        }}>
-          <a href="/" style={{
-            textDecoration: 'none',
-            color: '#1A1A1A',
-            fontWeight: 600,
-            fontSize: '16px',
-            transition: 'color 0.3s ease'
-          }}>
-            {language === 'bn' ? 'হোম' : 'Home'}
-          </a>
-          <a href="/donors" style={{
-            textDecoration: 'none',
-            color: '#1A1A1A',
-            fontWeight: 600,
-            fontSize: '16px',
-            transition: 'color 0.3s ease'
-          }}>
-            {language === 'bn' ? 'দাতা' : 'Donors'}
-          </a>
-          <a href="/eligibility" style={{
-            textDecoration: 'none',
-            color: '#8B1A1A',
-            fontWeight: 700,
-            fontSize: '16px'
-          }}>
-            {language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}
-          </a>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setLanguage('en')}
-              style={{
-                padding: '8px 16px',
-                border: 'none',
-                borderRadius: '20px',
-                background: language === 'en' ? '#8B1A1A' : 'transparent',
-                color: language === 'en' ? 'white' : '#8B1A1A',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '14px'
-              }}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => setLanguage('bn')}
-              style={{
-                padding: '8px 16px',
-                border: 'none',
-                borderRadius: '20px',
-                background: language === 'bn' ? '#8B1A1A' : 'transparent',
-                color: language === 'bn' ? 'white' : '#8B1A1A',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '14px'
-              }}
-            >
-              বাংলা
-            </button>
-          </div>
-        </div>
-        <button
-          className="elig-hamburger"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          style={{
-            display: 'none',
-            flexDirection: 'column',
-            gap: '5px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px'
-          }}
-        >
-          <span style={{
-            width: '24px',
-            height: '2px',
-            background: '#8B1A1A',
-            transition: 'all 0.3s ease'
-          }} />
-          <span style={{
-            width: '24px',
-            height: '2px',
-            background: '#8B1A1A',
-            transition: 'all 0.3s ease'
-          }} />
-          <span style={{
-            width: '24px',
-            height: '2px',
-            background: '#8B1A1A',
-            transition: 'all 0.3s ease'
-          }} />
-        </button>
-      </nav>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div style={{
-          position: 'fixed',
-          top: '72px',
-          left: 0,
-          right: 0,
-          background: 'white',
-          padding: '24px',
-          zIndex: 999,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px'
-        }}>
-          <a href="/" style={{
-            textDecoration: 'none',
-            color: '#1A1A1A',
-            fontWeight: 600,
-            fontSize: '18px',
-            padding: '12px',
-            borderBottom: '1px solid #e0e0e0'
-          }}>
-            {language === 'bn' ? 'হোম' : 'Home'}
-          </a>
-          <a href="/donors" style={{
-            textDecoration: 'none',
-            color: '#1A1A1A',
-            fontWeight: 600,
-            fontSize: '18px',
-            padding: '12px',
-            borderBottom: '1px solid #e0e0e0'
-          }}>
-            {language === 'bn' ? 'দাতা' : 'Donors'}
-          </a>
-          <a href="/eligibility" style={{
-            textDecoration: 'none',
-            color: '#8B1A1A',
-            fontWeight: 700,
-            fontSize: '18px',
-            padding: '12px',
-            borderBottom: '1px solid #e0e0e0'
-          }}>
-            {language === 'bn' ? 'যোগ্যতা' : 'Eligibility'}
-          </a>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-            <button
-              onClick={() => setLanguage('en')}
-              style={{
-                padding: '12px 24px',
-                border: 'none',
-                borderRadius: '24px',
-                background: language === 'en' ? '#8B1A1A' : 'transparent',
-                color: language === 'en' ? 'white' : '#8B1A1A',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '16px'
-              }}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => setLanguage('bn')}
-              style={{
-                padding: '12px 24px',
-                border: 'none',
-                borderRadius: '24px',
-                background: language === 'bn' ? '#8B1A1A' : 'transparent',
-                color: language === 'bn' ? 'white' : '#8B1A1A',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontSize: '16px'
-              }}
-            >
-              বাংলা
-            </button>
-          </div>
-        </div>
-      )}
+      <Navbar 
+        language={language} 
+        setLanguage={setLanguage}
+        isLoggedIn={isLoggedIn}
+        userData={userData}
+        setIsLoggedIn={setIsLoggedIn}
+      />
 
       {/* Eligibility Section */}
       <section className="eligibility py-16 lg:py-24" style={{ paddingTop: '120px', background: '#faf5f0', minHeight: '100vh' }}>
@@ -413,7 +202,7 @@ export default function Eligibility() {
                     width: '100%',
                     backgroundColor: '#BE1528',
                     color: '#ffffff',
-                    padding: '12px 20px',
+                    padding: '14px 20px',
                     borderRadius: '10px',
                     border: 'none',
                     fontSize: '17px',
@@ -421,6 +210,7 @@ export default function Eligibility() {
                     cursor: 'pointer',
                     fontFamily: language === 'bn' ? "'Hind Siliguri', sans-serif" : "'DM Sans', sans-serif",
                     transition: 'filter 0.15s, transform 0.15s',
+                    minHeight: '52px',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.filter = 'brightness(0.88)';
@@ -441,9 +231,9 @@ export default function Eligibility() {
                 >
                   {isChecking ? (
                     <>
-                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}</span>
-                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
-                        <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <span style={{ color: '#ffffff', lineHeight: '1' }}>{language === 'bn' ? 'পরীক্ষা করছে...' : 'Checking...'}</span>
+                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s', flexShrink: 0 }}>
+                        <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -451,9 +241,9 @@ export default function Eligibility() {
                     </>
                   ) : (
                     <>
-                      <span style={{ color: '#ffffff' }}>{language === 'bn' ? 'যোগ্যতা যাচাই করুন' : 'Check Eligibility'}</span>
-                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <span style={{ color: '#ffffff', lineHeight: '1' }}>{language === 'bn' ? 'যোগ্যতা যাচাই করুন' : 'Check Eligibility'}</span>
+                      <div className="arrow-box" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s', flexShrink: 0 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
                           <path d="M5 12h14M13 6l6 6-6 6"/>
                         </svg>
                       </div>
@@ -645,13 +435,6 @@ export default function Eligibility() {
           
           button[type="submit"] svg {
             display: none;
-          }
-
-          .elig-nav-links {
-            display: none !important;
-          }
-          .elig-hamburger {
-            display: flex !important;
           }
         }
       `}</style>

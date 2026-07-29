@@ -147,7 +147,11 @@ export default function UsersPage() {
           ...data[key],
           isBanned: data[key].isBanned || false
         }));
-        setUsers(usersArray);
+        // Remove duplicates based on uid
+        const uniqueUsers = usersArray.filter((user, index, self) =>
+          index === self.findIndex((u) => u.uid === user.uid)
+        );
+        setUsers(uniqueUsers);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
