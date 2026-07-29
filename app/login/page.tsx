@@ -17,6 +17,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -94,8 +95,8 @@ export default function Login() {
     }
 
     try {
-      // Firebase Authentication
-      const userCredential = await loginUser(formData.email, formData.password);
+      // Firebase Authentication with remember me
+      const userCredential = await loginUser(formData.email, formData.password, rememberMe);
       
       console.log('Login successful:', userCredential);
       
@@ -232,8 +233,13 @@ export default function Login() {
 
               {/* Remember Me & Forgot Password */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3D2314' }}>
-                  <input type="checkbox" style={{ width: '16px', height: '16px' }} />
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3D2314', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
                   {t('remember')}
                 </label>
                 <Link href="/forgot-password" style={{ color: '#dc2626', textDecoration: 'none' }}>

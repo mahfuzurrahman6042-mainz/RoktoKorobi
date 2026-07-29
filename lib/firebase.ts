@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile, sendPasswordResetEmail, sendEmailVerification } from 'firebase/auth';
+import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile, sendPasswordResetEmail, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { getDatabase, Database, ref, set, get, update, onValue, push, remove } from 'firebase/database';
 import { getMessaging, Messaging } from 'firebase/messaging';
 
@@ -48,8 +48,16 @@ if (typeof window !== 'undefined') {
 }
 
 // Auth helper functions
-export const loginUser = async (email: string, password: string) => {
+export const loginUser = async (email: string, password: string, rememberMe: boolean = false) => {
   if (!auth) throw new Error('Auth not initialized');
+  
+  // Set persistence based on remember me checkbox
+  if (rememberMe) {
+    await setPersistence(auth, browserLocalPersistence); // Persistent across browser sessions
+  } else {
+    await setPersistence(auth, browserSessionPersistence); // Cleared when browser closes
+  }
+  
   return signInWithEmailAndPassword(auth, email, password);
 };
 
