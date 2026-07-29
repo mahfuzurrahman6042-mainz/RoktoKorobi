@@ -816,70 +816,6 @@ export default function Home() {
           50% { box-shadow: 0 4px 18px rgba(190, 21, 40, 0.5), 0 0 0 10px rgba(190, 21, 40, 0); }
         }
 
-        .fab-share {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          background: #ffffff;
-          border: none;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0;
-          color: #000000;
-          flex-shrink: 0;
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .fab-share:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .fab-share:active {
-          transform: translateY(0);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .fab-share svg {
-          width: 20px;
-          height: 20px;
-          display: block;
-        }
-
-        .fab-share-ring {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          border: 2px solid #ffffff;
-          opacity: 0.8;
-          pointer-events: none;
-          animation: fabSharePulse 0.6s ease-out forwards;
-        }
-
-        @keyframes fabSharePulse {
-          to {
-            transform: scale(1.8);
-            opacity: 0;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .fab-share {
-            width: 44px;
-            height: 44px;
-          }
-          
-          .fab-share svg {
-            width: 20px;
-            height: 20px;
-          }
-        }
 
         @media (max-width: 768px) {
           .hero-section,
@@ -1352,24 +1288,6 @@ export default function Home() {
           onClick={() => router.push('/request')}
         >
           <span>SOS</span>
-        </button>
-        <button
-          type="button"
-          className="fab-share"
-          aria-label="Share"
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({ title: 'RoktoKorobi', url: window.location.href });
-            } else {
-              navigator.clipboard.writeText(window.location.href);
-            }
-          }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3v13" />
-            <path d="M7 8l5-5 5 5" />
-            <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
-          </svg>
         </button>
       </div>
 
