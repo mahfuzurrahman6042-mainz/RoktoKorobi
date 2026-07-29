@@ -830,7 +830,6 @@ export default function Home() {
           padding: 0;
           color: #000000;
           flex-shrink: 0;
-          line-height: 0;
           transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
@@ -845,8 +844,8 @@ export default function Home() {
         }
 
         .fab-share svg {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
           display: block;
         }
 
