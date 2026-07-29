@@ -9,7 +9,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState('en');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [kebabOpen, setKebabOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [userData, setUserData] = useState({
     name: 'Mahfuzur Rahman',
@@ -129,37 +128,14 @@ export default function Dashboard() {
     checkAuth();
   }, [router]);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (kebabOpen) {
-        setKebabOpen(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [kebabOpen]);
-
   const toggleLanguage = () => {
     const newLang = language === 'en' ? 'bn' : 'en';
     setLanguage(newLang);
     localStorage.setItem('language', newLang);
   };
 
-  const handleLogout = async () => {
-    setKebabOpen(false);
-    if (!confirm(language === 'bn' ? 'আপনি কি লগআউট করতে চান?' : 'Are you sure you want to logout?')) {
-      return;
-    }
-    await logoutUser();
-    router.push('/login');
-  };
-
   const openSidebar = () => setSidebarOpen(true);
   const closeSidebar = () => setSidebarOpen(false);
-  const toggleKebab = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setKebabOpen(!kebabOpen);
-  };
 
   if (loading) {
     return (
@@ -334,66 +310,6 @@ export default function Dashboard() {
           flex-shrink: 0;
           position: relative;
         }
-
-        .user-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 8px 10px;
-          border-radius: 10px;
-          transition: background .14s;
-        }
-        .user-row:hover { background: var(--cream-dim); }
-        .user-avatar {
-          width: 34px; height: 34px; border-radius: 50%;
-          background: linear-gradient(145deg, var(--crimson) 0%, var(--crimson-deep) 100%);
-          color: #fff;
-          display: flex; align-items: center; justify-content: center;
-          font-weight: 700; font-size: 13px; flex-shrink: 0;
-        }
-        .user-info { flex: 1; min-width: 0; }
-        .user-name {
-          font-size: 13px; font-weight: 600; color: var(--ink);
-          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .user-badge { font-size: 11px; color: var(--ink-soft); }
-
-        .kebab-wrap { position: relative; flex-shrink: 0; }
-        .kebab-btn {
-          width: 26px; height: 26px;
-          border-radius: 7px; border: none;
-          background: transparent;
-          display: flex; align-items: center; justify-content: center;
-          color: var(--ink-soft); cursor: pointer;
-        }
-        .kebab-btn:hover { background: var(--line); color: var(--ink); }
-        .kebab-btn svg { width: 15px; height: 15px; }
-        .kebab-drop {
-          position: absolute;
-          bottom: calc(100% + 6px);
-          left: 0;
-          background: var(--white);
-          border: 0.5px solid var(--line);
-          border-radius: 10px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
-          padding: 6px;
-          min-width: 140px;
-          display: none;
-          z-index: 200;
-        }
-        .kebab-drop.open { display: block; }
-        .kebab-item {
-          display: flex; align-items: center; gap: 8px;
-          padding: 8px 10px; border-radius: 6px;
-          font-size: 14px; font-weight: 500;
-          color: #C31432; cursor: pointer;
-          transition: background .14s;
-          border: none; background: transparent;
-          width: 100%; font-family: inherit;
-          text-align: left;
-        }
-        .kebab-item:hover { background: var(--surface-1, #f5f5f5); }
-        .kebab-item svg { width: 16px; height: 16px; flex-shrink: 0; line-height: 1; }
 
         .main {
           flex: 1;
@@ -693,161 +609,6 @@ export default function Dashboard() {
           </div>
 
           <div className="sidebar-footer">
-            <div className="user-row" style={{ position: 'relative' }}>
-              <button
-                className="btn-profile"
-                onClick={toggleKebab}
-                aria-label="Profile menu"
-                aria-expanded={kebabOpen}
-                style={{
-                  height: '44px',
-                  padding: '0 6px',
-                  borderRadius: '999px',
-                  background: '#ffffff',
-                  border: '1px solid #e8dfd3',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  flexShrink: 0,
-                  transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
-                }}
-              >
-                <div
-                  className="btn-profile-avatar"
-                  style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #C31432, #8f0f24)',
-                    color: 'white',
-                    fontWeight: '500',
-                    fontSize: '13px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}
-                >
-                  {(userData.name || 'U').charAt(0).toUpperCase()}
-                </div>
-                <svg
-                  className="btn-profile-chevron"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{
-                    color: '#7a7268',
-                    marginRight: '6px',
-                    transition: 'transform 0.2s ease',
-                    transform: kebabOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-                  }}
-                >
-                  <path d="m6 9 6 6 6-6"/>
-                </svg>
-              </button>
-              {kebabOpen && (
-                <div
-                  className="profile-dropdown"
-                  style={{
-                    position: 'absolute',
-                    bottom: 'calc(100% + 8px)',
-                    left: 0,
-                    width: '220px',
-                    background: '#ffffff',
-                    border: '1px solid #e8dfd3',
-                    borderRadius: '12px',
-                    boxShadow: '0 8px 24px rgba(44, 38, 32, 0.12)',
-                    overflow: 'hidden',
-                    fontFamily: 'IBM Plex Sans, sans-serif',
-                    zIndex: 50
-                  }}
-                >
-                  <div
-                    className="profile-dropdown-header"
-                    style={{
-                      padding: '12px 16px',
-                      borderBottom: '1px solid #f0ece3',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px'
-                    }}
-                  >
-                    <div
-                      className="btn-profile-avatar"
-                      style={{
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #C31432, #8f0f24)',
-                        color: 'white',
-                        fontWeight: '500',
-                        fontSize: '13px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}
-                    >
-                      {(userData.name || 'U').charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="profile-dropdown-name" style={{ margin: 0, fontSize: '13px', fontWeight: 500, color: '#2c2620' }}>{userData.name || 'User'}</p>
-                      <p className="profile-dropdown-meta" style={{ margin: 0, fontSize: '11px', color: '#8f887c' }}>{userData.bloodGroup || 'O+'} Donor</p>
-                    </div>
-                  </div>
-
-                  <div className="profile-dropdown-group" style={{ padding: '6px 0' }}>
-                    <a href="/profile" className="profile-dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      My profile
-                    </a>
-                    <a href="/donations" className="profile-dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M12 2.69l5.74 5.88-5.74 5.88-5.74-5.88L12 2.69M12 21.31l-5.74-5.88 5.74-5.88 5.74 5.88-5.74 5.88"/></svg>
-                      Donation history
-                    </a>
-                    <a href="/notifications" className="profile-dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                      Notifications
-                    </a>
-                    <a href="/settings" className="profile-dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', fontSize: '13px', color: '#2c2620', textDecoration: 'none', transition: 'background 0.12s ease' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#8f887c', flexShrink: 0 }}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                      Settings
-                    </a>
-                  </div>
-
-                  <div className="profile-dropdown-group profile-dropdown-group-danger" style={{ borderTop: '1px solid #f0ece3', padding: '6px 0' }}>
-                    <button
-                      className="profile-dropdown-item profile-dropdown-logout"
-                      onClick={handleLogout}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '9px 16px',
-                        fontSize: '13px',
-                        color: '#C31432',
-                        textDecoration: 'none',
-                        transition: 'background 0.12s ease',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        width: '100%',
-                        textAlign: 'left'
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#C31432', flexShrink: 0 }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-                      Log out
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </aside>
 
