@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getUserData, logoutUser, isSuperAdmin } from '@/lib/firebase';
+import UserProfileMenu from '@/components/sidebar/UserProfileMenu';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [userData, setUserData] = useState({
     name: 'Mahfuzur Rahman',
+    email: '',
     bloodGroup: 'O+',
     donations: 0,
     fulfilledRequests: 0,
@@ -136,6 +138,14 @@ export default function Dashboard() {
 
   const openSidebar = () => setSidebarOpen(true);
   const closeSidebar = () => setSidebarOpen(false);
+
+  const handleLogout = async () => {
+    if (!confirm(language === 'bn' ? 'আপনি কি লগআউট করতে চান?' : 'Are you sure you want to logout?')) {
+      return;
+    }
+    await logoutUser();
+    router.push('/login');
+  };
 
   if (loading) {
     return (
@@ -309,6 +319,9 @@ export default function Dashboard() {
           padding: 10px 12px;
           flex-shrink: 0;
           position: relative;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
         }
 
         .main {
@@ -609,6 +622,11 @@ export default function Dashboard() {
           </div>
 
           <div className="sidebar-footer">
+            <UserProfileMenu
+              name={userData.name || 'User'}
+              initial={(userData.name || 'U').charAt(0).toUpperCase()}
+              onLogout={handleLogout}
+            />
           </div>
         </aside>
 
