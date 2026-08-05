@@ -84,56 +84,82 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
       });
       markersRef.current = [];
 
-      // Add donor markers
-      donors.forEach(donor => {
-      const donorIcon = L.divIcon({
-        html: `
-          <div style="
-            background: ${donor.available ? '#22c55e' : '#ef4444'};
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            white-space: nowrap;
-          ">
-            ${donor.bloodGroup}
-          </div>
-        `,
-        className: 'custom-div-icon',
-        iconSize: [60, 30],
-        iconAnchor: [30, 15],
+      // Group donors by location and count blood groups
+      const locationGroups = donors.reduce((acc, donor) => {
+        const location = donor.location || 'Unknown';
+        if (!acc[location]) {
+          acc[location] = {
+            location,
+            lat: donor.lat,
+            lng: donor.lng,
+            bloodGroups: {} as Record<string, number>,
+            totalDonors: 0,
+            availableDonors: 0
+          };
+        }
+        acc[location].bloodGroups[donor.bloodGroup] = (acc[location].bloodGroups[donor.bloodGroup] || 0) + 1;
+        acc[location].totalDonors++;
+        if (donor.available) acc[location].availableDonors++;
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Add location-based markers with blood group counts
+      Object.values(locationGroups).forEach((group: any) => {
+        const bloodGroupsList = Object.entries(group.bloodGroups)
+          .map(([bg, count]) => `${bg}: ${count}`)
+          .join(', ');
+
+        const locationIcon = L.divIcon({
+          html: `
+            <div style="
+              background: #dc2626;
+              color: white;
+              padding: 6px 12px;
+              border-radius: 16px;
+              font-size: 13px;
+              font-weight: bold;
+              border: 3px solid white;
+              box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+              white-space: nowrap;
+              cursor: pointer;
+            ">
+              🩸 ${group.availableDonors}/${group.totalDonors}
+            </div>
+          `,
+          className: 'custom-div-icon',
+          iconSize: [80, 35],
+          iconAnchor: [40, 17],
+        });
+
+        const marker = L.marker([group.lat, group.lng], { icon: locationIcon })
+          .addTo(mapInstanceRef.current)
+          .bindPopup(`
+            <div style="font-family: 'Inter', sans-serif; padding: 12px; min-width: 200px;">
+              <h4 style="margin: 0 0 10px 0; color: #111111; font-size: 16px; font-weight: 700;">
+                ${group.location}
+              </h4>
+              <p style="margin: 8px 0; color: #6b6b6b; font-size: 13px;">
+                <strong>মোট দাতা:</strong> ${group.totalDonors}
+              </p>
+              <p style="margin: 8px 0; color: #22c55e; font-size: 13px;">
+                <strong>উপলব্ধ:</strong> ${group.availableDonors}
+              </p>
+              <div style="margin: 12px 0; padding: 10px; background: #fef2f2; border-radius: 8px;">
+                <p style="margin: 0 0 8px 0; color: #dc2626; font-size: 13px; font-weight: 600;">
+                  রক্তের গ্রুপ বিবরণ:
+                </p>
+                ${Object.entries(group.bloodGroups).map(([bg, count]) => `
+                  <div style="display: flex; justify-content: space-between; margin: 4px 0; font-size: 12px; color: #333;">
+                    <span style="font-weight: 600; color: #dc2626;">${bg}</span>
+                    <span>${count} জন</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `);
+
+        markersRef.current.push(marker);
       });
-
-      const marker = L.marker([donor.lat, donor.lng], { icon: donorIcon })
-        .addTo(mapInstanceRef.current)
-        .bindPopup(`
-          <div style="font-family: 'Inter', sans-serif; padding: 8px;">
-            <h4 style="margin: 0 0 8px 0; color: #111111; font-size: 14px; font-weight: 600;">
-              ${donor.name}
-            </h4>
-            <p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">
-              <strong>গ্রুপ:</strong> ${donor.bloodGroup}
-            </p>
-            <p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">
-              <strong>অবস্থান:</strong> ${donor.location}
-            </p>
-            <p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">
-              <strong>ফোন:</strong> ${donor.phone}
-            </p>
-            <p style="margin: 4px 0; font-size: 12px;">
-              <strong>অবস্থা:</strong> 
-              <span style="color: ${donor.available ? '#22c55e' : '#ef4444'}; font-weight: 600;">
-                ${donor.available ? 'উপলব্ধ' : 'ব্যস্ত'}
-              </span>
-            </p>
-          </div>
-        `);
-
-      markersRef.current.push(marker);
-    });
 
     // Add hospital markers
     hospitals.forEach(hospital => {

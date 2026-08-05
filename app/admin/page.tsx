@@ -167,7 +167,7 @@ export default function AdminDashboard() {
     { key: 'user', label: 'Add a user', desc: 'Search users and assign roles', icon: UserPlus, page: 'users' },
     { key: 'hospital', label: 'Add a hospital', desc: 'Register a new partner facility', icon: Building2, page: 'hospitals' },
     { key: 'blog', label: 'Write a blog post', desc: 'Share news, guidance, or a donor story', icon: PenLine, page: 'blogs' },
-    { key: 'chitrokothon', label: 'Post Chitrokothon', desc: 'Share an illustrated story with a caption', icon: ImageIcon, page: 'testimonials' },
+    { key: 'chitrokothon', label: 'Post Chitrokothon', desc: 'Share an illustrated story with a caption', icon: ImageIcon, page: 'chitrokothon' },
     { key: 'requests', label: 'View requests', desc: 'Review incoming blood requests', icon: Eye, page: 'requests' },
   ];
 

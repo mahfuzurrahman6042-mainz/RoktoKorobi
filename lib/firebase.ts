@@ -2,6 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile, sendPasswordResetEmail, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { getDatabase, Database, ref, set, get, update, onValue, push, remove } from 'firebase/database';
 import { getMessaging, Messaging } from 'firebase/messaging';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,20 +18,37 @@ let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let database: Database | null = null;
 let messaging: Messaging | null = null;
+let storage: any = null;
 
 // Initialize Firebase
 const initializeFirebase = () => {
   try {
+    console.log('Firebase config check:', {
+      hasApiKey: !!firebaseConfig.apiKey,
+      hasProjectId: !!firebaseConfig.projectId,
+      hasAuthDomain: !!firebaseConfig.authDomain,
+      apiKey: firebaseConfig.apiKey?.substring(0, 10) + '...',
+      projectId: firebaseConfig.projectId
+    });
+
     // Check if Firebase is properly configured
     if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
       console.error('Firebase not configured - missing API key or project ID');
       return;
     }
-    
+
     app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
     auth = getAuth(app);
     database = getDatabase(app);
-    
+    storage = getStorage(app);
+
+    console.log('Firebase initialized successfully:', {
+      hasApp: !!app,
+      hasAuth: !!auth,
+      hasDatabase: !!database,
+      hasStorage: !!storage
+    });
+
     if ('serviceWorker' in navigator) {
       try {
         messaging = getMessaging(app);
@@ -49,16 +67,43 @@ if (typeof window !== 'undefined') {
 
 // Auth helper functions
 export const loginUser = async (email: string, password: string, rememberMe: boolean = false) => {
-  if (!auth) throw new Error('Auth not initialized');
-  
-  // Set persistence based on remember me checkbox
-  if (rememberMe) {
-    await setPersistence(auth, browserLocalPersistence); // Persistent across browser sessions
-  } else {
-    await setPersistence(auth, browserSessionPersistence); // Cleared when browser closes
+  if (!auth) {
+    console.error('Auth not initialized');
+    throw new Error('Auth not initialized');
   }
-  
-  return signInWithEmailAndPassword(auth, email, password);
+
+  console.log('Attempting login:', {
+    email,
+    hasPassword: !!password,
+    passwordLength: password.length,
+    rememberMe
+  });
+
+  try {
+    // Set persistence based on remember me checkbox
+    if (rememberMe) {
+      await setPersistence(auth, browserLocalPersistence); // Persistent across browser sessions
+      console.log('Set persistence to browserLocalPersistence');
+    } else {
+      await setPersistence(auth, browserSessionPersistence); // Cleared when browser closes
+      console.log('Set persistence to browserSessionPersistence');
+    }
+
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    console.log('Login successful:', {
+      uid: result.user.uid,
+      email: result.user.email,
+      emailVerified: result.user.emailVerified
+    });
+    return result;
+  } catch (error: any) {
+    console.error('Login error details:', {
+      code: error.code,
+      message: error.message,
+      customData: error.customData
+    });
+    throw error;
+  }
 };
 
 export const registerUser = async (email: string, password: string) => {
@@ -652,6 +697,24 @@ export const getAllRoles = async () => {
   
   const data = snapshot.val();
   return Object.keys(data).map(key => ({ id: key, ...data[key] }));
+};
+
+// Storage helper functions
+export const uploadImage = async (file: File, path: string) => {
+  if (!storage) throw new Error('Storage not initialized');
+  
+  const imageRef = storageRef(storage, path);
+  const snapshot = await uploadBytes(imageRef, file);
+  const downloadURL = await getDownloadURL(snapshot.ref);
+  
+  return downloadURL;
+};
+
+export const deleteImage = async (path: string) => {
+  if (!storage) throw new Error('Storage not initialized');
+  
+  const imageRef = storageRef(storage, path);
+  await deleteObject(imageRef);
 };
 
 export { app, auth, database, messaging, updateProfile, ref, set, get, update, onValue, push, remove };
