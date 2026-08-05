@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SocialShare from '@/components/SocialShare';
 import CalendarIntegration from '@/components/CalendarIntegration';
+import MessagingChat from '@/components/MessagingChat';
 import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import { getCurrentUser } from '@/lib/firebase';
@@ -41,6 +42,9 @@ export default function BloodRequest() {
     fulfilledRequests: 0,
     totalDonations: 0
   });
+  const [chatOpen, setChatOpen] = useState(false);
+  const [activeRequest, setActiveRequest] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const formRef = useRef(null);
 
   const handleFilter = (filterType: string) => {
@@ -74,6 +78,11 @@ export default function BloodRequest() {
     window.open(`tel:${phone}`, '_blank');
   };
 
+  const handleOpenChat = (request: any) => {
+    setActiveRequest(request);
+    setChatOpen(true);
+  };
+
   const handleDeleteRequest = async (requestId: string) => {
     if (window.confirm(language === 'bn' ? 'আপনি কি এই অনুরোধটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this request?')) {
       try {
@@ -100,6 +109,13 @@ export default function BloodRequest() {
     setLanguage(savedLang);
     setTimeout(() => setHeroVis(true), 80);
     setTimeout(() => setFormVis(true), 300);
+
+    // Fetch current user
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+    };
+    fetchUser();
     
     // Fetch blood requests from Realtime Database
     if (database) {
@@ -772,6 +788,22 @@ export default function BloodRequest() {
                   )}
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                     <button
+                      onClick={() => handleOpenChat(request)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 8,
+                        border: '1.5px solid #dc2626',
+                        background: '#fff',
+                        color: '#dc2626',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {language === 'bn' ? 'বার্তা' : 'Message'}
+                    </button>
+                    <button
                       onClick={() => handleContact(request)}
                       style={{
                         padding: '8px 16px',
@@ -828,6 +860,17 @@ export default function BloodRequest() {
           )}
         </div>
       </div>
+
+      {/* Messaging Chat */}
+      {activeRequest && (
+        <MessagingChat
+          requestId={activeRequest.id}
+          receiverId={activeRequest.userId || 'requester'}
+          receiverName={activeRequest.patientName}
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
     </div>
   );
 }

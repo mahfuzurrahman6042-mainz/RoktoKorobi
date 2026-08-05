@@ -717,4 +717,84 @@ export const deleteImage = async (path: string) => {
   await deleteObject(imageRef);
 };
 
+// Messaging helper functions
+export const sendMessage = async (senderId: string, receiverId: string, requestId: string, content: string) => {
+  if (!database) throw new Error('Database not initialized');
+  
+  const messagesRef = ref(database, `messages/${requestId}`);
+  const newMessageRef = push(messagesRef);
+  
+  await set(newMessageRef, {
+    senderId,
+    receiverId,
+    requestId,
+    content,
+    timestamp: new Date().toISOString(),
+    read: false
+  });
+  
+  return newMessageRef.key;
+};
+
+export const getMessages = (requestId: string, callback: (messages: any[]) => void) => {
+  if (!database) throw new Error('Database not initialized');
+  
+  const messagesRef = ref(database, `messages/${requestId}`);
+  
+  return onValue(messagesRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const messages = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+      callback(messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()));
+    } else {
+      callback([]);
+    }
+  });
+};
+
+export const markMessageAsRead = async (messageId: string, requestId: string) => {
+  if (!database) throw new Error('Database not initialized');
+  
+  const messageRef = ref(database, `messages/${requestId}/${messageId}`);
+  await update(messageRef, { read: true });
+};
+
+export const getConversationList = (userId: string, callback: (conversations: any[]) => void) => {
+  if (!database) throw new Error('Database not initialized');
+  
+  const messagesRef = ref(database, 'messages');
+  
+  return onValue(messagesRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const conversations: any[] = [];
+      
+      Object.keys(data).forEach(requestId => {
+        const requestMessages = Object.values(data[requestId]) as any[];
+        const userMessages = requestMessages.filter((msg: any) => 
+          msg.senderId === userId || msg.receiverId === userId
+        );
+        
+        if (userMessages.length > 0) {
+          const lastMessage = userMessages[userMessages.length - 1];
+          const otherUserId = lastMessage.senderId === userId ? lastMessage.receiverId : lastMessage.senderId;
+          const unreadCount = userMessages.filter((msg: any) => msg.receiverId === userId && !msg.read).length;
+          
+          conversations.push({
+            requestId,
+            otherUserId,
+            lastMessage,
+            unreadCount,
+            timestamp: lastMessage.timestamp
+          });
+        }
+      });
+      
+      callback(conversations.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+    } else {
+      callback([]);
+    }
+  });
+};
+
 export { app, auth, database, messaging, updateProfile, ref, set, get, update, onValue, push, remove };
