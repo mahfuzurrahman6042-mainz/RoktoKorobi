@@ -6,6 +6,7 @@ import Link from "next/link";
 import SocialShare from '@/components/SocialShare';
 import CalendarIntegration from '@/components/CalendarIntegration';
 import MessagingChat from '@/components/MessagingChat';
+import LoginRequiredModal from '@/components/LoginRequiredModal';
 import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import { getCurrentUser } from '@/lib/firebase';
@@ -45,6 +46,7 @@ export default function BloodRequest() {
   const [chatOpen, setChatOpen] = useState(false);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const formRef = useRef(null);
 
   const handleFilter = (filterType: string) => {
@@ -241,6 +243,12 @@ export default function BloodRequest() {
     if (!blood) return;
     
     if (!validateForm()) {
+      return;
+    }
+
+    // Check if user is logged in
+    if (!currentUser) {
+      setShowLoginModal(true);
       return;
     }
     
@@ -871,6 +879,13 @@ export default function BloodRequest() {
           onClose={() => setChatOpen(false)}
         />
       )}
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="request blood"
+      />
     </div>
   );
 }

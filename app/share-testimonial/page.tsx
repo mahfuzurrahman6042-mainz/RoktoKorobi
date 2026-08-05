@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import LoginRequiredModal from '@/components/LoginRequiredModal';
 import { ref, set, push } from 'firebase/database';
 import { database, auth } from '@/lib/firebase';
 
@@ -24,6 +25,7 @@ export default function ShareTestimonial() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [rating, setRating] = useState(5);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -81,12 +83,7 @@ export default function ShareTestimonial() {
     }
 
     if (!currentUser) {
-      setErrors({
-        submit: language === 'bn' ? 'দয়া করে প্রথমে লগ ইন করুন' : 'Please log in first'
-      });
-      setTimeout(() => {
-        router.push('/login');
-      }, 1500);
+      setShowLoginModal(true);
       return;
     }
 
@@ -443,6 +440,13 @@ export default function ShareTestimonial() {
           </>
         )}
       </div>
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="share a testimonial"
+      />
     </div>
   );
 }
