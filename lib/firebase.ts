@@ -163,11 +163,21 @@ export const updateUserData = async (userId: string, data: any) => {
 
 export const listAllDonors = async () => {
   if (!database) throw new Error('Database not initialized');
-  const donorsRef = ref(database, 'donors');
-  const snapshot = await get(donorsRef);
+  const usersRef = ref(database, 'users');
+  const snapshot = await get(usersRef);
   if (!snapshot.exists()) return [];
   const data = snapshot.val();
-  return Object.keys(data).map(key => ({ id: key, ...data[key] }));
+  // Filter only users who are donors
+  return Object.keys(data)
+    .filter(key => data[key].isDonor === true)
+    .map(key => ({ 
+      id: key, 
+      uid: key,
+      ...data[key],
+      lat: data[key].lat || 23.6850, // Default to Dhaka if no coordinates
+      lng: data[key].lng || 90.3563,
+      available: data[key].availability !== false
+    }));
 };
 
 export const listAllHospitals = async () => {

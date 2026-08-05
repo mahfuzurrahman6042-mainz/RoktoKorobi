@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals, getUserData, getCurrentUser, onAuthStateChange, logoutUser } from "@/lib/firebase";
+import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser } from "@/lib/firebase";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -143,6 +143,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
   const [hospitals, setHospitals] = useState<any[]>([]);
+  const [donors, setDonors] = useState<any[]>([]);
+  const [stats, setStats] = useState({ donorCount: 0, districtsCovered: 0 });
   const [userData, setUserData] = useState<{ name: string; bloodGroup: string } | null>(null);
 
   // Mock donor data with Bangladesh locations - removed, using Firebase instead
@@ -179,7 +181,38 @@ export default function Home() {
       }
     };
 
+    // Fetch donors from Firebase
+    const fetchDonors = async () => {
+      try {
+        const donorsData = await listAllDonors();
+        setDonors(donorsData);
+        
+        // Calculate stats
+        const donorCount = donorsData.length;
+        const uniqueDistricts = new Set(donorsData.map((d: any) => d.district).filter(Boolean));
+        const districtsCovered = uniqueDistricts.size;
+        
+        setStats({ donorCount, districtsCovered });
+        
+        // Update SECTION_DATA with real stats
+        SECTION_DATA.testimonials.en.stats = [
+          { n: donorCount.toString(), l: 'Donors' },
+          { n: '0', l: 'Lives Saved' },
+          { n: '0', l: 'Stories' },
+        ];
+        SECTION_DATA.testimonials.bn.stats = [
+          { n: donorCount.toString(), l: 'দাতা' },
+          { n: '0', l: 'জীবন বাঁচানো হয়েছে' },
+          { n: '0', l: 'গল্প' },
+        ];
+      } catch (error) {
+        console.log('Error fetching donors:', error);
+        setDonors([]);
+      }
+    };
+
     fetchHospitals();
+    fetchDonors();
 
     return () => unsubscribe();
   }, []);
@@ -1856,7 +1889,7 @@ export default function Home() {
                 <BangladeshMap
                   center={{ lat: 23.6850, lng: 90.3563 }}
                   zoom={7}
-                  donors={[]}
+                  donors={donors}
                   hospitals={hospitals.length > 0 ? hospitals : []}
                 />
               </MapErrorBoundary>
