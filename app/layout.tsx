@@ -1,5 +1,6 @@
 import './globals.css';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from '@vercel/analytics/next';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { HtmlLang } from '@/components/HtmlLang';
 
@@ -37,6 +38,7 @@ export default function RootLayout({
       {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
       )}
+      <Analytics />
     </html>
   );
 }
