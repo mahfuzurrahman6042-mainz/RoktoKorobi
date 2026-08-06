@@ -225,9 +225,29 @@ export const listAllDonors = async () => {
   const snapshot = await get(usersRef);
   if (!snapshot.exists()) return [];
   const data = snapshot.val();
-  // Filter only users who are donors
+  
+  // Calculate 60-day cooldown threshold
+  const cooldownDays = 60;
+  const cooldownThreshold = new Date();
+  cooldownThreshold.setDate(cooldownThreshold.getDate() - cooldownDays);
+  
+  // Filter only users who are donors and not in 60-day cooldown
   return Object.keys(data)
-    .filter(key => data[key].isDonor === true)
+    .filter(key => {
+      const donor = data[key];
+      if (donor.isDonor !== true) return false;
+      
+      // Check if donor is in 60-day cooldown period
+      if (donor.lastDonationDate) {
+        const lastDonation = new Date(donor.lastDonationDate);
+        if (lastDonation > cooldownThreshold) {
+          // Donor is in cooldown period
+          return false;
+        }
+      }
+      
+      return true;
+    })
     .map((key, index) => { 
       const donor = data[key];
       const district = donor.district || 'Dhaka';
@@ -254,6 +274,20 @@ export const listAllHospitals = async () => {
   if (!snapshot.exists()) return [];
   const data = snapshot.val();
   return Object.keys(data).map(key => ({ id: key, ...data[key] }));
+};
+
+// Record donation date for a donor (starts 60-day cooldown)
+export const recordDonation = async (userId: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  const snapshot = await get(userRef);
+  const currentData = snapshot.exists() ? snapshot.val() : {};
+  const currentDonations = currentData.donations || 0;
+  
+  await update(userRef, {
+    lastDonationDate: new Date().toISOString(),
+    donations: currentDonations + 1
+  });
 };
 
 // Super Admin functions

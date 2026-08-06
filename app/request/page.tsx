@@ -9,7 +9,7 @@ import MessagingChat from '@/components/MessagingChat';
 import LoginRequiredModal from '@/components/LoginRequiredModal';
 import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import { getCurrentUser } from '@/lib/firebase';
+import { getCurrentUser, recordDonation } from '@/lib/firebase';
 
 const bloodGroups = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
 const urgencyColors = ["#22c55e", "#f59e0b", "#ef4444", "#A32D2D"];
@@ -62,6 +62,15 @@ export default function BloodRequest() {
       
       const requestRef = ref(database, `bloodRequests/${requestId}`);
       await update(requestRef, { fulfilled: true, status: 'fulfilled' });
+      
+      // Record donation for current user if they're a donor
+      if (currentUser) {
+        try {
+          await recordDonation(currentUser.uid);
+        } catch (error) {
+          console.error('Error recording donation:', error);
+        }
+      }
       
       // Update local stats immediately
       setStats(prev => ({
