@@ -145,6 +145,7 @@ export default function Home() {
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [donors, setDonors] = useState<any[]>([]);
   const [stats, setStats] = useState({ donorCount: 0, districtsCovered: 0 });
+  const [testimonialStats, setTestimonialStats] = useState({ en: [{ n: '1', l: 'Donors' }, { n: '0', l: 'Lives Saved' }, { n: '0', l: 'Stories' }], bn: [{ n: '1', l: 'দাতা' }, { n: '0', l: 'জীবন বাঁচানো হয়েছে' }, { n: '0', l: 'গল্প' }] });
   const [userData, setUserData] = useState<{ name: string; bloodGroup: string } | null>(null);
 
   // Mock donor data with Bangladesh locations - removed, using Firebase instead
@@ -194,17 +195,19 @@ export default function Home() {
         
         setStats({ donorCount, districtsCovered });
         
-        // Update SECTION_DATA with real stats
-        SECTION_DATA.testimonials.en.stats = [
-          { n: donorCount.toString(), l: 'Donors' },
-          { n: '0', l: 'Lives Saved' },
-          { n: '0', l: 'Stories' },
-        ];
-        SECTION_DATA.testimonials.bn.stats = [
-          { n: donorCount.toString(), l: 'দাতা' },
-          { n: '0', l: 'জীবন বাঁচানো হয়েছে' },
-          { n: '0', l: 'গল্প' },
-        ];
+        // Update testimonial stats state
+        setTestimonialStats({
+          en: [
+            { n: donorCount.toString(), l: 'Donors' },
+            { n: '0', l: 'Lives Saved' },
+            { n: '0', l: 'Stories' },
+          ],
+          bn: [
+            { n: donorCount.toString(), l: 'দাতা' },
+            { n: '0', l: 'জীবন বাঁচানো হয়েছে' },
+            { n: '0', l: 'গল্প' },
+          ]
+        });
       } catch (error) {
         console.log('Error fetching donors:', error);
         setDonors([]);
@@ -287,13 +290,12 @@ export default function Home() {
 
     setLoading(true);
     try {
-      // Simulate search delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Filter donors based on blood type and location
-      const filteredDonors = mockDonors.filter(donor => {
+      const filteredDonors = donors.filter(donor => {
         const bloodMatch = selectedBloodType === 'all' || donor.bloodGroup === selectedBloodType;
-        const locationMatch = !selectedDistrict || donor.location.toLowerCase().includes(selectedDistrict.toLowerCase());
+        const locationMatch = !selectedDistrict || 
+          donor.district?.toLowerCase() === selectedDistrict.toLowerCase() ||
+          donor.location?.toLowerCase().includes(selectedDistrict.toLowerCase());
         return bloodMatch && locationMatch;
       });
       
@@ -2009,7 +2011,7 @@ export default function Home() {
       <div className="divider h-px bg-gradient-to-r from-transparent via-[#d4a898] to-transparent mx-4 sm:mx-6 lg:mx-12"></div>
 
       {/* Testimonials Section */}
-      <TestimonialsSection data={SECTION_DATA.testimonials[language]} onSeeAll={() => router.push('/testimonials')} />
+      <TestimonialsSection data={{ ...SECTION_DATA.testimonials[language], stats: testimonialStats[language] }} onSeeAll={() => router.push('/testimonials')} />
 
       {/* Footer Section */}
       <footer className="footer bg-gray-900 text-white py-12 lg:py-16">
