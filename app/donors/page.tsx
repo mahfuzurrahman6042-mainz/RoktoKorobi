@@ -270,18 +270,23 @@ export default function DonorsPage() {
     const loadDonors = async () => {
       try {
         const donorsData = await listAllDonors();
+        console.log('Loaded donors:', donorsData.length, donorsData);
         if (donorsData && donorsData.length > 0) {
           const donorsArray = donorsData.map((doc: any) => ({
             id: doc.id,
+            uid: doc.uid,
             name: doc.name || 'Unknown',
             nameEn: doc.name || 'Unknown',
             blood: doc.bloodGroup || 'Unknown',
+            bloodGroup: doc.bloodGroup || 'Unknown',
             district: doc.district || 'Unknown',
             districtBn: doc.district || 'Unknown',
             lat: doc.lat || 23.8103,
             lng: doc.lng || 90.4125,
             lastDonated: doc.lastDonation || 'Unknown',
-            lastDonatedEn: doc.lastDonation || 'Unknown'
+            lastDonatedEn: doc.lastDonation || 'Unknown',
+            available: doc.available !== false,
+            location: doc.location || doc.district || 'Unknown'
           }));
           setDonors(donorsArray);
           setFilteredDonors(donorsArray);
@@ -331,10 +336,14 @@ export default function DonorsPage() {
     setLoading(true);
     setTimeout(() => {
       const filtered = donors.filter(donor => {
-        const matchesBlood = !selectedBloodGroup || donor.blood === selectedBloodGroup;
-        const matchesDistrict = !selectedDistrict || donor.district === selectedDistrict;
+        const matchesBlood = !selectedBloodGroup || donor.blood === selectedBloodGroup || donor.bloodGroup === selectedBloodGroup;
+        const matchesDistrict = !selectedDistrict || 
+          donor.district === selectedDistrict || 
+          donor.district?.toLowerCase() === selectedDistrict?.toLowerCase() ||
+          donor.location?.toLowerCase().includes(selectedDistrict?.toLowerCase());
         return matchesBlood && matchesDistrict;
       });
+      console.log('Filter results:', { selectedBloodGroup, selectedDistrict, totalDonors: donors.length, filteredCount: filtered.length });
       setFilteredDonors(filtered.length > 0 ? filtered : []);
       setLoading(false);
     }, 600);
@@ -1050,13 +1059,15 @@ export default function DonorsPage() {
               zoom={7}
               donors={filteredDonors.map(donor => ({
                 id: donor.id,
+                uid: donor.uid,
                 name: language === 'bn' ? donor.name : donor.nameEn,
-                bloodGroup: donor.blood,
-                location: language === 'bn' ? donor.districtBn : donor.district,
+                bloodGroup: donor.bloodGroup || donor.blood,
+                location: donor.location || (language === 'bn' ? donor.districtBn : donor.district),
+                district: donor.district,
                 lat: donor.lat,
                 lng: donor.lng,
-                available: true,
-                phone: '+8801234567890'
+                available: donor.available !== false,
+                phone: donor.phone || '+8801234567890'
               }))}
               hospitals={hospitals}
             />
