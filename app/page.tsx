@@ -1891,7 +1891,7 @@ export default function Home() {
                 <BangladeshMap
                   center={{ lat: 23.6850, lng: 90.3563 }}
                   zoom={7}
-                  donors={donors}
+                  donors={searchResults.length > 0 ? searchResults : donors}
                   hospitals={hospitals.length > 0 ? hospitals : []}
                 />
               </MapErrorBoundary>

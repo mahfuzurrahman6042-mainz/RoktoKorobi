@@ -161,6 +161,64 @@ export const updateUserData = async (userId: string, data: any) => {
   });
 };
 
+// District coordinates for Bangladesh
+const districtCoordinates: Record<string, { lat: number; lng: number }> = {
+  'Dhaka': { lat: 23.8103, lng: 90.4125 },
+  'Faridpur': { lat: 23.6064, lng: 89.8407 },
+  'Gazipur': { lat: 24.0023, lng: 90.4206 },
+  'Gopalganj': { lat: 23.0112, lng: 89.8828 },
+  'Kishoreganj': { lat: 24.4354, lng: 90.7773 },
+  'Madaripur': { lat: 23.1626, lng: 90.1896 },
+  'Manikganj': { lat: 23.8622, lng: 89.9343 },
+  'Munshiganj': { lat: 23.5436, lng: 90.5345 },
+  'Narayanganj': { lat: 23.6238, lng: 90.4982 },
+  'Narsingdi': { lat: 23.9316, lng: 90.7160 },
+  'Rajbari': { lat: 23.7553, lng: 89.6458 },
+  'Shariatpur': { lat: 23.3456, lng: 90.3521 },
+  'Tangail': { lat: 24.2514, lng: 89.9161 },
+  'Bogra': { lat: 24.8460, lng: 89.3717 },
+  'Dinajpur': { lat: 25.6287, lng: 88.6376 },
+  'Gaibandha': { lat: 25.3245, lng: 89.5356 },
+  'Jaipurhat': { lat: 25.1040, lng: 89.1315 },
+  'Kurigram': { lat: 25.8055, lng: 89.6399 },
+  'Lalmonirhat': { lat: 25.9153, lng: 89.4470 },
+  'Naogaon': { lat: 24.9630, lng: 88.9466 },
+  'Natore': { lat: 24.4064, lng: 88.9856 },
+  'Nawabganj': { lat: 24.5988, lng: 88.2735 },
+  'Pabna': { lat: 23.9980, lng: 89.2365 },
+  'Rajshahi': { lat: 24.3636, lng: 88.6241 },
+  'Sirajganj': { lat: 24.4534, lng: 89.7000 },
+  'Thakurgaon': { lat: 26.0327, lng: 88.4623 },
+  'Barguna': { lat: 22.1595, lng: 90.1659 },
+  'Barisal': { lat: 22.7010, lng: 90.3531 },
+  'Bhola': { lat: 22.6859, lng: 90.6476 },
+  'Jhalokati': { lat: 22.6424, lng: 90.1788 },
+  'Patuakhali': { lat: 22.3594, lng: 90.3275 },
+  'Pirojpur': { lat: 22.5733, lng: 89.9978 },
+  'Bandarban': { lat: 22.1984, lng: 92.2180 },
+  'Brahmanbaria': { lat: 24.0636, lng: 91.1128 },
+  'Chandpur': { lat: 23.2366, lng: 90.6677 },
+  'Chittagong': { lat: 22.3569, lng: 91.7832 },
+  "Cox'sBazar": { lat: 21.4272, lng: 92.0058 },
+  'Feni': { lat: 23.0152, lng: 91.3986 },
+  'Khagrachari': { lat: 23.1196, lng: 91.9845 },
+  'Lakshmipur': { lat: 22.9455, lng: 90.8133 },
+  'Noakhali': { lat: 22.8690, lng: 91.0997 },
+  'Rangamati': { lat: 22.6354, lng: 92.1785 },
+  'Sunamganj': { lat: 24.9267, lng: 91.3918 },
+  'Sylhet': { lat: 24.9037, lng: 91.8606 },
+  'Bagerhat': { lat: 22.6515, lng: 89.7859 },
+  'Chuadanga': { lat: 23.6411, lng: 89.0669 },
+  'Jessore': { lat: 23.1666, lng: 89.2081 },
+  'Jhenaidah': { lat: 23.5448, lng: 89.1535 },
+  'Khulna': { lat: 22.8456, lng: 89.5403 },
+  'Kushtia': { lat: 23.9010, lng: 89.1200 },
+  'Magura': { lat: 23.4786, lng: 89.4170 },
+  'Meherpur': { lat: 23.7624, lng: 88.6318 },
+  'Narail': { lat: 23.1723, lng: 89.4988 },
+  'Satkhira': { lat: 22.7188, lng: 89.0745 }
+};
+
 export const listAllDonors = async () => {
   if (!database) throw new Error('Database not initialized');
   const usersRef = ref(database, 'users');
@@ -170,14 +228,23 @@ export const listAllDonors = async () => {
   // Filter only users who are donors
   return Object.keys(data)
     .filter(key => data[key].isDonor === true)
-    .map(key => ({ 
-      id: key, 
-      uid: key,
-      ...data[key],
-      lat: data[key].lat || 23.6850, // Default to Dhaka if no coordinates
-      lng: data[key].lng || 90.3563,
-      available: data[key].availability !== false
-    }));
+    .map((key, index) => { 
+      const donor = data[key];
+      const district = donor.district || 'Dhaka';
+      const coords = districtCoordinates[district] || { lat: 23.6850, lng: 90.3563 };
+      
+      // Add slight offset to prevent marker overlap for same district
+      const offset = index * 0.01;
+      
+      return { 
+        id: key, 
+        uid: key,
+        ...donor,
+        lat: donor.lat || coords.lat + offset,
+        lng: donor.lng || coords.lng + offset,
+        available: donor.availability !== false
+      };
+    });
 };
 
 export const listAllHospitals = async () => {
