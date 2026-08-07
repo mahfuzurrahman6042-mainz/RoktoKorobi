@@ -276,6 +276,28 @@ export const listAllHospitals = async () => {
   return Object.keys(data).map(key => ({ id: key, ...data[key] }));
 };
 
+// Get blood requests statistics
+export const getBloodRequestsStats = async () => {
+  if (!database) throw new Error('Database not initialized');
+  const requestsRef = ref(database, 'bloodRequests');
+  const snapshot = await get(requestsRef);
+  if (!snapshot.exists()) return { total: 0, fulfilled: 0 };
+  const data = snapshot.val();
+  const requests = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+  const fulfilled = requests.filter(req => req.fulfilled === true).length;
+  return { total: requests.length, fulfilled };
+};
+
+// Get partner organizations count
+export const getPartnerOrganizationsCount = async () => {
+  if (!database) throw new Error('Database not initialized');
+  const orgsRef = ref(database, 'organizations');
+  const snapshot = await get(orgsRef);
+  if (!snapshot.exists()) return 0;
+  const data = snapshot.val();
+  return Object.keys(data).length;
+};
+
 // Record donation date for a donor (starts 60-day cooldown)
 export const recordDonation = async (userId: string) => {
   if (!database) throw new Error('Database not initialized');

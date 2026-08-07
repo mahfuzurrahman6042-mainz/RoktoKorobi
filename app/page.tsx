@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser } from "@/lib/firebase";
+import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, getBloodRequestsStats, getPartnerOrganizationsCount } from "@/lib/firebase";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -144,7 +144,7 @@ export default function Home() {
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [donors, setDonors] = useState<any[]>([]);
-  const [stats, setStats] = useState({ donorCount: 0, districtsCovered: 0 });
+  const [stats, setStats] = useState({ donorCount: 0, districtsCovered: 0, requestsFulfilled: 0, partnerOrgs: 0, stories: 0 });
   const [testimonialStats, setTestimonialStats] = useState({ en: [{ n: '1', l: 'Donors' }, { n: '0', l: 'Lives Saved' }, { n: '0', l: 'Stories' }], bn: [{ n: '1', l: 'দাতা' }, { n: '0', l: 'জীবন বাঁচানো হয়েছে' }, { n: '0', l: 'গল্প' }] });
   const [userData, setUserData] = useState<{ name: string; bloodGroup: string } | null>(null);
 
@@ -193,19 +193,31 @@ export default function Home() {
         const uniqueDistricts = new Set(donorsData.map((d: any) => d.district).filter(Boolean));
         const districtsCovered = uniqueDistricts.size;
         
-        setStats({ donorCount, districtsCovered });
+        // Fetch blood requests stats
+        const requestsStats = await getBloodRequestsStats();
+        
+        // Fetch partner organizations count
+        const partnerOrgsCount = await getPartnerOrganizationsCount();
+        
+        setStats({ 
+          donorCount, 
+          districtsCovered, 
+          requestsFulfilled: requestsStats.fulfilled, 
+          partnerOrgs: partnerOrgsCount,
+          stories: 0 // Will be updated when testimonials are fetched
+        });
         
         // Update testimonial stats state
         setTestimonialStats({
           en: [
             { n: donorCount.toString(), l: 'Donors' },
-            { n: '0', l: 'Lives Saved' },
-            { n: '0', l: 'Stories' },
+            { n: requestsStats.fulfilled.toString(), l: 'Lives Saved' },
+            { n: partnerOrgsCount.toString(), l: 'Partner Organisations' },
           ],
           bn: [
             { n: donorCount.toString(), l: 'দাতা' },
-            { n: '0', l: 'জীবন বাঁচানো হয়েছে' },
-            { n: '0', l: 'গল্প' },
+            { n: requestsStats.fulfilled.toString(), l: 'জীবন বাঁচানো হয়েছে' },
+            { n: partnerOrgsCount.toString(), l: 'অংশীদার সংস্থা' },
           ]
         });
       } catch (error) {
