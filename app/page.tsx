@@ -185,11 +185,13 @@ export default function Home() {
     // Fetch donors from Firebase
     const fetchDonors = async () => {
       try {
+        console.log('Starting to fetch donors...');
         const donorsData = await listAllDonors();
         setDonors(donorsData);
         
         // Get total donor count (including those in cooldown)
         const totalDonorCount = await getTotalDonorCount();
+        console.log('Total donor count from Firebase:', totalDonorCount);
         
         // Calculate stats from available donors
         const uniqueDistricts = new Set(donorsData.map((d: any) => d.district).filter(Boolean));
@@ -197,20 +199,25 @@ export default function Home() {
         
         // Fetch blood requests stats
         const requestsStats = await getBloodRequestsStats();
+        console.log('Blood requests stats:', requestsStats);
         
         // Fetch partner organizations count
         const partnerOrgsCount = await getPartnerOrganizationsCount();
+        console.log('Partner organizations count:', partnerOrgsCount);
         
-        setStats({ 
+        const finalStats = { 
           donorCount: totalDonorCount, 
           districtsCovered, 
           requestsFulfilled: requestsStats.fulfilled, 
           partnerOrgs: partnerOrgsCount,
           stories: 0 // Will be updated when testimonials are fetched
-        });
+        };
+        
+        console.log('Final stats to set:', finalStats);
+        setStats(finalStats);
         
         // Update testimonial stats state with total donor count
-        setTestimonialStats({
+        const finalTestimonialStats = {
           en: [
             { n: totalDonorCount.toString(), l: 'Donors' },
             { n: requestsStats.fulfilled.toString(), l: 'Lives Saved' },
@@ -221,7 +228,10 @@ export default function Home() {
             { n: requestsStats.fulfilled.toString(), l: 'জীবন বাঁচানো হয়েছে' },
             { n: partnerOrgsCount.toString(), l: 'অংশীদার সংস্থা' },
           ]
-        });
+        };
+        
+        console.log('Final testimonial stats:', finalTestimonialStats);
+        setTestimonialStats(finalTestimonialStats);
       } catch (error) {
         console.log('Error fetching donors:', error);
         setDonors([]);
