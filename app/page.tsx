@@ -2035,7 +2035,7 @@ export default function Home() {
       <div className="divider h-px bg-gradient-to-r from-transparent via-[#d4a898] to-transparent mx-4 sm:mx-6 lg:mx-12"></div>
 
       {/* Testimonials Section */}
-      <TestimonialsSection data={{ ...SECTION_DATA.testimonials[language], stats: testimonialStats[language] }} onSeeAll={() => router.push('/testimonials')} />
+      <TestimonialsSection key={`testimonials-${testimonialStats[language][0]?.n}`} data={{ ...SECTION_DATA.testimonials[language], stats: testimonialStats[language] }} onSeeAll={() => router.push('/testimonials')} />
 
       {/* Footer Section */}
       <footer className="footer bg-gray-900 text-white py-12 lg:py-16">
