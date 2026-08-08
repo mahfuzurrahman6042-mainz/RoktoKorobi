@@ -67,11 +67,6 @@ const SECTION_DATA = {
       desc: 'Real, moving stories from donors and patients touched by the gift of blood.',
       seeAll: 'See All Stories →',
       shareCta: 'Share Your Story',
-      stats: [
-        { n: '1', l: 'Donors' },
-        { n: '0', l: 'Lives Saved' },
-        { n: '0', l: 'Stories' },
-      ],
       stories: [],
     },
     bn: {
@@ -81,11 +76,6 @@ const SECTION_DATA = {
       desc: 'রক্তের উপহারে স্পর্শিত দাতা এবং রোগীদের বাস্তব, আন্দোলিত গল্প।',
       seeAll: 'সব গল্প দেখুন →',
       shareCta: 'আপনার গল্প শেয়ার করুন',
-      stats: [
-        { n: '1', l: 'দাতা' },
-        { n: '0', l: 'জীবন বাঁচানো হয়েছে' },
-        { n: '0', l: 'গল্প' },
-      ],
       stories: [],
     },
   },
