@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, getBloodRequestsStats, getPartnerOrganizationsCount } from "@/lib/firebase";
+import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, getBloodRequestsStats, getPartnerOrganizationsCount, getTotalDonorCount } from "@/lib/firebase";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -188,8 +188,10 @@ export default function Home() {
         const donorsData = await listAllDonors();
         setDonors(donorsData);
         
-        // Calculate stats
-        const donorCount = donorsData.length;
+        // Get total donor count (including those in cooldown)
+        const totalDonorCount = await getTotalDonorCount();
+        
+        // Calculate stats from available donors
         const uniqueDistricts = new Set(donorsData.map((d: any) => d.district).filter(Boolean));
         const districtsCovered = uniqueDistricts.size;
         
@@ -200,22 +202,22 @@ export default function Home() {
         const partnerOrgsCount = await getPartnerOrganizationsCount();
         
         setStats({ 
-          donorCount, 
+          donorCount: totalDonorCount, 
           districtsCovered, 
           requestsFulfilled: requestsStats.fulfilled, 
           partnerOrgs: partnerOrgsCount,
           stories: 0 // Will be updated when testimonials are fetched
         });
         
-        // Update testimonial stats state
+        // Update testimonial stats state with total donor count
         setTestimonialStats({
           en: [
-            { n: donorCount.toString(), l: 'Donors' },
+            { n: totalDonorCount.toString(), l: 'Donors' },
             { n: requestsStats.fulfilled.toString(), l: 'Lives Saved' },
             { n: partnerOrgsCount.toString(), l: 'Partner Organisations' },
           ],
           bn: [
-            { n: donorCount.toString(), l: 'দাতা' },
+            { n: totalDonorCount.toString(), l: 'দাতা' },
             { n: requestsStats.fulfilled.toString(), l: 'জীবন বাঁচানো হয়েছে' },
             { n: partnerOrgsCount.toString(), l: 'অংশীদার সংস্থা' },
           ]

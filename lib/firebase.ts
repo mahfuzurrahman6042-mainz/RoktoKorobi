@@ -226,13 +226,19 @@ export const listAllDonors = async () => {
   if (!snapshot.exists()) return [];
   const data = snapshot.val();
   
+  console.log('Total users in database:', Object.keys(data).length);
+  
   // Calculate 60-day cooldown threshold
   const cooldownDays = 60;
   const cooldownThreshold = new Date();
   cooldownThreshold.setDate(cooldownThreshold.getDate() - cooldownDays);
   
   // Filter only users who are donors and not in 60-day cooldown
-  return Object.keys(data)
+  const allDonors = Object.keys(data);
+  const donorsWithFlag = allDonors.filter(key => data[key].isDonor === true);
+  console.log('Users with isDonor=true:', donorsWithFlag.length);
+  
+  const availableDonors = allDonors
     .filter(key => {
       const donor = data[key];
       if (donor.isDonor !== true) return false;
@@ -265,6 +271,22 @@ export const listAllDonors = async () => {
         available: donor.availability !== false
       };
     });
+    
+  console.log('Available donors (not in cooldown):', availableDonors.length);
+  return availableDonors;
+};
+
+// Get total donor count including those in cooldown
+export const getTotalDonorCount = async () => {
+  if (!database) throw new Error('Database not initialized');
+  const usersRef = ref(database, 'users');
+  const snapshot = await get(usersRef);
+  if (!snapshot.exists()) return 0;
+  const data = snapshot.val();
+  
+  const totalDonors = Object.keys(data).filter(key => data[key].isDonor === true).length;
+  console.log('Total donor count (including cooldown):', totalDonors);
+  return totalDonors;
 };
 
 export const listAllHospitals = async () => {
