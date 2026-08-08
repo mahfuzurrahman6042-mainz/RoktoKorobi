@@ -121,6 +121,9 @@ export function TestimonialsSection({ data, onSeeAll }) {
   const [ref, vis] = useInView();
   const { testimonials, loading } = useTestimonials();
 
+  console.log('TestimonialsSection received data:', data);
+  console.log('TestimonialsSection stats:', data.stats);
+
   // Combine static stories with user-submitted testimonials (approved only)
   const allStories = [
     ...data.stories,
