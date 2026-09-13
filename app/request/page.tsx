@@ -9,7 +9,7 @@ import MessagingChat from '@/components/MessagingChat';
 import LoginRequiredModal from '@/components/LoginRequiredModal';
 import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import { getCurrentUser, recordDonation } from '@/lib/firebase';
+import { getCurrentUser, recordDonation, notifyEligibleDonors } from '@/lib/firebase';
 
 const bloodGroups = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
 const urgencyColors = ["#22c55e", "#f59e0b", "#ef4444", "#A32D2D"];
@@ -290,7 +290,20 @@ export default function BloodRequest() {
         fulfilled: false
       };
 
-      await push(ref(database, 'bloodRequests'), newRequest);
+      const requestRef = push(ref(database, 'bloodRequests'), newRequest);
+      const requestId = requestRef.key;
+      
+      // Notify eligible donors
+      if (requestId) {
+        try {
+          await notifyEligibleDonors({
+            id: requestId,
+            ...newRequest
+          });
+        } catch (error) {
+          console.error('Error notifying donors:', error);
+        }
+      }
       
       setSubmitted(true);
       setSubmitting(false);

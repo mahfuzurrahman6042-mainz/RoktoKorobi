@@ -11,6 +11,7 @@ import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
 import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, getBloodRequestsStats, getPartnerOrganizationsCount, getTotalDonorCount } from "@/lib/firebase";
+import NotificationsPanel from "@/components/NotificationsPanel";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -1018,6 +1019,7 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
+                <NotificationsPanel />
                 <div style={{
                   width: '34px',
                   height: '34px',
@@ -1314,15 +1316,15 @@ export default function Home() {
 
         <div className="stats">
           <div className="stat">
-            <div className="stat-num">1</div>
+            <div className="stat-num">{stats.donorCount}</div>
             <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
           </div>
           <div className="stat">
-            <div className="stat-num">0</div>
+            <div className="stat-num">{stats.requestsFulfilled}</div>
             <div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div>
           </div>
           <div className="stat">
-            <div className="stat-num">0</div>
+            <div className="stat-num">{stats.partnerOrgs}</div>
             <div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div>
           </div>
         </div>

@@ -334,6 +334,120 @@ export const recordDonation = async (userId: string) => {
   });
 };
 
+// Notification system functions
+
+// Check if donor is eligible for notifications (not donated in last 3 months)
+export const isDonorEligibleForNotification = async (userId: string): Promise<boolean> => {
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  const snapshot = await get(userRef);
+  
+  if (!snapshot.exists()) return false;
+  
+  const userData = snapshot.val();
+  
+  // Check if user is a donor
+  if (userData.isDonor !== true) return false;
+  
+  // Check if user has notification preferences enabled
+  if (userData.notificationPreferences?.enabled === false) return false;
+  
+  // Check 3-month cooldown (90 days)
+  if (userData.lastDonationDate) {
+    const lastDonation = new Date(userData.lastDonationDate);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    
+    if (lastDonation > threeMonthsAgo) {
+      return false; // Donor donated within last 3 months
+    }
+  }
+  
+  return true;
+};
+
+// Send notification to eligible donors for a new blood request
+export const notifyEligibleDonors = async (bloodRequest: any) => {
+  if (!database) throw new Error('Database not initialized');
+  
+  const usersRef = ref(database, 'users');
+  const snapshot = await get(usersRef);
+  
+  if (!snapshot.exists()) return;
+  
+  const users = snapshot.val();
+  const notificationPromises: Promise<void>[] = [];
+  
+  for (const userId of Object.keys(users)) {
+    const userData = users[userId];
+    
+    // Check if user is a donor with matching blood group
+    if (userData.isDonor === true && userData.bloodGroup === bloodRequest.bloodType) {
+      // Check eligibility
+      isDonorEligibleForNotification(userId).then(isEligible => {
+        if (isEligible) {
+          // Create notification
+          const notificationRef = ref(database, `notifications/${userId}`);
+          const newNotificationRef = push(notificationRef);
+          
+          const notification = {
+            id: newNotificationRef.key,
+            type: 'blood_request',
+            bloodRequest: {
+              id: bloodRequest.id,
+              patientName: bloodRequest.patientName,
+              bloodType: bloodRequest.bloodType,
+              hospital: bloodRequest.hospital,
+              location: bloodRequest.location,
+              urgency: bloodRequest.urgency,
+              units: bloodRequest.units,
+              contact: bloodRequest.contact,
+              createdAt: bloodRequest.createdAt
+            },
+            message: `New blood request: ${bloodRequest.patientName} needs ${bloodRequest.bloodType} blood at ${bloodRequest.hospital}`,
+            read: false,
+            createdAt: new Date().toISOString()
+          };
+          
+          return set(newNotificationRef, notification);
+        }
+      }).catch(error => {
+        console.error('Error checking donor eligibility:', error);
+      });
+    }
+  }
+  
+  await Promise.all(notificationPromises);
+};
+
+// Get notifications for a user
+export const getUserNotifications = async (userId: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const notificationsRef = ref(database, `notifications/${userId}`);
+  const snapshot = await get(notificationsRef);
+  
+  if (!snapshot.exists()) return [];
+  
+  const data = snapshot.val();
+  return Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+};
+
+// Mark notification as read
+export const markNotificationAsRead = async (userId: string, notificationId: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const notificationRef = ref(database, `notifications/${userId}/${notificationId}`);
+  await update(notificationRef, { read: true });
+};
+
+// Update user notification preferences
+export const updateNotificationPreferences = async (userId: string, preferences: { enabled: boolean }) => {
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  await update(userRef, { notificationPreferences: preferences });
+};
+
 // Super Admin functions
 export const setSuperAdmin = async (email: string) => {
   if (!database) throw new Error('Database not initialized');
