@@ -12,6 +12,8 @@ import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
 import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, getBloodRequestsStats, getPartnerOrganizationsCount, getTotalDonorCount } from "@/lib/firebase";
 import NotificationsPanel from "@/components/NotificationsPanel";
+import ToastNotifications from "@/components/ToastNotifications";
+import NotificationPermission from "@/components/NotificationPermission";
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -1329,6 +1331,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Toast Notifications */}
+      <ToastNotifications />
+
+      {/* Notification Permission Request */}
+      <NotificationPermission />
 
       {/* FABs */}
       <div className="fab-container">

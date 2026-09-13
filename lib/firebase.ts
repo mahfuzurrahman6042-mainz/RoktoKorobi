@@ -1,7 +1,7 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile, sendPasswordResetEmail, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { getDatabase, Database, ref, set, get, update, onValue, push, remove } from 'firebase/database';
-import { getMessaging, Messaging } from 'firebase/messaging';
+import { getMessaging, Messaging, getToken, onMessage } from 'firebase/messaging';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -446,6 +446,58 @@ export const updateNotificationPreferences = async (userId: string, preferences:
   if (!database) throw new Error('Database not initialized');
   const userRef = ref(database, `users/${userId}`);
   await update(userRef, { notificationPreferences: preferences });
+};
+
+// Firebase Cloud Messaging functions
+
+// Request notification permission and get FCM token
+export const requestNotificationPermission = async (): Promise<string | null> => {
+  if (!messaging) {
+    console.log('Messaging not supported');
+    return null;
+  }
+
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted');
+      const token = await getToken(messaging, {
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+      });
+      console.log('FCM Token:', token);
+      return token;
+    } else {
+      console.log('Notification permission denied');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting notification permission:', error);
+    return null;
+  }
+};
+
+// Save FCM token to user profile
+export const saveFCMToken = async (userId: string, token: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const userRef = ref(database, `users/${userId}`);
+  await update(userRef, { fcmToken: token });
+};
+
+// Listen for incoming messages when app is open
+export const onMessageListener = () => {
+  if (!messaging) {
+    console.log('Messaging not supported');
+    return () => {};
+  }
+
+  return onMessage(messaging, (payload) => {
+    console.log('Received message:', payload);
+    // Handle incoming message when app is in foreground
+    if (payload.notification) {
+      const { title, body } = payload.notification;
+      new Notification(title, { body, icon: '/icon-192x192.png' });
+    }
+  });
 };
 
 // Super Admin functions
