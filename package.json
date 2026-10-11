@@ -4,7 +4,7 @@
   "description": "Blood Donation Platform - Connecting Donors with Recipients",
   "main": "next dev",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

@@ -23,7 +23,7 @@ interface BangladeshMapProps {
     lat: number;
     lng: number;
     available: boolean;
-    phone: string;
+    phone?: string;
   }>;
   hospitals: Array<{
     id: number;

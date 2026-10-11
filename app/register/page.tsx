@@ -8,7 +8,6 @@ import { registerUser, saveUserData, updateProfile, sendVerificationEmail } from
 
 export default function RegisterDonor() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const [language, setLanguage] = useState('en');
   const [formData, setFormData] = useState({
     name: '',
@@ -16,14 +15,19 @@ export default function RegisterDonor() {
     password: '',
     phone: '',
     bloodGroup: '',
-    age: '',
+    dateOfBirth: '',
     weight: '',
     gender: '',
     location: '',
     district: '',
     availability: true,
     lastDonation: '',
-    medicalConditions: ''
+    medicalConditions: '',
+    recentIllness: false,
+    recentMedications: false,
+    recentTattoo: false,
+    pregnancy: false,
+    referralCode: ''
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -32,12 +36,38 @@ export default function RegisterDonor() {
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [partnerInviteName, setPartnerInviteName] = useState('');
 
   useEffect(() => {
-    setMounted(true);
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
+    const referralCode = new URLSearchParams(window.location.search).get('ref')?.trim();
+    if (referralCode) {
+      setFormData(previous => ({ ...previous, referralCode }));
+    }
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const code = formData.referralCode.trim().toUpperCase();
+    if (!code || !/^[A-Z0-9-]{4,32}$/.test(code)) {
+      setPartnerInviteName('');
+      return;
+    }
+    const loadInvite = async () => {
+      try {
+        const { database, ref, get } = await import('@/lib/firebase');
+        if (!database) return;
+        const snapshot = await get(ref(database, `partnerInvites/${code}`));
+        const invite = snapshot.val();
+        if (!cancelled) setPartnerInviteName(invite?.active && invite?.instituteId ? invite.name || '' : '');
+      } catch {
+        if (!cancelled) setPartnerInviteName('');
+      }
+    };
+    loadInvite();
+    return () => { cancelled = true; };
+  }, [formData.referralCode]);
 
   const t = (key: string) => {
     const translations: Record<string, any> = {
@@ -62,14 +92,16 @@ export default function RegisterDonor() {
       submit: { en: 'Register Now', bn: 'এখনই নিবন্ধন করুন' },
       back: { en: 'Back to Home', bn: 'হোমে ফিরে যান' },
       login: { en: 'Already have an account? Login', bn: 'ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন' },
-      success: { en: 'Registration successful! You are now a registered blood donor.', bn: 'নিবন্ধন সফল! আপনি এখন একজন নিবন্ধিত রক্তদাতা।' },
+      success: { en: 'Account created. Check your email and verify your address before using your account.', bn: 'অ্যাকাউন্ট তৈরি হয়েছে। ব্যবহার করার আগে ইমেইল যাচাই করুন।' },
       submitting: { en: 'Registering...', bn: 'নিবন্ধন করছে...' },
       acceptTerms: { en: 'I accept the Terms of Service', bn: 'আমি শর্তাবলী গ্রহণ করি' },
       acceptPrivacy: { en: 'I accept the Privacy Policy', bn: 'আমি গোপনীয়তা নীতি গ্রহণ করি' },
       viewTerms: { en: 'View Terms', bn: 'শর্তাবলী দেখুন' },
       viewPrivacy: { en: 'View Privacy Policy', bn: 'গোপনীয়তা নীতি দেখুন' },
       termsRequired: { en: 'You must accept the Terms of Service to register', bn: 'নিবন্ধন করতে আপনাকে শর্তাবলী গ্রহণ করতে হবে' },
-      privacyRequired: { en: 'You must accept the Privacy Policy to register', bn: 'নিবন্ধন করতে আপনাকে গোপনীয়তা নীতি গ্রহণ করতে হবে' }
+      privacyRequired: { en: 'You must accept the Privacy Policy to register', bn: 'নিবন্ধন করতে আপনাকে গোপনীয়তা নীতি গ্রহণ করতে হবে' },
+      referralCode: { en: 'Referral Code (Optional)', bn: 'রেফারেল কোড (ঐচ্ছিক)' },
+      referralHelp: { en: 'If your institute is a partner, enter their referral code', bn: 'আপনার ইনস্টিটিউট পার্টনার হলে তাদের রেফারেল কোড দিন' }
     };
     return translations[key]?.[language] || key;
   };
@@ -87,7 +119,7 @@ export default function RegisterDonor() {
     
     // Validate required fields
     if (!formData.name || !formData.email || !formData.password || !formData.phone || 
-        !formData.bloodGroup || !formData.age || !formData.weight || !formData.gender || 
+        !formData.bloodGroup || !formData.dateOfBirth || !formData.weight || !formData.gender ||
         !formData.location || !formData.district) {
       alert(language === 'bn' ? 'সব প্রয়োজনীয় ক্ষেত্র পূরণ করুন' : 'Please fill in all required fields');
       return;
@@ -117,9 +149,13 @@ export default function RegisterDonor() {
       return;
     }
     
-    // Validate age (18-65)
-    const age = parseInt(formData.age);
-    if (isNaN(age) || age < 18 || age > 65) {
+    // Validate age (18-65) from the date of birth
+    const birthDate = new Date(`${formData.dateOfBirth}T00:00:00`);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const birthdayThisYear = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+    if (today < birthdayThisYear) age -= 1;
+    if (Number.isNaN(birthDate.getTime()) || age < 18 || age > 65) {
       alert(language === 'bn' ? 'বয়স ১৮-৬৫ বছরের মধ্যে হতে হবে' : 'Age must be between 18 and 65');
       return;
     }
@@ -130,12 +166,39 @@ export default function RegisterDonor() {
       alert(language === 'bn' ? 'ওজন কমপক্ষে ৫০ কেজি হতে হবে' : 'Weight must be at least 50 kg');
       return;
     }
+
+    if (formData.lastDonation && new Date(`${formData.lastDonation}T00:00:00`) > today) {
+      alert(language === 'bn' ? 'সর্বশেষ রক্তদানের তারিখ ভবিষ্যতের হতে পারে না' : 'Last donation date cannot be in the future');
+      return;
+    }
     
     setSubmitting(true);
 
     try {
+      // Reject a bad partner invitation before creating an Auth account.
+      let instituteId: string | null = null;
+      if (formData.referralCode.trim()) {
+        const code = formData.referralCode.trim().toUpperCase();
+        if (!/^[A-Z0-9-]{4,32}$/.test(code)) {
+          alert(language === 'bn' ? 'অবৈধ রেফারেল কোড' : 'Invalid referral code');
+          setSubmitting(false);
+          return;
+        }
+        const { database, ref, get } = await import('@/lib/firebase');
+        if (!database) throw new Error('Database is unavailable. Please try again later.');
+        const snapshot = await get(ref(database, `partnerInvites/${code}`));
+        const invite = snapshot.val();
+        instituteId = invite?.active && invite?.instituteId ? invite.instituteId : null;
+        if (!instituteId) {
+          alert(language === 'bn' ? 'অবৈধ রেফারেল কোড' : 'Invalid referral code');
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Create Firebase user
-      const userCredential = await registerUser(formData.email, formData.password);
+      const normalizedEmail = formData.email.trim().toLowerCase();
+      const userCredential = await registerUser(normalizedEmail, formData.password);
       
       // Update user profile with name
       await updateProfile(userCredential.user, { displayName: formData.name });
@@ -145,13 +208,13 @@ export default function RegisterDonor() {
         await sendVerificationEmail(userCredential.user);
       } catch (verifyError) {
         console.error('Email verification error:', verifyError);
-        // Continue with registration even if verification fails
+        // The account can still be recovered from the verification page.
       }
 
-      // Save donor data to Firestore
+      // Save donor data to Realtime Database
       const donorData = {
         name: formData.name,
-        email: formData.email,
+        email: normalizedEmail,
         phone: formData.phone,
         bloodGroup: formData.bloodGroup,
         age: age,
@@ -166,11 +229,15 @@ export default function RegisterDonor() {
         uid: userCredential.user.uid,
         acceptedTerms: true,
         acceptedPrivacy: true,
+        consentVersion: '2026-10-01',
+        consentedAt: new Date().toISOString(),
+        dateOfBirth: formData.dateOfBirth,
         isDonor: true,
         donations: 0,
         fulfilledRequests: 0,
         rating: 4.8,
-        emailVerified: userCredential.user.emailVerified
+        instituteId: instituteId,
+        referralCode: formData.referralCode.trim().toUpperCase() || null
       };
 
       // Save to Firestore
@@ -179,10 +246,10 @@ export default function RegisterDonor() {
       setSubmitted(true);
       setSubmitting(false);
 
-      // Redirect to dashboard after 3 seconds
+      // Continue to the verification screen, not the donor dashboard.
       setTimeout(() => {
-        router.push('/dashboard');
-      }, 3000);
+        router.push('/verify-email');
+      }, 1800);
     } catch (error: any) {
       console.error('Registration error:', error);
       setSubmitting(false);
@@ -197,8 +264,6 @@ export default function RegisterDonor() {
       }
     }
   };
-
-  if (!mounted) return null;
 
   return (
     <>
@@ -273,6 +338,9 @@ export default function RegisterDonor() {
             </h1>
             <p style={{ fontSize: '18px', color: '#3D2314', lineHeight: 1.6 }}>
               {t('subtitle')}
+            </p>
+            <p style={{ display: 'inline-block', marginTop: '18px', padding: '10px 16px', borderRadius: '999px', background: '#FFF3E6', color: '#8B2635', fontSize: '14px', fontWeight: 700 }}>
+              {language === 'bn' ? 'রক্তদাতার নিবন্ধন ১৮+ · চিকিৎসাগত যোগ্যতা রক্তব্যাংক যাচাই করবে' : '18+ for blood donation · Medical eligibility is confirmed by a blood bank'}
             </p>
           </div>
 
@@ -423,15 +491,14 @@ export default function RegisterDonor() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
-                      {t('age')} *
+                      {language === 'bn' ? 'জন্ম তারিখ' : 'Date of Birth'} *
                     </label>
                     <input
-                      type="number"
-                      name="age"
-                      value={formData.age}
+                      type="date"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
                       onChange={handleInputChange}
-                      min="18"
-                      max="65"
+                      max={new Date().toISOString().split('T')[0]}
                       required
                       style={{
                         width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)',
@@ -582,6 +649,30 @@ export default function RegisterDonor() {
                       }}
                     />
                   </div>
+                </div>
+
+                {/* Referral Code */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
+                    {t('referralCode')}
+                  </label>
+                  <input
+                    type="text"
+                    name="referralCode"
+                    value={formData.referralCode}
+                    onChange={handleInputChange}
+                    placeholder={t('referralHelp')}
+                    style={{
+                      width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)',
+                      borderRadius: '12px', fontSize: '16px', background: '#F5EDD8',
+                      outline: 'none', transition: 'all 0.3s'
+                    }}
+                  />
+                  {partnerInviteName && (
+                    <p style={{ color: '#166534', fontSize: '13px', marginTop: '8px' }}>
+                      {language === 'bn' ? 'আমন্ত্রণকারী প্রতিষ্ঠান: ' : 'Invited by: '}{partnerInviteName}
+                    </p>
+                  )}
                 </div>
 
                 {/* Additional Information */}
@@ -768,18 +859,19 @@ export default function RegisterDonor() {
                       </div>
                     </div>
                   </div>
+
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !acceptTerms || !acceptPrivacy}
                   style={{
                     width: '100%', padding: '16px', background: '#C0152A',
                     color: '#fff', border: 'none', borderRadius: '14px',
                     fontSize: '16px', fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer',
                     transition: 'all 0.3s', boxShadow: '0 8px 24px rgba(192,21,42,0.3)',
-                    opacity: submitting ? 0.7 : 1
+                    opacity: submitting || !acceptTerms || !acceptPrivacy ? 0.55 : 1
                   }}
                 >
                   {submitting ? t('submitting') : t('submit')}

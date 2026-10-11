@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { database, get, onAuthStateChange, ref } from '@/lib/firebase';
 import { Search, Users, Heart, Phone, Menu, X, Globe, User, LogOut, Plus, Star, Droplet, Shield, Award, ChevronRight, CheckCircle, Map, Check, ArrowRight, Clock, Calendar, MessageSquare, Home, HeartPulse, Eye, Send, Crown, Flag, AlertTriangle, Trash, Cog, Edit, ClipboardCheck, History, Inbox, Sun, Moon, BarChart3, ChevronDown, ListTodo, AlertCircle, Tag } from 'lucide-react';
 
 export default function SuperAdmin() {
@@ -17,8 +18,19 @@ export default function SuperAdmin() {
   const [contentTab, setContentTab] = useState('flagged');
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    return onAuthStateChange(async user => {
+      if (!user) { router.replace('/login'); return; }
+      if (!user.emailVerified) { router.replace('/verify-email'); return; }
+      try {
+        if (!database) throw new Error('Database unavailable');
+        const snapshot = await get(ref(database, 'admins/super_admin'));
+        if (snapshot.val()?.email !== user.email) throw new Error('Access denied');
+        setMounted(true);
+      } catch {
+        router.replace('/dashboard');
+      }
+    });
+  }, [router]);
 
   const toggleTheme = () => {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -136,6 +148,23 @@ export default function SuperAdmin() {
           <div className="h-px" style={{ background: `linear-gradient(to right, transparent, ${colors.hairline}, transparent)` }}></div>
         </div>
 
+        {/* Partner operations */}
+        <section className="max-w-lg mx-auto px-6 pt-6">
+          <Link href="/super-admin/partner-control" className="block rounded-xl p-5 transition-all duration-300 active:scale-98" style={{ background: 'linear-gradient(135deg, #1B5E6B 0%, #124653 100%)', color: '#fff' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] tracking-[0.2em] uppercase mb-1" style={{ opacity: 0.7 }}>Partner operations</p>
+                <h3 className="text-lg font-medium mb-1">Partner Command Center</h3>
+                <p className="text-[11px]" style={{ opacity: 0.72 }}>Review, activate, and support every organization</p>
+              </div>
+              <ArrowRight className="w-5 h-5" />
+            </div>
+          </Link>
+          <Link href="/super-admin/partner-onboard" className="mt-3 block rounded-xl border border-[#1B5E6B]/20 bg-white p-4 text-center text-sm font-semibold text-[#1B5E6B] transition hover:bg-[#1B5E6B]/5">
+            + Activate a new partner
+          </Link>
+        </section>
+
         {/* Command Modules */}
         <section className="max-w-lg mx-auto px-6 pt-6">
           <div className="flex items-center gap-3 mb-5">
@@ -144,6 +173,22 @@ export default function SuperAdmin() {
           </div>
 
           <div className="space-y-3">
+            {/* Partner Control */}
+            <Link href="/super-admin/partner-control" className="block rounded-xl p-5 cursor-pointer transition-all duration-400 active:scale-98" style={{ backgroundColor: colors.cardBg, border: `1px solid ${colors.border}`, textDecoration: 'none' }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#1B5E6B20' }}>
+                    <Users className="w-4 h-4" style={{ color: '#1B5E6B' }} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-medium mb-0.5" style={{ fontFamily: 'Noto Sans Bengali, Playfair Display, serif', color: colors.textPrimary }}>পার্টনার কন্ট্রোল</h3>
+                    <p className="text-[11px]" style={{ fontFamily: 'Noto Sans Bengali, Inter, sans-serif', color: '#6B5B4F' }}>Partner Control Center</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-3 h-3" style={{ color: colors.textMuted }} />
+              </div>
+            </Link>
+
             {/* User Control */}
             <div className="rounded-xl p-5 cursor-pointer transition-all duration-400 active:scale-98" style={{ backgroundColor: colors.cardBg, border: `1px solid ${colors.border}` }} onClick={() => openSheet('usersSheet')}>
               <div className="flex items-center justify-between">

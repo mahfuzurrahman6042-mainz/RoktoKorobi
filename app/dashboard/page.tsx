@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, getUserData, logoutUser, isSuperAdmin } from '@/lib/firebase';
+import { getUserData, logoutUser, isSuperAdmin, onAuthStateChange } from '@/lib/firebase';
 import UserProfileMenu from '@/components/sidebar/UserProfileMenu';
 
 export default function Dashboard() {
@@ -107,14 +107,19 @@ export default function Dashboard() {
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
 
-    const checkAuth = async () => {
+    const unsubscribe = onAuthStateChange(async user => {
       try {
-        const user = await getCurrentUser();
         if (!user) {
-          router.push('/login');
+          router.replace('/login');
+        } else if (!user.emailVerified) {
+          router.replace('/verify-email');
         } else {
           const data = await getUserData(user.uid);
           if (data) {
+            if (data.role === 'partner_admin' && data.instituteId) {
+              router.replace('/dashboard/partner');
+              return;
+            }
             setUserData(prev => ({ ...prev, ...data }));
           }
           // Check if user is super admin
@@ -122,12 +127,12 @@ export default function Dashboard() {
           setIsSuperAdminUser(adminCheck);
         }
       } catch (error) {
-        router.push('/login');
+        router.replace('/login');
       }
       setLoading(false);
-    };
+    });
 
-    checkAuth();
+    return unsubscribe;
   }, [router]);
 
   const toggleLanguage = () => {

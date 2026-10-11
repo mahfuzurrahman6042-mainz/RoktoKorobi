@@ -212,12 +212,12 @@ export default function Home() {
         // Update testimonial stats state with total donor count
         const finalTestimonialStats = {
           en: [
-            { n: totalDonorCount.toString(), l: 'Donors' },
+            { n: '—', l: 'Donor directory paused' },
             { n: requestsStats.fulfilled.toString(), l: 'Lives Saved' },
             { n: partnerOrgsCount.toString(), l: 'Partner Organisations' },
           ],
           bn: [
-            { n: totalDonorCount.toString(), l: 'দাতা' },
+            { n: '—', l: 'দাতার তালিকা সাময়িক বন্ধ' },
             { n: requestsStats.fulfilled.toString(), l: 'জীবন বাঁচানো হয়েছে' },
             { n: partnerOrgsCount.toString(), l: 'অংশীদার সংস্থা' },
           ]
@@ -965,6 +965,7 @@ export default function Home() {
           <li role="none"><Link href="/" role="menuitem" aria-label={t('home')}>{t('home')}</Link></li>
           <li role="none"><Link href="/donors" role="menuitem" aria-label={t('donors')}>{t('donors')}</Link></li>
           <li role="none"><Link href="/request" role="menuitem" aria-label={t('request')}>{t('request')}</Link></li>
+          <li role="none"><Link href="/partner-register" role="menuitem" aria-label={language === 'bn' ? 'পার্টনার নিবন্ধন' : 'Partner Registration'}>{language === 'bn' ? 'পার্টনার নিবন্ধন' : 'Partner Registration'}</Link></li>
           <li role="none"><Link href="/eligibility" role="menuitem" aria-label={t('eligibilityLink')}>{t('eligibilityLink')}</Link></li>
           <li role="none"><Link href="/blog" role="menuitem" aria-label={t('blog')}>{t('blog')}</Link></li>
           <li role="none"><Link href="/illustrations" role="menuitem" aria-label={t('chitrokothon')}>{t('chitrokothon')}</Link></li>
@@ -1281,6 +1282,10 @@ export default function Home() {
             {language === 'bn' ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Register as a Blood Donor'}
           </button>
 
+          <button type="button" className="card-btn-secondary" onClick={() => router.push('/partner-register')}>
+            {language === 'bn' ? 'পার্টনার হিসেবে নিবন্ধন করুন' : 'Partner with Us'}
+          </button>
+
           <button type="button" className="card-btn-secondary" onClick={() => router.push('/request')}>
             {language === 'bn' ? 'রক্তের প্রয়োজন?' : 'Need Blood?'}
           </button>
@@ -1318,8 +1323,8 @@ export default function Home() {
 
         <div className="stats">
           <div className="stat">
-            <div className="stat-num">{stats.donorCount}</div>
-            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
+            <div className="stat-num">—</div>
+            <div className="stat-label">{language === 'bn' ? 'দাতার তালিকা সাময়িক বন্ধ' : 'Donor directory paused'}</div>
           </div>
           <div className="stat">
             <div className="stat-num">{stats.requestsFulfilled}</div>

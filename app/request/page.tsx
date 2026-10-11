@@ -9,7 +9,7 @@ import MessagingChat from '@/components/MessagingChat';
 import LoginRequiredModal from '@/components/LoginRequiredModal';
 import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import { getCurrentUser, recordDonation, notifyEligibleDonors } from '@/lib/firebase';
+import { getCurrentUser, recordDonation } from '@/lib/firebase';
 
 const bloodGroups = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
 const urgencyColors = ["#22c55e", "#f59e0b", "#ef4444", "#A32D2D"];
@@ -168,9 +168,9 @@ export default function BloodRequest() {
       badge: "EMERGENCY REQUEST",
       heroTitle: "Every Second",
       heroRed: "Counts",
-      heroSub: "Submit a blood request and we'll connect you with verified donors in your area immediately.",
+      heroSub: "Submit a request for our team to review. Automatic donor alerts are temporarily unavailable; contact a hospital or blood bank directly for urgent needs.",
       formTitle: "Blood Request Form",
-      formSub: "Fill in the details below — donors will be notified instantly.",
+      formSub: "Fill in the details below. Submitting does not automatically notify donors.",
       patientName: "Patient Name", patientPh: "Enter patient's full name",
       bloodType: "Blood Group",
       hospital: "Hospital / Clinic", hospitalPh: "Enter hospital or clinic name",
@@ -185,7 +185,7 @@ export default function BloodRequest() {
       submit: "Submit Emergency Request",
       submitting: "Submitting...",
       successTitle: "Request Submitted!",
-      successSub: "Donors near you have been notified. You'll be contacted shortly.",
+      successSub: "Your request was recorded, but donors were not automatically notified. For urgent care, contact a hospital or blood bank directly.",
       backHome: "Back to Home",
       selectBlood: "⚠ Please select a blood group to continue",
     },
@@ -194,9 +194,9 @@ export default function BloodRequest() {
       badge: "জরুরি অনুরোধ",
       heroTitle: "প্রতিটি মুহূর্ত",
       heroRed: "গুরুত্বপূর্ণ",
-      heroSub: "রক্তের অনুরোধ করুন — আমরা আপনার এলাকার যাচাইকৃত দাতাদের সাথে তাৎক্ষণিকভাবে যোগাযোগ করব।",
+      heroSub: "অনুরোধ জমা দিন। স্বয়ংক্রিয় দাতা বিজ্ঞপ্তি সাময়িক বন্ধ আছে; জরুরি প্রয়োজনে সরাসরি হাসপাতাল বা ব্লাড ব্যাংকে যোগাযোগ করুন।",
       formTitle: "রক্তের অনুরোধ ফর্ম",
-      formSub: "নিচের তথ্য পূরণ করুন — দাতাদের সঙ্গে সঙ্গে জানানো হবে।",
+      formSub: "নিচের তথ্য পূরণ করুন। অনুরোধ জমা দিলে দাতাদের স্বয়ংক্রিয়ভাবে জানানো হবে না।",
       patientName: "রোগীর নাম", patientPh: "রোগীর পুরো নাম লিখুন",
       bloodType: "রক্তের গ্রুপ",
       hospital: "হাসপাতাল / ক্লিনিক", hospitalPh: "হাসপাতাল বা ক্লিনিকের নাম লিখুন",
@@ -211,7 +211,7 @@ export default function BloodRequest() {
       submit: "জরুরি অনুরোধ পাঠান",
       submitting: "পাঠানো হচ্ছে...",
       successTitle: "অনুরোধ পাঠানো হয়েছে!",
-      successSub: "আপনার এলাকার দাতাদের জানানো হয়েছে। শীঘ্রই যোগাযোগ করা হবে।",
+      successSub: "অনুরোধটি সংরক্ষিত হয়েছে, তবে দাতাদের স্বয়ংক্রিয়ভাবে জানানো হয়নি। জরুরি প্রয়োজনে সরাসরি হাসপাতাল বা ব্লাড ব্যাংকে যোগাযোগ করুন।",
       backHome: "হোমে ফিরুন",
       selectBlood: "⚠ অনুগ্রহ করে রক্তের গ্রুপ বেছে নিন",
     },
@@ -260,6 +260,10 @@ export default function BloodRequest() {
       setShowLoginModal(true);
       return;
     }
+    if (!currentUser.emailVerified) {
+      window.location.assign('/verify-email');
+      return;
+    }
     
     setSubmitting(true);
     
@@ -290,20 +294,9 @@ export default function BloodRequest() {
         fulfilled: false
       };
 
-      const requestRef = push(ref(database, 'bloodRequests'), newRequest);
-      const requestId = requestRef.key;
-      
-      // Notify eligible donors
-      if (requestId) {
-        try {
-          await notifyEligibleDonors({
-            id: requestId,
-            ...newRequest
-          });
-        } catch (error) {
-          console.error('Error notifying donors:', error);
-        }
-      }
+      await push(ref(database, 'bloodRequests'), newRequest);
+      // Cross-user notifications are paused until a trusted server-side
+      // matcher can send them without reading every donor profile in a browser.
       
       setSubmitted(true);
       setSubmitting(false);

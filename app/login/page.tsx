@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { loginUser, getCurrentUser, onAuthStateChange } from '@/lib/firebase';
+import { loginUser, onAuthStateChange } from '@/lib/firebase';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
@@ -24,19 +24,10 @@ export default function Login() {
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
 
-    // Check if user is already logged in
-    const checkAuth = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (user) {
-          router.push('/dashboard');
-        }
-      } catch (error) {
-        // User not logged in, that's fine
-      }
-    };
-
-    checkAuth();
+    // Wait for Firebase to restore a persisted login before redirecting.
+    return onAuthStateChange(user => {
+      if (user) router.replace(user.emailVerified ? '/dashboard' : '/verify-email');
+    });
   }, [router]);
 
   const t = (key: string) => {
@@ -97,11 +88,8 @@ export default function Login() {
     try {
       // Firebase Authentication with remember me
       const userCredential = await loginUser(formData.email, formData.password, rememberMe);
-      
-      console.log('Login successful:', userCredential);
-      
-      // Redirect to dashboard
-      router.push('/dashboard');
+
+      router.push(userCredential.user.emailVerified ? '/dashboard' : '/verify-email');
     } catch (error: any) {
       console.error('Login error:', error);
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {

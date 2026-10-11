@@ -632,6 +632,11 @@ export default function DonorsPage() {
         position: 'relative',
         overflow: 'hidden'
       }}>
+        <div role="status" style={{ maxWidth: '960px', margin: '0 auto 28px', padding: '14px 18px', borderRadius: '12px', background: '#fff', color: '#8B1A1A', fontSize: '14px', fontWeight: 600 }}>
+          {language === 'bn'
+            ? 'গোপনীয়তা সুরক্ষার জন্য দাতার তালিকা সাময়িকভাবে বন্ধ আছে। ব্যক্তিগত যোগাযোগের তথ্য দেখানো হচ্ছে না।'
+            : 'The donor directory is temporarily paused while we protect personal information. No private donor contact details are displayed.'}
+        </div>
         <div style={{
           position: 'absolute',
           top: '10%',
@@ -1066,8 +1071,7 @@ export default function DonorsPage() {
                 district: donor.district,
                 lat: donor.lat,
                 lng: donor.lng,
-                available: donor.available !== false,
-                phone: donor.phone || '+8801234567890'
+                available: donor.available !== false
               }))}
               hospitals={hospitals}
             />

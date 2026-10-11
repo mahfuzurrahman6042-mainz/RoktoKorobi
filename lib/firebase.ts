@@ -219,76 +219,11 @@ const districtCoordinates: Record<string, { lat: number; lng: number }> = {
   'Satkhira': { lat: 22.7188, lng: 89.0745 }
 };
 
-export const listAllDonors = async () => {
-  if (!database) throw new Error('Database not initialized');
-  const usersRef = ref(database, 'users');
-  const snapshot = await get(usersRef);
-  if (!snapshot.exists()) return [];
-  const data = snapshot.val();
-  
-  console.log('Total users in database:', Object.keys(data).length);
-  
-  // Calculate 60-day cooldown threshold
-  const cooldownDays = 60;
-  const cooldownThreshold = new Date();
-  cooldownThreshold.setDate(cooldownThreshold.getDate() - cooldownDays);
-  
-  // Filter only users who are donors and not in 60-day cooldown
-  const allDonors = Object.keys(data);
-  const donorsWithFlag = allDonors.filter(key => data[key].isDonor === true);
-  console.log('Users with isDonor=true:', donorsWithFlag.length);
-  
-  const availableDonors = allDonors
-    .filter(key => {
-      const donor = data[key];
-      if (donor.isDonor !== true) return false;
-      
-      // Check if donor is in 60-day cooldown period
-      if (donor.lastDonationDate) {
-        const lastDonation = new Date(donor.lastDonationDate);
-        if (lastDonation > cooldownThreshold) {
-          // Donor is in cooldown period
-          return false;
-        }
-      }
-      
-      return true;
-    })
-    .map((key, index) => { 
-      const donor = data[key];
-      const district = donor.district || 'Dhaka';
-      const coords = districtCoordinates[district] || { lat: 23.6850, lng: 90.3563 };
-      
-      // Add slight offset to prevent marker overlap for same district
-      const offset = index * 0.01;
-      
-      return { 
-        id: key, 
-        uid: key,
-        ...donor,
-        lat: donor.lat || coords.lat + offset,
-        lng: donor.lng || coords.lng + offset,
-        available: donor.availability !== false
-      };
-    });
-    
-  console.log('Available donors (not in cooldown):', availableDonors.length);
-  return availableDonors;
-};
+// Public donor listings are paused until a consented, non-identifying directory
+// is available. Never download /users (including phone and medical data) here.
+export const listAllDonors = async () => [];
 
-// Get total donor count including those in cooldown
-export const getTotalDonorCount = async () => {
-  if (!database) throw new Error('Database not initialized');
-  const usersRef = ref(database, 'users');
-  const snapshot = await get(usersRef);
-  if (!snapshot.exists()) return 0;
-  const data = snapshot.val();
-  
-  const totalDonors = Object.keys(data).filter(key => data[key].isDonor === true).length;
-  console.log('Total donor count (including cooldown):', totalDonors);
-  return totalDonors;
-};
-
+export const getTotalDonorCount = async () => 0;
 export const listAllHospitals = async () => {
   if (!database) throw new Error('Database not initialized');
   const hospitalsRef = ref(database, 'hospitals');
@@ -320,7 +255,48 @@ export const getPartnerOrganizationsCount = async () => {
   return Object.keys(data).length;
 };
 
-// Record donation date for a donor (starts 60-day cooldown)
+// Get all partner institutes
+export const getPartnerInstitutes = async () => {
+  if (!database) throw new Error('Database not initialized');
+  const partnersRef = ref(database, 'partnerInstitutes');
+  const snapshot = await get(partnersRef);
+  if (!snapshot.exists()) return [];
+  const data = snapshot.val();
+  return Object.entries(data).map(([id, partner]: [string, any]) => ({
+    id,
+    ...partner
+  }));
+};
+
+// Get a specific partner institute by ID
+export const getPartnerInstituteById = async (instituteId: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const partnerRef = ref(database, `partnerInstitutes/${instituteId}`);
+  const snapshot = await get(partnerRef);
+  if (!snapshot.exists()) return null;
+  return { id: instituteId, ...snapshot.val() };
+};
+
+// Update partner institute status
+export const updatePartnerInstituteStatus = async (instituteId: string, status: string, adminUserId?: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const partnerRef = ref(database, `partnerInstitutes/${instituteId}`);
+  const updateData: any = { status };
+  if (adminUserId) {
+    updateData.adminUserId = adminUserId;
+  }
+  await update(partnerRef, updateData);
+};
+
+// Partner-facing metrics are kept separate from private student profiles.
+// A partner leader must never download the entire users collection to count it.
+export const getPartnerStats = async (instituteId: string) => {
+  if (!database) throw new Error('Database not initialized');
+  const snapshot = await get(ref(database, `partnerStats/${instituteId}`));
+  return snapshot.exists() ? snapshot.val() : null;
+};
+
+// Record donation date for a donor (starts the pilot cooldown)
 export const recordDonation = async (userId: string) => {
   if (!database) throw new Error('Database not initialized');
   const userRef = ref(database, `users/${userId}`);
@@ -352,14 +328,14 @@ export const isDonorEligibleForNotification = async (userId: string): Promise<bo
   // Check if user has notification preferences enabled
   if (userData.notificationPreferences?.enabled === false) return false;
   
-  // Check 3-month cooldown (90 days)
+  // Check the same 90-day pilot cooldown used by the directory.
   if (userData.lastDonationDate) {
     const lastDonation = new Date(userData.lastDonationDate);
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const cooldownThreshold = new Date();
+    cooldownThreshold.setDate(cooldownThreshold.getDate() - 90);
     
-    if (lastDonation > threeMonthsAgo) {
-      return false; // Donor donated within last 3 months
+    if (lastDonation > cooldownThreshold) {
+      return false; // Donor donated within the pilot cooldown
     }
   }
   
