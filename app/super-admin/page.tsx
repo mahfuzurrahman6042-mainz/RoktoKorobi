@@ -5,8 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { database, get, onAuthStateChange, ref } from '@/lib/firebase';
 import { Search, Users, Heart, Phone, Menu, X, Globe, User, LogOut, Plus, Star, Droplet, Shield, Award, ChevronRight, CheckCircle, Map, Check, ArrowRight, Clock, Calendar, MessageSquare, Home, HeartPulse, Eye, Send, Crown, Flag, AlertTriangle, Trash, Cog, Edit, ClipboardCheck, History, Inbox, Sun, Moon, BarChart3, ChevronDown, ListTodo, AlertCircle, Tag } from 'lucide-react';
+import { Overview } from '@/components/admin/overview';
 
 export default function SuperAdmin() {
+  return <Overview />;
+  // Legacy dashboard retained below for reference during the migration.
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('dark');
