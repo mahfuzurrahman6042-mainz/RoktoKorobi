@@ -26,7 +26,7 @@ export function SuperAdminShell({ children, source = unconnectedSource }: { chil
   const menuButton = useRef<HTMLButtonElement>(null);
   const previousPath = useRef(pathname);
   const data = useAdminData(source);
-  const sector = superAdminNavigation.find(item => pathname === `/super-admin/${item.slug}` || pathname.startsWith(`/super-admin/${item.slug}/`));
+  const sector = superAdminNavigation.find(item => pathname === '/super-admin' ? item.slug === 'overview' : pathname === `/super-admin/${item.slug}` || pathname.startsWith(`/super-admin/${item.slug}/`));
   const closeMenu = () => { setMenuOpen(false); menuButton.current?.focus(); };
   useEffect(() => { if (previousPath.current !== pathname) { setMenuOpen(false); previousPath.current = pathname; } }, [pathname]);
   useEffect(() => { if (!menuOpen) return; const previous = document.body.style.overflow; document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = previous; }; }, [menuOpen]);

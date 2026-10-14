@@ -7,7 +7,10 @@ export type SectorStatus = 'live' | 'building' | 'planned';
 export type Localized = { en: string; bn: string };
 export type SuperAdminSubpage = { slug: string; title: Localized; description: Localized; status: SectorStatus };
 export type SuperAdminSector = { slug: string; title: Localized; summary: Localized; stats: [MetricKey, MetricKey, MetricKey]; subpages: SuperAdminSubpage[]; icon: LucideIcon };
-const l = (en: string, bn: string): Localized => ({ en, bn });
+const repairBangla = (value: string): string => /[àâ]/.test(value)
+  ? new TextDecoder().decode(Uint8Array.from(value, character => character.charCodeAt(0)))
+  : value;
+const l = (en: string, bn: string): Localized => ({ en, bn: repairBangla(bn) });
 const pages = (items: Array<[string, string, string, string, SectorStatus]>) => items.map(([slug, en, bn, description, status]) => ({ slug, title: l(en, bn), description: l(description, 'এই বিভাগটি প্রস্তুত করা হচ্ছে।'), status }));
 
 export const superAdminNavigation: SuperAdminSector[] = [
