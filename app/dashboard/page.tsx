@@ -124,6 +124,10 @@ export default function Dashboard() {
           }
           // Check if user is super admin
           const adminCheck = await isSuperAdmin(user.email || '');
+          if (adminCheck) {
+            router.replace('/super-admin');
+            return;
+          }
           setIsSuperAdminUser(adminCheck);
         }
       } catch (error) {
@@ -618,9 +622,9 @@ export default function Dashboard() {
             </div>
 
             {isSuperAdminUser && (
-              <div className="action-link" onClick={() => router.push('/admin')} style={{ background: 'rgba(179,34,28,0.08)', border: '1px solid rgba(179,34,28,0.2)' }}>
+              <div className="action-link" onClick={() => router.push('/super-admin')} style={{ background: 'rgba(179,34,28,0.08)', border: '1px solid rgba(179,34,28,0.2)' }}>
                 <div className="action-icon" style={{ background: 'var(--crimson)', color: 'white' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-                <div><div className="action-text-main" style={{ color: 'var(--crimson)' }}>Admin Dashboard</div><div className="action-text-sub">Manage system</div></div>
+                <div><div className="action-text-main" style={{ color: 'var(--crimson)' }}>{language === 'bn' ? 'সুপার অ্যাডমিন ড্যাশবোর্ড' : 'Super Admin Dashboard'}</div><div className="action-text-sub">Manage system</div></div>
                 <span className="action-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
               </div>
             )}
