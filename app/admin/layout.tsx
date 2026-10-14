@@ -34,6 +34,10 @@ export default function AdminLayout({
         // Check if super admin
         const adminCheck = await isSuperAdmin(user.email || '');
         if (adminCheck) {
+          if (pathname === '/admin') {
+            router.replace('/super-admin');
+            return;
+          }
           setIsSuperAdminUser(true);
           setHasAccess(true);
           setLoading(false);
