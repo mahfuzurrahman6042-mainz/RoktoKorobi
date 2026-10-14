@@ -1,0 +1,44 @@
+'use client';
+
+import Link from 'next/link';
+import { Activity, ArrowRight, Building2, FileText, HeartHandshake, MapPin, Megaphone, Plus, ShieldCheck, UserPlus, Users } from 'lucide-react';
+import { useAdmin } from './admin-layout';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { formatCount, formatDate } from '@/lib/admin/helpers';
+
+const bnDigits = (value: string) => value.replace(/\d/g, digit => '০১২৩৪৫৬৭৮৯'[Number(digit)]);
+const number = (value: number | null | undefined, language: 'en' | 'bn') => { const text = formatCount(value); return language === 'bn' ? bnDigits(text) : text; };
+
+export function SuperAdminOverview() {
+  const { snapshot, state } = useAdmin();
+  const { language } = useLanguage();
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = language === 'bn' ? (hour < 12 ? 'সুপ্রভাত' : hour < 18 ? 'শুভ অপরাহ্ন' : 'শুভ সন্ধ্যা') : (hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
+  const date = new Intl.DateTimeFormat(language === 'bn' ? 'bn-BD' : 'en-BD', { dateStyle: 'full' }).format(now);
+  const unverifiedTestimonials = Math.max(0, (snapshot.metrics.testimonials ?? 0) - (snapshot.metrics.verifiedTestimonials ?? 0));
+  const attention = [
+    { count: snapshot.metrics.criticalRequests, label: language === 'bn' ? 'জরুরি রক্তের অনুরোধ' : 'critical blood requests', href: '/super-admin/operations/requests' },
+    { count: snapshot.metrics.pendingRequests, label: language === 'bn' ? 'অপেক্ষমাণ রক্তের অনুরোধ' : 'pending blood requests', href: '/super-admin/operations/requests' },
+    { count: unverifiedTestimonials, label: language === 'bn' ? 'যাচাই না করা অভিজ্ঞতা' : 'unverified testimonials', href: '/super-admin/content/testimonials' },
+    { count: (snapshot.metrics.pendingPartners ?? 0) + ((snapshot.metrics.users ?? 0) - (snapshot.metrics.verifiedUsers ?? 0)), label: language === 'bn' ? 'যাচাইয়ের অপেক্ষায় থাকা অ্যাকাউন্ট' : 'accounts awaiting verification', href: '/super-admin/people/verification' },
+  ].filter(item => (item.count ?? 0) > 0);
+  const vitals = [
+    ['users', language === 'bn' ? 'মোট ব্যবহারকারী' : 'Total Users', '/super-admin/people'], ['hospitals', language === 'bn' ? 'হাসপাতাল' : 'Hospitals', '/super-admin/partners/hospitals'], ['blogs', language === 'bn' ? 'ব্লগ পোস্ট' : 'Blog Posts', '/super-admin/content/blog'], ['testimonials', language === 'bn' ? 'অভিজ্ঞতা' : 'Testimonials', '/super-admin/content/testimonials'], ['requests', language === 'bn' ? 'রক্তের অনুরোধ' : 'Blood Requests', '/super-admin/operations/requests'], ['pendingRequests', language === 'bn' ? 'অপেক্ষমাণ অনুরোধ' : 'Pending Requests', '/super-admin/operations/requests'], ['criticalRequests', language === 'bn' ? 'জরুরি অনুরোধ' : 'Critical Requests', '/super-admin/operations/requests'], ['verifiedTestimonials', language === 'bn' ? 'যাচাইকৃত অভিজ্ঞতা' : 'Verified Testimonials', '/super-admin/content/testimonials'],
+  ] as const;
+  const groups = ['O+', 'A+', 'B+', 'AB+', 'O-', 'A-', 'B-', 'AB-'];
+  const goal = 3000; // TODO: read the member goal from Settings > Platform when that field exists.
+  const endDate = '2026-10-31'; // TODO: read the goal end date from Settings > Platform when that field exists.
+  const members = snapshot.metrics.users ?? 0;
+  const daysLeft = Math.max(0, Math.ceil((new Date(`${endDate}T23:59:59`).getTime() - now.getTime()) / 86400000));
+  const needed = Math.max(0, goal - members);
+  return <div className="sa-overview"><section className="sa-overview-intro"><div><p className="sa-eyebrow">{language === 'bn' ? 'কমান্ড সেন্টার' : 'Command center'}</p><h1>{greeting}, {language === 'bn' ? 'সুপার অ্যাডমিন' : 'Super admin'}</h1><p>{language === 'bn' ? 'আজ প্ল্যাটফর্মের অবস্থা এখানে দেখুন।' : "Here's the state of the platform today."}</p><p>{date}</p></div><a className="sa-button" href="/" target="_blank" rel="noopener noreferrer">{language === 'bn' ? 'হোমপেজ দেখুন' : 'View homepage'}</a></section>
+    {attention.length > 0 && <section className="sa-attention"><div className="sa-section-heading"><h2>{language === 'bn' ? 'মনোযোগ প্রয়োজন' : 'Needs attention'}</h2></div><div className="sa-attention-list">{attention.map(item => <Link className="sa-attention-item" href={item.href} key={item.label}><span><strong>{number(item.count, language)} {item.label}</strong><small>{language === 'bn' ? 'দেখুন এবং পরবর্তী পদক্ষেপ নিন।' : 'Review and take the next action.'}</small></span><ArrowRight size={17} /></Link>)}</div></section>}
+    <section className="sa-section"><div className="sa-section-heading"><h2>{language === 'bn' ? 'প্ল্যাটফর্মের প্রাণচাঞ্চল্য' : 'Platform vitals'}</h2><span className="sa-pulse"><i />{language === 'bn' ? 'লাইভ ডেটা' : 'Live data'}</span></div><div className="sa-vitals">{vitals.map(([key, label, href]) => <Link className="sa-vital" href={href} key={key}><strong>{state === 'loading' ? '–' : number(snapshot.metrics[key], language)}</strong><span>{label}</span></Link>)}</div></section>
+    <section className="sa-member"><h2>{language === 'bn' ? 'সদস্য লক্ষ্য' : 'Member goal'}</h2><p>{number(members, language)} / {number(goal, language)} {language === 'bn' ? 'সদস্য' : 'members'}</p><div className="sa-progress"><span style={{ width: `${Math.min(100, goal ? (members / goal) * 100 : 0)}%` }} /></div><small>{number(daysLeft, language)} {language === 'bn' ? 'দিন বাকি · প্রতিদিন প্রয়োজন' : `days left · ${needed && daysLeft ? Math.ceil(needed / daysLeft) : 0} sign-ups needed per day`}</small></section>
+    <section className="sa-section"><div className="sa-section-heading"><h2>{language === 'bn' ? 'রক্তের গ্রুপ কাভারেজ' : 'Blood group coverage'}</h2></div><div className="sa-coverage">{groups.map(group => <div className={(snapshot.donorCounts[group] ?? 0) <= 1 ? 'is-low' : ''} key={group}><strong>{group}</strong><small>{number(snapshot.donorCounts[group] ?? 0, language)}</small></div>)}</div></section>
+    <section className="sa-section"><h2>{language === 'bn' ? 'দ্রুত কাজ' : 'Quick actions'}</h2><div className="sa-quick-list"><Quick href="/super-admin/people/users" icon={<UserPlus />} title={language === 'bn' ? 'ব্যবহারকারী যোগ করুন' : 'Add a user'} subtitle={language === 'bn' ? 'নেটওয়ার্কে একজন ব্যবহারকারী যোগ করুন।' : 'Add someone to the network.'} /><Quick href="/super-admin/partners/hospitals" icon={<Building2 />} title={language === 'bn' ? 'হাসপাতাল যোগ করুন' : 'Add a hospital'} subtitle={language === 'bn' ? 'হাসপাতাল রেকর্ড পরিচালনা করুন।' : 'Manage a hospital record.'} /><Quick href="/super-admin/content/blog" icon={<FileText />} title={language === 'bn' ? 'ব্লগ পোস্ট লিখুন' : 'Write a blog post'} subtitle={language === 'bn' ? 'সহায়ক লেখা প্রকাশ করুন।' : 'Publish a helpful article.'} /><Quick href="/super-admin/content/gallery" icon={<MapPin />} title={language === 'bn' ? 'চিত্রকথন পোস্ট করুন' : 'Post Chitrokothon'} subtitle={language === 'bn' ? 'কমিউনিটির শিল্পকর্ম শেয়ার করুন।' : 'Share community artwork.'} /><Quick href="/super-admin/operations/requests" icon={<HeartHandshake />} title={language === 'bn' ? 'অনুরোধ দেখুন' : 'View requests'} subtitle={language === 'bn' ? 'রক্তের অনুরোধ পর্যালোচনা করুন।' : 'Review blood requests.'} /><Quick href="/super-admin/partners/pipeline" icon={<Plus />} title={language === 'bn' ? 'যোগাযোগের লিড যোগ করুন' : 'Add outreach lead'} subtitle={language === 'bn' ? 'প্লেসহোল্ডার পেজ।' : 'Placeholder workspace.'} /><Quick href="/super-admin/analytics/reports" icon={<Megaphone />} title={language === 'bn' ? 'সাপ্তাহিক রিপোর্ট এক্সপোর্ট করুন' : 'Export weekly report'} subtitle={language === 'bn' ? 'প্লেসহোল্ডার পেজ।' : 'Placeholder workspace.'} /></div></section>
+    <section className="sa-section"><div className="sa-section-heading"><h2>{language === 'bn' ? 'কার্যক্রম' : 'Activity'}</h2><Link href="/super-admin/overview/activity">{language === 'bn' ? 'সব দেখুন' : 'View all'} <ArrowRight size={15} /></Link></div>{snapshot.activities.length ? <div className="sa-activity-list">{snapshot.activities.slice(0, 5).map(activity => <div className="sa-activity-row" key={activity.id}><Activity size={17} /><div><strong>{activity.type}</strong><small>{activity.description} · {activity.relatedLabel}</small></div><time>{formatDate(activity.occurredAt)}</time></div>)}</div> : <div className="sa-activity-empty"><strong>{language === 'bn' ? 'এখনও কোনো সাম্প্রতিক কার্যক্রম নেই' : 'No recent activity yet'}</strong><p>{language === 'bn' ? 'ব্যবহারকারী, হাসপাতাল ও অনুরোধের কার্যক্রম এখানে দেখা যাবে।' : 'Actions across users, hospitals, and requests will show up here as they happen.'}</p></div>}</section></div>;
+}
+
+function Quick({ href, icon, title, subtitle }: { href: string; icon: React.ReactNode; title: string; subtitle: string }) { return <Link className="sa-quick" href={href}><span className="sa-icon-tile">{icon}</span><span className="sa-quick-text"><strong>{title}</strong><small>{subtitle}</small></span><ArrowRight size={16} /></Link>; }

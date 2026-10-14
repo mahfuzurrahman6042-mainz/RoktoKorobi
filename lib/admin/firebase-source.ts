@@ -12,14 +12,14 @@ export function createFirebaseAdminSource(user: User): AdminDataSource {
   return {
     async load(signal) {
       if (!database || !user.email || !(await isSuperAdmin(user.email))) return { state: 'unconfigured', snapshot: emptySnapshot() };
-      const [usersSnap, requestsSnap, partnersSnap, activitySnap] = await Promise.all([
-        get(ref(database, 'users')), get(ref(database, 'bloodRequests')), get(ref(database, 'partnerInstitutes')), get(ref(database, 'activityLogs')),
+      const [usersSnap, requestsSnap, partnersSnap, activitySnap, hospitalsSnap, blogsSnap, testimonialsSnap] = await Promise.all([
+        get(ref(database, 'users')), get(ref(database, 'bloodRequests')), get(ref(database, 'partnerInstitutes')), get(ref(database, 'activityLogs')), get(ref(database, 'hospitals')), get(ref(database, 'blogs')), get(ref(database, 'testimonials')),
       ]);
       if (signal.aborted) throw new DOMException('Request aborted', 'AbortError');
 
       const users = Object.entries(asRecord(usersSnap.val())).map(([id, raw]): UserRecord => {
         const value = asRecord(raw);
-        return { id, displayName: value.name || value.displayName || 'Unnamed user', district: value.district || value.location || 'Not provided', status: value.emailVerified === true ? 'verified' : 'unverified', joinedAt: iso(value.createdAt) };
+        return { id, displayName: value.name || value.displayName || 'Unnamed user', district: value.district || value.location || 'Not provided', status: value.emailVerified === true ? 'verified' : 'unverified', joinedAt: iso(value.createdAt), isDonor: value.isDonor === true && value.availability !== false };
       });
       const requests = Object.entries(asRecord(requestsSnap.val())).map(([id, raw]): RequestRecord => {
         const value = asRecord(raw);
@@ -40,12 +40,23 @@ export function createFirebaseAdminSource(user: User): AdminDataSource {
       const pending = partners.filter(item => item.status === 'pending').length;
       const suspended = partners.filter(item => item.status === 'suspended').length;
       const fulfilled = requests.filter(item => item.status === 'fulfilled').length;
+      const donorCounts: Record<string, number> = {};
+      users.forEach(userRecord => {
+        const raw = asRecord(asRecord(usersSnap.val())[userRecord.id]);
+        const group = typeof raw.bloodGroup === 'string' ? raw.bloodGroup.toUpperCase() : '';
+        if (userRecord.isDonor && group) donorCounts[group] = (donorCounts[group] ?? 0) + 1;
+      });
+      const requestValues = Object.values(asRecord(requestsSnap.val())).map(raw => asRecord(raw));
+      const criticalRequests = requestValues.filter(value => String(value.urgency || value.priority || '').toLowerCase() === 'critical').length;
+      const count = (value: unknown) => Object.keys(asRecord(value)).length;
+      const testimonialValues = Object.values(asRecord(testimonialsSnap.val())).map(raw => asRecord(raw));
       const snapshot: AdminSnapshot = {
-        metrics: { users: users.length, verifiedUsers: users.filter(item => item.status === 'verified').length, donors: users.filter(item => asRecord(asRecord(usersSnap.val())[item.id]).isDonor === true && asRecord(asRecord(usersSnap.val())[item.id]).availability !== false).length, partners: approved, pendingPartners: pending, requests: requests.length, fulfilledRequests: fulfilled, delegates: Object.values(asRecord(usersSnap.val())).filter(raw => ['delegate', 'country_delegate'].includes(asRecord(raw).role)).length, students: partners.reduce((sum, item) => sum + (item.students || 0), 0) },
+        metrics: { users: users.length, verifiedUsers: users.filter(item => item.status === 'verified').length, donors: users.filter(item => asRecord(asRecord(usersSnap.val())[item.id]).isDonor === true && asRecord(asRecord(usersSnap.val())[item.id]).availability !== false).length, partners: approved, pendingPartners: pending, requests: requests.length, pendingRequests: requests.filter(item => item.status === 'pending').length, criticalRequests, fulfilledRequests: fulfilled, hospitals: count(hospitalsSnap.val()), blogs: count(blogsSnap.val()), testimonials: testimonialValues.length, verifiedTestimonials: testimonialValues.filter(value => value.status === 'approved' || value.verified === true).length, delegates: Object.values(asRecord(usersSnap.val())).filter(raw => ['delegate', 'country_delegate'].includes(asRecord(raw).role)).length, students: partners.reduce((sum, item) => sum + (item.students || 0), 0) },
         partners, users: users.slice(0, 100), requests: requests.slice(0, 100), activities,
         partnerStatus: { active: approved, pending, suspended }, requestStatus: { open: requests.filter(item => item.status === 'open').length, fulfilled, pending: requests.filter(item => item.status === 'pending').length },
         health: { connection: 'Connected', database: 'Available', emailVerification: user.emailVerified ? 'Verified' : 'Required', rules: 'Protected', lastSync: new Date().toISOString(), version: process.env.NEXT_PUBLIC_APP_VERSION || '22.0.4' },
         profile: { displayName: user.displayName || user.email, emailVerified: user.emailVerified },
+        donorCounts,
       };
       return { state: 'ready', snapshot };
     },

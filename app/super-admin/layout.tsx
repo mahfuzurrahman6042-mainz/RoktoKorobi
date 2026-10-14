@@ -13,15 +13,23 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
   const [source, setSource] = useState<AdminDataSource | null>(null);
   const [checking, setChecking] = useState(true);
 
-  useEffect(() => onAuthStateChange(async user => {
-    if (!user) { router.replace('/login'); return; }
-    if (!user.emailVerified) { router.replace('/verify-email'); return; }
-    try {
-      if (!user.email || !(await isSuperAdmin(user.email))) throw new Error('Access denied');
-      setSource(createFirebaseAdminSource(user));
-    } catch { router.replace('/dashboard'); }
-    finally { setChecking(false); }
-  }), [router]);
+  useEffect(() => {
+    let active = true;
+    const unsubscribe = onAuthStateChange(async user => {
+      if (!active) return;
+      if (!user) { router.replace('/login'); return; }
+      if (!user.emailVerified) { router.replace('/verify-email'); return; }
+      try {
+        if (!user.email || !(await isSuperAdmin(user.email))) throw new Error('Access denied');
+        if (active) setSource(createFirebaseAdminSource(user));
+      } catch {
+        if (active) router.replace('/dashboard');
+      } finally {
+        if (active) setChecking(false);
+      }
+    });
+    return () => { active = false; unsubscribe(); };
+  }, [router]);
 
   if (checking || !source) return <main className="rr-root rr-admin-loading"><p>Checking RoktoKorobi admin access…</p></main>;
   return <AdminLayout source={source}>{children}</AdminLayout>;

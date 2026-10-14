@@ -1,31 +1,27 @@
-import { LayoutDashboard, Users, Droplet, HeartHandshake, Building2, UserPlus, Link2, Building, Network, MessageSquare, FileText, ImageIcon, Activity, BarChart3, Settings2, SlidersHorizontal } from 'lucide-react';
+import { Activity, BarChart3, Building2, FileText, LayoutDashboard, Settings2, ShieldCheck, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-export interface NavItem { label: string; href: string; icon: LucideIcon }
-// Only routes supplied by the user are treated as known. Other views live in an
-// explicit preview namespace and must be mapped to existing routes on integration.
-export const navigation: { label: string; items: NavItem[] }[] = [
-  { label: 'Platform', items: [
-    { label: 'Overview', href: '/super-admin', icon: LayoutDashboard },
-    { label: 'Users', href: '/super-admin/preview/users', icon: Users },
-    { label: 'Blood requests', href: '/super-admin/preview/requests', icon: Droplet },
-    { label: 'Donors', href: '/super-admin/preview/donors', icon: HeartHandshake },
-  ] },
-  { label: 'Partner operations', items: [
-    { label: 'Partner control center', href: '/super-admin/partner-control', icon: SlidersHorizontal },
-    { label: 'Partner institutions', href: '/super-admin/partner-institutes', icon: Building2 },
-    { label: 'Activate new partner', href: '/super-admin/partner-onboard', icon: UserPlus },
-    { label: 'Referral activity', href: '/super-admin/preview/referrals', icon: Link2 },
-  ] },
-  { label: 'Content & network', items: [
-    { label: 'Hospitals', href: '/super-admin/preview/hospitals', icon: Building },
-    { label: 'Organizations', href: '/super-admin/preview/organizations', icon: Network },
-    { label: 'Testimonials', href: '/super-admin/preview/testimonials', icon: MessageSquare },
-    { label: 'Blog', href: '/super-admin/preview/blog', icon: FileText },
-    { label: 'Illustrations', href: '/super-admin/preview/illustrations', icon: ImageIcon },
-  ] },
-  { label: 'Administration', items: [
-    { label: 'Activity logs', href: '/super-admin/preview/activity', icon: Activity },
-    { label: 'Reports', href: '/super-admin/preview/reports', icon: BarChart3 },
-    { label: 'Settings', href: '/super-admin/preview/settings', icon: Settings2 },
-  ] },
+import type { MetricKey } from '@/lib/admin/types';
+
+export type Language = 'en' | 'bn';
+export type SectorStatus = 'live' | 'building' | 'planned';
+export type Localized = { en: string; bn: string };
+export type SuperAdminSubpage = { slug: string; title: Localized; description: Localized; status: SectorStatus };
+export type SuperAdminSector = { slug: string; title: Localized; summary: Localized; stats: [MetricKey, MetricKey, MetricKey]; subpages: SuperAdminSubpage[]; icon: LucideIcon };
+const l = (en: string, bn: string): Localized => ({ en, bn });
+const pages = (items: Array<[string, string, string, string, SectorStatus]>) => items.map(([slug, en, bn, description, status]) => ({ slug, title: l(en, bn), description: l(description, 'এই বিভাগটি প্রস্তুত করা হচ্ছে।'), status }));
+
+export const superAdminNavigation: SuperAdminSector[] = [
+  { slug: 'overview', title: l('Overview', 'সারসংক্ষেপ'), summary: l('A command center for the health of the platform.', 'প্ল্যাটফর্মের অবস্থার কমান্ড সেন্টার।'), stats: ['users', 'requests', 'partners'], icon: LayoutDashboard, subpages: pages([['command-center', 'Command center', 'কমান্ড সেন্টার', 'See the most important platform signals.', 'live'], ['activity', 'Activity Log', 'অ্যাক্টিভিটি লগ', 'Review recent actions across the platform.', 'live'], ['alerts', 'Alerts', 'সতর্কতা', 'Review urgent items that need attention.', 'building']]) },
+  { slug: 'people', title: l('People', 'মানুষ'), summary: l('Manage the people who power the network.', 'নেটওয়ার্ক চালানো মানুষদের পরিচালনা করুন।'), stats: ['users', 'verifiedUsers', 'donors'], icon: Users, subpages: pages([['users', 'Users', 'ব্যবহারকারী', 'Search users and review verification status.', 'live'], ['donors', 'Donors', 'রক্তদাতা', 'View the active donor network.', 'live'], ['volunteers', 'Volunteers', 'স্বেচ্ছাসেবক', 'Coordinate volunteers across the network.', 'planned'], ['verification', 'Verification', 'যাচাই', 'Review people waiting for verification.', 'building'], ['admins', 'Admins and roles', 'অ্যাডমিন ও ভূমিকা', 'Control administrative access.', 'live']]) },
+  { slug: 'operations', title: l('Operations', 'কার্যক্রম'), summary: l('Keep requests, dispatch, and donations moving.', 'অনুরোধ, বিতরণ ও রক্তদান সচল রাখুন।'), stats: ['requests', 'pendingRequests', 'fulfilledRequests'], icon: Activity, subpages: pages([['requests', 'Blood Requests', 'রক্তের অনুরোধ', 'Review open, pending, and fulfilled requests.', 'live'], ['dispatch', 'Dispatch', 'বিতরণ', 'Coordinate donor matching and dispatch.', 'building'], ['donations', 'Donations', 'রক্তদান', 'Track recorded donations.', 'building'], ['drives', 'Drives', 'রক্তদান ক্যাম্পেইন', 'Plan and monitor donation drives.', 'planned']]) },
+  { slug: 'partners', title: l('Partners', 'অংশীদার'), summary: l('Coordinate the institutional network.', 'প্রাতিষ্ঠানিক নেটওয়ার্ক সমন্বয় করুন।'), stats: ['partners', 'pendingPartners', 'hospitals'], icon: Building2, subpages: pages([['hospitals', 'Hospitals', 'হাসপাতাল', 'Manage hospitals and partner institutions.', 'live'], ['directory', 'Directory', 'ডিরেক্টরি', 'Browse the partner directory.', 'building'], ['pipeline', 'Outreach pipeline', 'যোগাযোগের পাইপলাইন', 'Track prospective partners.', 'planned'], ['team', 'Team', 'টিম', 'Manage partner-facing teams.', 'planned']]) },
+  { slug: 'network', title: l('Network', 'নেটওয়ার্ক'), summary: l('Understand coverage across Bangladesh.', 'বাংলাদেশজুড়ে কাভারেজ বুঝুন।'), stats: ['donors', 'partners', 'requests'], icon: BarChart3, subpages: pages([['map', 'Map', 'মানচিত্র', 'Explore the donor network geographically.', 'building'], ['regions', 'Regions', 'অঞ্চল', 'Compare activity by region.', 'planned'], ['gaps', 'Gaps', 'ঘাটতি', 'Find places that need more coverage.', 'planned']]) },
+  { slug: 'content', title: l('Content', 'কনটেন্ট'), summary: l('Keep public information useful and current.', 'জনসাধারণের তথ্য উপকারী ও হালনাগাদ রাখুন।'), stats: ['blogs', 'testimonials', 'hospitals'], icon: FileText, subpages: pages([['testimonials', 'Testimonials', 'অভিজ্ঞতা', 'Review stories shared by the community.', 'live'], ['blog', 'Blog', 'ব্লগ', 'Create and publish helpful articles.', 'live'], ['gallery', 'Chitrokothon', 'চিত্রকথন', 'Manage community artwork.', 'building'], ['ticker', 'Ticker', 'টিকার', 'Manage homepage announcements.', 'planned'], ['eligibility', 'Eligibility', 'যোগ্যতা', 'Maintain donor eligibility guidance.', 'planned'], ['translations', 'Translations', 'অনুবাদ', 'Review bilingual product wording.', 'planned']]) },
+  { slug: 'analytics', title: l('Analytics', 'বিশ্লেষণ'), summary: l('Measure growth and impact over time.', 'সময়ের সঙ্গে বৃদ্ধি ও প্রভাব পরিমাপ করুন।'), stats: ['users', 'donors', 'requests'], icon: BarChart3, subpages: pages([['growth', 'Growth', 'বৃদ্ধি', 'Measure member growth.', 'planned'], ['donations', 'Donations', 'রক্তদান', 'Measure donation impact.', 'planned'], ['social', 'Social', 'সামাজিক', 'Measure social reach.', 'planned'], ['reports', 'Reports', 'রিপোর্ট', 'Export platform reports.', 'planned']]) },
+  { slug: 'security', title: l('Security', 'নিরাপত্তা'), summary: l('Keep people, messages, and access safe.', 'মানুষ, বার্তা ও প্রবেশাধিকার নিরাপদ রাখুন।'), stats: ['users', 'pendingPartners', 'requests'], icon: ShieldCheck, subpages: pages([['reports', 'Reports', 'রিপোর্ট', 'Review security reports.', 'planned'], ['messaging', 'Messaging', 'বার্তা', 'Review message safety.', 'planned'], ['audit-log', 'Audit log', 'অডিট লগ', 'Review access history.', 'planned'], ['sessions', 'Sessions', 'সেশন', 'Review active sessions.', 'planned']]) },
+  { slug: 'settings', title: l('Settings', 'সেটিংস'), summary: l('Configure the platform and its integrations.', 'প্ল্যাটফর্ম ও এর ইন্টিগ্রেশন কনফিগার করুন।'), stats: ['users', 'partners', 'requests'], icon: Settings2, subpages: pages([['platform', 'Platform', 'প্ল্যাটফর্ম', 'Manage platform configuration.', 'live'], ['roles', 'Roles', 'ভূমিকা', 'Create and manage roles.', 'live'], ['localization', 'Localization', 'লোকালাইজেশন', 'Manage language and regional settings.', 'planned'], ['integrations', 'Integrations', 'ইন্টিগ্রেশন', 'Connect platform services.', 'planned']]) },
 ];
+
+export const navigation = [{ label: 'Super admin', items: superAdminNavigation.map(sector => ({ label: sector.title.en, href: `/super-admin/${sector.slug}`, icon: sector.icon })) }];
+export function getSector(slug: string) { return superAdminNavigation.find(sector => sector.slug === slug); }
+export function getSubpage(sector: SuperAdminSector, slug: string) { return sector.subpages.find(page => page.slug === slug); }

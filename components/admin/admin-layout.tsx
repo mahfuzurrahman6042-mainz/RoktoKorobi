@@ -9,12 +9,15 @@ import { AdminHeader } from './admin-header';
 import { navigation } from './navigation';
 import { PermissionDenied } from './states';
 import type { AdminDataSource } from '@/lib/admin/types';
+import { SuperAdminShell, useAdmin as useSuperAdmin } from './super-admin-shell';
 
 type AdminContextValue = ReturnType<typeof useAdminData> & { refreshPartnerStatistics?: () => Promise<void> };
 const AdminContext = createContext<AdminContextValue | null>(null);
-export function useAdmin() { const value = useContext(AdminContext); if (!value) throw new Error('Admin components require AdminLayout'); return value; }
+export function useAdmin() { return useSuperAdmin(); }
 
 export function AdminLayout({ children, source = unconnectedSource }: { children: ReactNode; source?: AdminDataSource }) {
+  return <SuperAdminShell source={source}>{children}</SuperAdminShell>;
+  /* Legacy implementation retained below for the non-super-admin workspace during migration. */
   const pathname = usePathname();
   const title = navigation.flatMap(group => group.items).find(item => item.href === pathname)?.label ?? 'Dashboard';
   const data = useAdminData(source);
