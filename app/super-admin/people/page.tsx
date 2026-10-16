@@ -1,2 +1,2 @@
-import { SectorLanding } from '@/components/admin/sector-pages';
-export default function PeoplePage() { return <SectorLanding slug="people" />; }
+import { SuperAdminSection } from '@/components/admin/super-admin-section';
+export default function PeoplePage() { return <SuperAdminSection section="people" />; }

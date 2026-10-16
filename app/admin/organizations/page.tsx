@@ -1,14 +1,16 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import OrganizationTable from '@/components/admin/organizations/OrganizationTable';
+import Link from 'next/link';
 
 export default async function OrganizationsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; status?: string };
+  searchParams: Promise<{ page?: string; status?: string }>;
 }) {
   const supabase = await createAdminClient();
+  const resolvedSearchParams = await searchParams;
   
-  const page = parseInt(searchParams.page || '1');
+  const page = parseInt(resolvedSearchParams.page || '1');
   const limit = 20;
   const offset = (page - 1) * limit;
   
@@ -18,9 +20,9 @@ export default async function OrganizationsPage({
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (searchParams.status === 'active') {
+  if (resolvedSearchParams.status === 'active') {
     query = query.eq('is_active', true);
-  } else if (searchParams.status === 'inactive') {
+  } else if (resolvedSearchParams.status === 'inactive') {
     query = query.eq('is_active', false);
   }
 
@@ -35,11 +37,12 @@ export default async function OrganizationsPage({
             Manage blood donation organizations and their representatives.
           </p>
         </div>
-        <button
+        <Link
+          href="/super-admin/partner-onboard"
           className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
         >
-          Add Organization
-        </button>
+          Activate Partner
+        </Link>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">

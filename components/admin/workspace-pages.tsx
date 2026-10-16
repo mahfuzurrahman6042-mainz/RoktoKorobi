@@ -17,12 +17,12 @@ export function PageHeading({ eyebrow, title, description }: { eyebrow: string; 
 }
 export function PartnersTable({ initialStatus = 'all' }: { initialStatus?: string }) {
   const { state, snapshot, reload } = useAdmin();
-  return <DataTable key={initialStatus} title="Partner institutions" records={snapshot.partners} state={state} retry={reload} initialStatus={initialStatus} searchable={row => `${row.name} ${row.district}`} statuses={['active', 'pending', 'suspended']} columns={[
+  return <DataTable key={initialStatus} title="Partner institutions" records={snapshot.partners} state={state} retry={reload} initialStatus={initialStatus} searchable={row => `${row.name} ${row.district}`} statuses={['active', 'pending', 'suspended', 'rejected']} columns={[
     { label: 'Institution', render: row => <strong>{row.name}</strong> },
     { label: 'District', render: row => row.district },
     { label: 'Status', render: row => <StatusBadge status={row.status} /> },
     { label: 'Students reached', numeric: true, render: row => formatCount(row.students) },
-    { label: 'Activated (BDT)', render: row => formatDate(row.activatedAt) },
+    { label: 'Activated on', render: row => formatDate(row.activatedAt) },
     { label: 'Referral', render: row => <ReferralCopy url={row.referralUrl} /> },
   ]} />;
 }
@@ -42,6 +42,15 @@ function UsersPage() {
     { label: 'Joined (BDT)', render: row => formatDate(row.joinedAt) },
   ]} />;
 }
+function DonorsPage() {
+  const { snapshot, state, reload } = useAdmin();
+  return <DataTable title="Donors" records={snapshot.users.filter(row => row.isDonor)} state={state} retry={reload} searchable={row => `${row.displayName} ${row.district}`} statuses={['verified', 'unverified']} columns={[
+    { label: 'Donor', render: row => <strong>{row.displayName}</strong> },
+    { label: 'District', render: row => row.district },
+    { label: 'Verification', render: row => <StatusBadge status={row.status} /> },
+    { label: 'Joined (BDT)', render: row => formatDate(row.joinedAt) },
+  ]} />;
+}
 function RequestsPage() {
   const { snapshot, state, reload } = useAdmin();
   return <DataTable title="Blood requests" records={snapshot.requests} state={state} retry={reload} searchable={row => `${row.reference} ${row.district} ${row.bloodGroup}`} statuses={['open', 'pending', 'fulfilled']} columns={[
@@ -54,5 +63,6 @@ function RequestsPage() {
 }
 export function PreviewPage({ section }: { section: string }) {
   const label = navigation.flatMap(group => group.items).find(item => item.href === `/super-admin/preview/${section}`)?.label ?? 'Workspace';
-  return <><PageHeading eyebrow="Admin workspace" title={label} description="A focused view of your platform operations." />{section === 'users' ? <UsersPage /> : section === 'requests' ? <RequestsPage /> : section === 'activity' ? <ActivityTable /> : section === 'referrals' ? <PartnersTable /> : section === 'reports' ? <OperationalSummaries /> : section === 'settings' ? <SystemHealthPanel /> : <section className="rr-panel"><EmptyState title={`${label} is not connected`} description="This workspace needs your existing route and data helpers. No records or actions are available in the standalone preview." /></section>}</>;
+  const connectedRoute = label === 'Blog' ? '/admin/blogs' : label === 'Hospitals' ? '/admin/hospitals' : label === 'Organizations' ? '/admin/organizations' : label === 'Testimonials' ? '/admin/testimonials' : label === 'Illustrations' ? '/admin/illustrations' : '/admin';
+  return <><PageHeading eyebrow="Admin workspace" title={label} description="A focused view of your platform operations." />{section === 'users' ? <UsersPage /> : section === 'donors' ? <DonorsPage /> : section === 'requests' ? <RequestsPage /> : section === 'activity' ? <ActivityTable /> : section === 'referrals' ? <PartnersTable /> : section === 'reports' ? <OperationalSummaries /> : section === 'settings' ? <SystemHealthPanel /> : <section className="rr-panel"><EmptyState title={`${label} is available in the main admin workspace`} description="Use the button below to open the connected management screen." /><Link className="rr-button rr-button-primary" href={connectedRoute}>Open connected workspace <ArrowUpRight size={15} aria-hidden="true" /></Link></section>}</>;
 }
