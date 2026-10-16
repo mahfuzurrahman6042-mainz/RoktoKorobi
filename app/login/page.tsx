@@ -91,9 +91,10 @@ export default function Login() {
 
       router.push(userCredential.user.emailVerified ? '/dashboard' : '/verify-email');
     } catch (error: any) {
-      console.error('Login error:', error);
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setError(t('invalid'));
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setError(language === 'bn'
+          ? 'ইমেইল বা পাসওয়ার্ড মেলেনি। পাসওয়ার্ড ভুলে গেলে নিচের লিংক দিয়ে রিসেট করুন।'
+          : 'Email or password did not match. If you forgot your password, use the reset link below.');
       } else if (error.code === 'auth/invalid-email') {
         setError(language === 'bn' ? 'অবৈধ ইমেল ঠিকানা' : 'Invalid email address');
       } else if (error.code === 'auth/too-many-requests') {
