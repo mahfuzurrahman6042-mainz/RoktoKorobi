@@ -82,17 +82,17 @@ export default function PartnerAccountPage() {
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <label htmlFor="partner-password" className="block text-sm font-semibold">Password</label>
-              <div className="relative">
-                <input id="partner-password" required type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} value={form.password} onChange={event => setForm(previous => ({ ...previous, password: event.target.value }))} className={`${field} pr-12`} />
-                <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#5C463B] hover:bg-[#F5EDD8] focus-visible:outline-2 focus-visible:outline-[#A5102F]">{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button>
+              <div className="relative mt-2">
+                <input id="partner-password" required type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} value={form.password} onChange={event => setForm(previous => ({ ...previous, password: event.target.value }))} className={`${field} !mt-0 h-12 pr-12`} />
+                <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} className="absolute right-2 top-1/2 flex !h-9 !min-h-0 w-9 -translate-y-1/2 items-center justify-center rounded-lg !p-0 text-[#5C463B] hover:bg-[#F5EDD8] focus-visible:outline-2 focus-visible:outline-[#A5102F]">{showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>
               </div>
               <span className="mt-1 block text-xs text-[#5C463B]">At least 8 characters.</span>
             </div>
             <div>
               <label htmlFor="partner-confirm-password" className="block text-sm font-semibold">Confirm password</label>
-              <div className="relative">
-                <input id="partner-confirm-password" required type={showConfirmation ? 'text' : 'password'} autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={event => setForm(previous => ({ ...previous, confirmPassword: event.target.value }))} className={`${field} pr-12`} />
-                <button type="button" aria-label={showConfirmation ? 'Hide confirmation password' : 'Show confirmation password'} aria-pressed={showConfirmation} onClick={() => setShowConfirmation(value => !value)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#5C463B] hover:bg-[#F5EDD8] focus-visible:outline-2 focus-visible:outline-[#A5102F]">{showConfirmation ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button>
+              <div className="relative mt-2">
+                <input id="partner-confirm-password" required type={showConfirmation ? 'text' : 'password'} autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={event => setForm(previous => ({ ...previous, confirmPassword: event.target.value }))} className={`${field} !mt-0 h-12 pr-12`} />
+                <button type="button" aria-label={showConfirmation ? 'Hide confirmation password' : 'Show confirmation password'} aria-pressed={showConfirmation} onClick={() => setShowConfirmation(value => !value)} className="absolute right-2 top-1/2 flex !h-9 !min-h-0 w-9 -translate-y-1/2 items-center justify-center rounded-lg !p-0 text-[#5C463B] hover:bg-[#F5EDD8] focus-visible:outline-2 focus-visible:outline-[#A5102F]">{showConfirmation ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}</button>
               </div>
             </div>
           </div>
