@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { sendMessage, getMessages, markMessageAsRead } from '@/lib/firebase';
+import { sendMessage, markMessageAsRead } from '@/lib/firebase';
 import { getCurrentUser } from '@/lib/firebase';
+import { getMessagesForCurrentUser } from '@/lib/secure-messaging';
 import { Send, X, MessageCircle } from 'lucide-react';
 
 interface Message {
@@ -41,13 +42,14 @@ export default function MessagingChat({ requestId, receiverId, receiverName, isO
   useEffect(() => {
     if (!isOpen || !requestId) return;
 
-    const unsubscribe = getMessages(requestId, (msgs) => {
+    const unsubscribe = getMessagesForCurrentUser(requestId, (msgs) => {
       setMessages(msgs);
       
       // Mark messages as read when they're received
       msgs.forEach(async (msg) => {
         if (msg.receiverId === currentUser?.uid && !msg.read) {
-          await markMessageAsRead(msg.id, requestId);
+          try { await markMessageAsRead(msg.id, requestId); }
+          catch (error) { console.error('Could not mark message as read:', error); }
         }
       });
     });

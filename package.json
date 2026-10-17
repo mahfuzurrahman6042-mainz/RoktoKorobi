@@ -7,7 +7,8 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:rules": "node --test tests/database-rules.test.mjs"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.6",
@@ -29,6 +30,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@types/leaflet": "^1.9.4",
     "@types/node": "^20.8.6",
     "@types/react": "^18.2.0",

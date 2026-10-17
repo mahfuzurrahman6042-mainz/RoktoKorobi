@@ -191,7 +191,8 @@ export default function Home() {
         const districtsCovered = uniqueDistricts.size;
         
         // Fetch blood requests stats
-        const requestsStats = await getBloodRequestsStats();
+        // Guest visitors cannot read patient contact records just to calculate a counter.
+        const requestsStats = await getBloodRequestsStats().catch(() => ({ total: 0, fulfilled: 0 }));
         console.log('Blood requests stats:', requestsStats);
         
         // Fetch partner organizations count

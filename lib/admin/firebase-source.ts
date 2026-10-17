@@ -13,7 +13,7 @@ export function createFirebaseAdminSource(user: User): AdminDataSource {
     async load(signal) {
       if (!database || !user.email || !(await isSuperAdmin(user.email))) return { state: 'unconfigured', snapshot: emptySnapshot() };
       const [usersSnap, requestsSnap, partnersSnap, activitySnap, hospitalsSnap, blogsSnap, testimonialsSnap] = await Promise.all([
-        get(ref(database, 'users')), get(ref(database, 'bloodRequests')), get(ref(database, 'partnerInstitutes')), get(ref(database, 'activityLogs')), get(ref(database, 'hospitals')), get(ref(database, 'blogs')), get(ref(database, 'testimonials')),
+        get(ref(database, 'users')), get(ref(database, 'bloodRequests')), get(ref(database, 'partnerInstitutes')), get(ref(database, 'activityLogs')), get(ref(database, 'hospitals')), get(ref(database, 'blogPosts')), get(ref(database, 'testimonials')),
       ]);
       if (signal.aborted) throw new DOMException('Request aborted', 'AbortError');
 

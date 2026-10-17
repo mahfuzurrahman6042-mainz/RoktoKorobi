@@ -159,7 +159,8 @@ export const useTestimonials = () => {
       return;
     }
 
-    const testimonialsRef = ref(database, 'testimonials');
+    // Published stories contain no private contact details.
+    const testimonialsRef = ref(database, 'publicTestimonials');
     const unsubscribe = onValue(testimonialsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {

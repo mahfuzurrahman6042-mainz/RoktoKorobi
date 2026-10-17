@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { database, ref, get, set, update, remove } from '@/lib/firebase';
+import { database, ref, get, set, update } from '@/lib/firebase';
 import { MessageSquare, Plus, Trash2, Edit, Search, Check, X, Star } from 'lucide-react';
 
 interface Testimonial {
@@ -20,6 +20,8 @@ interface Testimonial {
   email?: string;
   phone?: string;
   testimonial?: string;
+  story?: string;
+  language?: string;
   rating?: string;
 }
 
@@ -103,7 +105,10 @@ export default function TestimonialsPage() {
     try {
       if (!database) return;
       
-      await remove(ref(database, `testimonials/${testimonialId}`));
+      await update(ref(database), {
+        [`testimonials/${testimonialId}`]: null,
+        [`publicTestimonials/${testimonialId}`]: null,
+      });
       fetchTestimonials();
     } catch (error) {
       console.error('Error deleting testimonial:', error);
@@ -114,18 +119,30 @@ export default function TestimonialsPage() {
     try {
       if (!database) return;
 
-      const isUserSubmitted = testimonial.testimonial !== undefined;
+      const isUserSubmitted = testimonial.story !== undefined || testimonial.testimonial !== undefined;
       const updateData: any = {
         updatedAt: new Date().toISOString()
       };
 
       if (isUserSubmitted) {
-        updateData.approved = testimonial.approved === false ? true : false;
+        const publish = testimonial.approved !== true;
+        updateData.approved = publish;
+        await update(ref(database), {
+          [`testimonials/${testimonial.id}/approved`]: publish,
+          [`testimonials/${testimonial.id}/updatedAt`]: updateData.updatedAt,
+          [`publicTestimonials/${testimonial.id}`]: publish ? {
+            name: testimonial.name,
+            story: testimonial.story || testimonial.testimonial || '',
+            rating: Number(testimonial.rating) || 5,
+            language: testimonial.language || 'en',
+            createdAt: testimonial.createdAt,
+            approved: true,
+          } : null,
+        });
       } else {
         updateData.verified = testimonial.verified === false ? true : false;
+        await update(ref(database, `testimonials/${testimonial.id}`), updateData);
       }
-
-      await update(ref(database, `testimonials/${testimonial.id}`), updateData);
       fetchTestimonials();
     } catch (error) {
       console.error('Error toggling verified status:', error);

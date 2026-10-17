@@ -7,7 +7,7 @@
       ".write": false
     },
     "partnerInvites": {
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$code": {
         ".read": true,
         ".validate": "newData.hasChildren(['name', 'instituteId', 'active']) && newData.child('name').isString() && newData.child('instituteId').isString() && newData.child('active').isBoolean()"
@@ -15,24 +15,24 @@
     },
     "users": {
       ".indexOn": ["email", "instituteId"],
-      ".read": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
-        ".write": "auth != null && auth.uid === $uid && newData.exists() && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && (data.exists() ? (newData.child('role').val() === data.child('role').val() && newData.child('donations').val() === data.child('donations').val() && newData.child('emailVerified').val() === data.child('emailVerified').val() && newData.child('instituteId').val() === data.child('instituteId').val() && newData.child('referralCode').val() === data.child('referralCode').val() && newData.child('isBanned').val() === data.child('isBanned').val() && newData.child('banReason').val() === data.child('banReason').val() && newData.child('bannedAt').val() === data.child('bannedAt').val() && newData.child('bannedBy').val() === data.child('bannedBy').val() && newData.child('reviewStatus').val() === data.child('reviewStatus').val() && newData.child('reviewedAt').val() === data.child('reviewedAt').val() && newData.child('reviewedBy').val() === data.child('reviewedBy').val() && newData.child('roleAssignedAt').val() === data.child('roleAssignedAt').val() && newData.child('roleAssignedBy').val() === data.child('roleAssignedBy').val()) : (!newData.child('role').exists() && newData.child('donations').val() === 0 && !newData.child('emailVerified').exists() && !newData.child('isBanned').exists() && !newData.child('banReason').exists() && !newData.child('bannedAt').exists() && !newData.child('bannedBy').exists() && !newData.child('reviewStatus').exists() && !newData.child('reviewedAt').exists() && !newData.child('reviewedBy').exists() && !newData.child('roleAssignedAt').exists() && !newData.child('roleAssignedBy').exists() && ((!newData.child('instituteId').exists() && !newData.child('referralCode').exists()) || (newData.child('instituteId').val() === root.child('partnerInvites').child(newData.child('referralCode').val()).child('instituteId').val() && root.child('partnerInvites').child(newData.child('referralCode').val()).child('active').val() === true))))",
-        ".validate": "newData.hasChildren(['uid', 'email', 'acceptedTerms', 'acceptedPrivacy']) && newData.child('acceptedTerms').val() === true && newData.child('acceptedPrivacy').val() === true"
+        ".write": "auth != null && auth.uid === $uid && newData.exists() && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && (data.exists() ? (newData.child('role').val() === data.child('role').val() && (newData.child('donations').val() === data.child('donations').val() || (data.child('donations').isNumber() && newData.child('donations').isNumber() && newData.child('donations').val() === data.child('donations').val() + 1 && newData.child('lastDonationDate').isString() && newData.child('lastDonationDate').val() !== data.child('lastDonationDate').val())) && newData.child('emailVerified').val() === data.child('emailVerified').val() && newData.child('instituteId').val() === data.child('instituteId').val() && newData.child('referralCode').val() === data.child('referralCode').val() && newData.child('isBanned').val() === data.child('isBanned').val() && newData.child('banReason').val() === data.child('banReason').val() && newData.child('bannedAt').val() === data.child('bannedAt').val() && newData.child('bannedBy').val() === data.child('bannedBy').val() && newData.child('reviewStatus').val() === data.child('reviewStatus').val() && newData.child('reviewedAt').val() === data.child('reviewedAt').val() && newData.child('reviewedBy').val() === data.child('reviewedBy').val() && newData.child('roleAssignedAt').val() === data.child('roleAssignedAt').val() && newData.child('roleAssignedBy').val() === data.child('roleAssignedBy').val()) : (!newData.child('role').exists() && newData.child('donations').val() === 0 && !newData.child('emailVerified').exists() && !newData.child('isBanned').exists() && !newData.child('banReason').exists() && !newData.child('bannedAt').exists() && !newData.child('bannedBy').exists() && !newData.child('reviewStatus').exists() && !newData.child('reviewedAt').exists() && !newData.child('reviewedBy').exists() && !newData.child('roleAssignedAt').exists() && !newData.child('roleAssignedBy').exists() && ((!newData.child('instituteId').exists() && !newData.child('referralCode').exists()) || (newData.child('instituteId').val() === root.child('partnerInvites').child(newData.child('referralCode').val()).child('instituteId').val() && root.child('partnerInvites').child(newData.child('referralCode').val()).child('active').val() === true))))",
+        ".validate": "newData.child('email').isString() && (data.exists() || (newData.hasChildren(['uid', 'acceptedTerms', 'acceptedPrivacy']) && newData.child('acceptedTerms').val() === true && newData.child('acceptedPrivacy').val() === true))"
       }
     },
     "partnerInstitutes": {
-      ".read": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$instituteId": {
         ".read": "auth != null && auth.token.email_verified === true && data.child('adminUserId').val() === auth.uid"
       }
     },
     "partnerApplications": {
-      ".read": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
         ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('users').child($uid).child('email').val() === auth.token.email && !data.exists() && newData.exists() && newData.child('uid').val() === $uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending'",
@@ -54,68 +54,91 @@
       }
     },
     "partnerStats": {
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$instituteId": {
-        ".read": "auth != null && auth.token.email_verified === true && (root.child('security/superAdminUid').val() === auth.uid || root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid)"
+        ".read": "auth != null && auth.token.email_verified === true && (auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() || root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid)"
       }
     },
     "admins": {
-      ".read": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
-      ".write": false
+      ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".write": false,
+      "super_admin": {
+        ".read": "auth != null && auth.token.email_verified === true"
+      }
     },
     "roles": {
       ".read": "auth != null",
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "activityLogs": {
-      ".read": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "notifications": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
-        ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+        ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+        "$notificationId": {
+          "read": {
+            ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && data.parent().exists() && newData.val() === true"
+          }
+        }
       }
     },
     "bloodRequests": {
       ".read": "auth != null && auth.token.email_verified === true",
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$requestId": {
-        ".write": "auth != null && auth.token.email_verified === true && newData.exists() && newData.child('userId').val() === auth.uid && (!data.exists() || data.child('userId').val() === auth.uid)"
+        ".write": "auth != null && auth.token.email_verified === true && ((!data.exists() && newData.exists() && newData.child('userId').val() === auth.uid) || (data.exists() && data.child('userId').val() === auth.uid && (!newData.exists() || newData.child('userId').val() === auth.uid)))"
       }
     },
     "messages": {
       "$requestId": {
-        ".read": false,
+        ".indexOn": ["senderId", "receiverId"],
+        ".read": "auth != null && auth.token.email_verified === true && (root.child('bloodRequests').child($requestId).child('userId').val() === auth.uid || (query.orderByChild === 'senderId' && query.equalTo === auth.uid) || (query.orderByChild === 'receiverId' && query.equalTo === auth.uid))",
         "$messageId": {
           ".read": "auth != null && auth.token.email_verified === true && (data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)",
-          ".write": false
+          ".write": "auth != null && auth.token.email_verified === true && !data.exists() && newData.exists() && newData.child('senderId').val() === auth.uid && newData.child('receiverId').val() === root.child('bloodRequests').child($requestId).child('userId').val() && newData.child('requestId').val() === $requestId && newData.child('read').val() === false",
+          "read": {
+            ".write": "auth != null && auth.token.email_verified === true && auth.uid === data.parent().child('receiverId').val() && newData.val() === true"
+          }
         }
       }
     },
     "testimonials": {
+      ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      "$testimonialId": {
+        ".write": "auth != null && auth.token.email_verified === true && !data.exists() && newData.exists() && newData.child('approved').val() === false && newData.child('name').isString() && newData.child('story').isString() && newData.child('rating').isNumber()"
+      }
+    },
+    "publicTestimonials": {
       ".read": true,
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
+    },
+    "donors": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "hospitals": {
       ".read": true,
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "blogPosts": {
       ".read": true,
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "chitrokothon": {
       ".read": true,
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "organizations": {
       ".read": true,
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "settings": {
       ".read": true,
-      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     }
   }
 }
