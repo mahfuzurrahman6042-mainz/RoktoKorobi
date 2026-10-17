@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+const publicApplicationsOpen = false;
+
 export default function PartnerInstituteRegister() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -110,7 +112,7 @@ export default function PartnerInstituteRegister() {
                 Redirecting to home page...
               </p>
             </div>
-          ) : (
+          ) : publicApplicationsOpen ? (
             <form onSubmit={handleSubmit} style={{
               background: '#FDFAF4', borderRadius: '24px', padding: '48px',
               boxShadow: '0 4px 60px rgba(26,15,10,0.06)', border: '1px solid rgba(192,21,42,0.08)'
@@ -303,6 +305,12 @@ export default function PartnerInstituteRegister() {
 
               </div>
             </form>
+          ) : (
+            <div role="status" style={{ background: '#FDFAF4', border: '1px solid rgba(192,21,42,0.18)', borderRadius: '24px', padding: '32px', lineHeight: 1.7 }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>Partner applications are currently closed</h2>
+              <p>For the pilot, a RoktoKorobi super admin activates each partner after the organization leader creates an account. This form is not accepting submissions yet.</p>
+              <p style={{ marginTop: '12px' }}>If you have been invited to lead a partner organization, first <Link href="/register" style={{ color: '#C0152A', fontWeight: 700, textDecoration: 'underline' }}>create your account</Link>, then contact the RoktoKorobi team to complete activation.</p>
+            </div>
           )}
         </div>
       </div>

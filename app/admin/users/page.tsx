@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { database, ref, get, update, remove, getAllRoles, assignUserRole, getCurrentUser, isSuperAdmin } from '@/lib/firebase';
 import { Search, UserPlus, ArrowRight, X, Ban, Check, ChevronDown, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface User {
   uid: string;
@@ -102,6 +103,8 @@ function PageHeader({ title, subtitle, onBack }: { title: string; subtitle?: str
 }
 
 export default function UsersPage() {
+  // This legacy screen has no secure persistence path for account mutations.
+  const accountActionsReady = false;
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -217,9 +220,13 @@ export default function UsersPage() {
     <div className="max-w-6xl">
       <PageHeader
         title="Users & Roles"
-        subtitle="Search for a user, assign a role, and control exactly what they can do."
+        subtitle="Browse accounts. Changes to access are currently unavailable."
         onBack={() => router.push('/admin')}
       />
+      <div role="status" className="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+        Role changes, invitations, and bans are disabled until secure account controls are deployed.
+        {isSuperAdminUser && <> <Link className="font-semibold underline" href="/super-admin/people/users">Open the super-admin account view</Link>.</>}
+      </div>
 
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <div
@@ -252,7 +259,7 @@ export default function UsersPage() {
           ))}
         </div>
 
-        {isSuperAdminUser && (
+        {accountActionsReady && isSuperAdminUser && (
           <button
             onClick={() => setInviteOpen(true)}
             style={{ background: 'var(--crimson)' }}
@@ -400,6 +407,7 @@ export default function UsersPage() {
               <select
                 value={draft.role}
                 onChange={(e) => setDraft({ ...draft, role: e.target.value, permissions: {} })}
+                disabled
                 style={{ border: '1px solid var(--line)' }}
                 className="w-full appearance-none px-3.5 py-2.5 rounded-lg text-sm bg-white pr-9"
               >
@@ -415,6 +423,7 @@ export default function UsersPage() {
             <div className="flex gap-2.5 mt-7">
               <button
                 onClick={removeFromPosition}
+                disabled
                 style={{ border: '1px solid var(--line)', color: 'var(--ink-muted)' }}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-medium"
               >
@@ -423,6 +432,7 @@ export default function UsersPage() {
               </button>
               <button
                 onClick={saveDraft}
+                disabled
                 style={{ background: 'var(--crimson)' }}
                 className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white"
               >
@@ -436,11 +446,12 @@ export default function UsersPage() {
               </div>
               <p style={{ color: 'var(--ink-muted)' }} className="text-xs mb-3">
                 {selected.isBanned
-                  ? 'This account is currently banned and cannot sign in.'
-                  : 'Banning immediately blocks this person from signing in.'}
+                  ? 'This record is marked banned; sign-in enforcement has not been verified.'
+                  : 'A live ban requires protected-data enforcement and Firebase Authentication account control.'}
               </p>
               <button
                 onClick={toggleBan}
+                disabled
                 style={{
                   border: '1px solid ' + (selected.isBanned ? 'var(--line)' : 'var(--crimson)'),
                   color: selected.isBanned ? 'var(--ink)' : 'var(--crimson)',
