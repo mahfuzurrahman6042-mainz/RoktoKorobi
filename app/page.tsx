@@ -467,7 +467,7 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <div>
+    <div className="home-page">
       <style dangerouslySetInnerHTML={{ __html: `
         /* ── Feature card – bottom-flood ── */
         .fcard {
