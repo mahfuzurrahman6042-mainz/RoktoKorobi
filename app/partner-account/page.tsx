@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import type { User } from 'firebase/auth';
-import { ArrowLeft, Building2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Building2, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
 
 type AccountForm = { name: string; email: string; phone: string; password: string; confirmPassword: string };
@@ -17,6 +17,8 @@ export default function PartnerAccountPage() {
   const [complete, setComplete] = useState(false);
   const [verificationWarning, setVerificationWarning] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const finishProfile = async (user: User) => {
     const uid = user.uid;
@@ -78,8 +80,21 @@ export default function PartnerAccountPage() {
           </div>
           <label className="block text-sm font-semibold">Email address<input required type="email" autoComplete="email" maxLength={254} value={form.email} onChange={event => setForm(previous => ({ ...previous, email: event.target.value }))} className={field} /></label>
           <div className="grid gap-5 sm:grid-cols-2">
-            <label className="block text-sm font-semibold">Password<input required type="password" autoComplete="new-password" minLength={8} value={form.password} onChange={event => setForm(previous => ({ ...previous, password: event.target.value }))} className={field} /><span className="mt-1 block text-xs font-normal text-[#5C463B]">At least 8 characters.</span></label>
-            <label className="block text-sm font-semibold">Confirm password<input required type="password" autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={event => setForm(previous => ({ ...previous, confirmPassword: event.target.value }))} className={field} /></label>
+            <div>
+              <label htmlFor="partner-password" className="block text-sm font-semibold">Password</label>
+              <div className="relative">
+                <input id="partner-password" required type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} value={form.password} onChange={event => setForm(previous => ({ ...previous, password: event.target.value }))} className={`${field} pr-12`} />
+                <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#5C463B] hover:bg-[#F5EDD8] focus-visible:outline-2 focus-visible:outline-[#A5102F]">{showPassword ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button>
+              </div>
+              <span className="mt-1 block text-xs text-[#5C463B]">At least 8 characters.</span>
+            </div>
+            <div>
+              <label htmlFor="partner-confirm-password" className="block text-sm font-semibold">Confirm password</label>
+              <div className="relative">
+                <input id="partner-confirm-password" required type={showConfirmation ? 'text' : 'password'} autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={event => setForm(previous => ({ ...previous, confirmPassword: event.target.value }))} className={`${field} pr-12`} />
+                <button type="button" aria-label={showConfirmation ? 'Hide confirmation password' : 'Show confirmation password'} aria-pressed={showConfirmation} onClick={() => setShowConfirmation(value => !value)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#5C463B] hover:bg-[#F5EDD8] focus-visible:outline-2 focus-visible:outline-[#A5102F]">{showConfirmation ? <EyeOff size={19} aria-hidden="true" /> : <Eye size={19} aria-hidden="true" />}</button>
+              </div>
+            </div>
           </div>
           <div className="space-y-3 border-t border-[#C0152A]/10 pt-5 text-sm">
             <label className="flex items-start gap-3"><input required type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/terms-of-service" target="_blank" className="font-semibold text-[#A5102F] underline">Terms of Service</Link>.</span></label>
