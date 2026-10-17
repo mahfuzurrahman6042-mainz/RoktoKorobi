@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { reload, type User } from 'firebase/auth';
 import { onAuthStateChange, sendVerificationEmail, logoutUser } from '@/lib/firebase';
 
+function destinationAfterVerification() {
+  return new URLSearchParams(window.location.search).get('next') === '/partner-request' ? '/partner-request' : '/dashboard';
+}
+
 export default function VerifyEmailPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -16,7 +20,7 @@ export default function VerifyEmailPage() {
   useEffect(() => onAuthStateChange(currentUser => {
     setUser(currentUser);
     setLoading(false);
-    if (currentUser?.emailVerified) router.replace('/dashboard');
+    if (currentUser?.emailVerified) router.replace(destinationAfterVerification());
   }), [router]);
 
   const checkVerification = async () => {
@@ -26,7 +30,7 @@ export default function VerifyEmailPage() {
     try {
       await reload(user);
       await user.getIdToken(true);
-      if (user.emailVerified) router.replace('/dashboard');
+      if (user.emailVerified) router.replace(destinationAfterVerification());
       else setNotice('Your email is not verified yet. Open the link in your inbox, then check again.');
     } catch {
       setNotice('We could not check your email status. Please try again.');

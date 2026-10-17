@@ -30,6 +30,29 @@
         ".read": "auth != null && auth.token.email_verified === true && data.child('adminUserId').val() === auth.uid"
       }
     },
+    "partnerApplications": {
+      ".read": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('users').child($uid).child('email').val() === auth.token.email && !data.exists() && newData.exists() && newData.child('uid').val() === $uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending'",
+        ".validate": "newData.hasChildren(['uid', 'email', 'organizationName', 'organizationType', 'district', 'contactPhone', 'message', 'status', 'createdAt'])",
+        "uid": { ".validate": "newData.isString() && newData.val() === $uid" },
+        "email": { ".validate": "newData.isString() && newData.val().length <= 254" },
+        "organizationName": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 120" },
+        "organizationType": { ".validate": "newData.val() === 'ngo' || newData.val() === 'university' || newData.val() === 'college' || newData.val() === 'corporate'" },
+        "district": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80" },
+        "contactPhone": { ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 30" },
+        "message": { ".validate": "newData.isString() && newData.val().length <= 500" },
+        "status": { ".validate": "newData.val() === 'pending' || newData.val() === 'approved' || newData.val() === 'rejected'" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "reviewedAt": { ".validate": "newData.isNumber()" },
+        "reviewedBy": { ".validate": "newData.isString()" },
+        "instituteId": { ".validate": "newData.isString()" },
+        "rejectionReason": { ".validate": "newData.isString() && newData.val().length <= 500" },
+        "$other": { ".validate": false }
+      }
+    },
     "partnerStats": {
       ".write": "auth != null && root.child('security/superAdminUid').val() === auth.uid",
       "$instituteId": {

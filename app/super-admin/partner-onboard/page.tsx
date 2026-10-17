@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { equalTo, orderByChild, query } from 'firebase/database';
-import { database, get, onAuthStateChange, push, ref, update } from '@/lib/firebase';
+import { database, get, getCurrentUser, isSuperAdmin, onAuthStateChange, push, ref, update } from '@/lib/firebase';
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -28,6 +28,7 @@ export default function PartnerOnboardPage() {
   const [syncId, setSyncId] = useState('');
   const [syncBusy, setSyncBusy] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
+  const [applicationUid, setApplicationUid] = useState('');
 
   useEffect(() => onAuthStateChange(async user => {
     if (!user) { router.replace('/login'); return; }
@@ -41,6 +42,20 @@ export default function PartnerOnboardPage() {
       const partnerSnapshot = await get(ref(database, 'partnerInstitutes'));
       const partnerRecords = partnerSnapshot.val() || {};
       setPartners(Object.entries(partnerRecords).map(([id, record]) => ({ id, name: (record as { name?: string }).name || id })));
+      const requestedUid = new URLSearchParams(window.location.search).get('application') || '';
+      if (requestedUid && /^[A-Za-z0-9_-]{1,128}$/.test(requestedUid)) {
+        const applicationSnapshot = await get(ref(database, `partnerApplications/${requestedUid}`));
+        const application = applicationSnapshot.val();
+        if (!application || application.status !== 'pending' || application.uid !== requestedUid) {
+          setMessage('This application is no longer pending. Open the request list to check its current status.');
+        } else {
+          setApplicationUid(requestedUid);
+          setName(String(application.organizationName || ''));
+          setType(String(application.organizationType || 'ngo'));
+          setDistrict(String(application.district || ''));
+          setLeaderEmail(String(application.email || ''));
+        }
+      }
     } catch {
       router.replace('/dashboard');
     } finally {
@@ -54,6 +69,8 @@ export default function PartnerOnboardPage() {
     setBusy(true);
     setMessage('');
     try {
+      const actor = getCurrentUser();
+      if (!actor?.email || !(await isSuperAdmin(actor.email))) throw new Error('Super-admin access could not be confirmed.');
       const email = leaderEmail.trim().toLowerCase();
       const leaderQuery = query(ref(database, 'users'), orderByChild('email'), equalTo(email));
       const leaderSnapshot = await get(leaderQuery);
@@ -62,6 +79,14 @@ export default function PartnerOnboardPage() {
       if (!leaderUid) throw new Error('The leader must create and verify their own account before you can activate this partner.');
       const leader = matches[leaderUid];
       if (leader.role && leader.role !== 'user') throw new Error('This account already has an administrative role. Review it manually.');
+      if (leader.isBanned) throw new Error('A banned account cannot lead a partner organization.');
+      if (applicationUid) {
+        const applicationSnapshot = await get(ref(database, `partnerApplications/${applicationUid}`));
+        const application = applicationSnapshot.val();
+        if (!application || application.status !== 'pending' || application.uid !== leaderUid || application.email !== email) {
+          throw new Error('This request changed or does not match the selected leader. Refresh the applications list.');
+        }
+      }
 
       let code = '';
       for (let attempt = 0; attempt < 5; attempt++) {
@@ -76,7 +101,7 @@ export default function PartnerOnboardPage() {
       if (!instituteId) throw new Error('Could not create a partner ID.');
       const now = new Date().toISOString();
       const partnerName = name.trim();
-      await update(ref(database), {
+      const changes: Record<string, unknown> = {
         [`partnerInstitutes/${instituteId}`]: {
           name: partnerName,
           type,
@@ -93,7 +118,14 @@ export default function PartnerOnboardPage() {
         [`users/${leaderUid}/role`]: 'partner_admin',
         [`users/${leaderUid}/instituteId`]: instituteId,
         [`users/${leaderUid}/updatedAt`]: now
-      });
+      };
+      if (applicationUid) {
+        changes[`partnerApplications/${applicationUid}/status`] = 'approved';
+        changes[`partnerApplications/${applicationUid}/instituteId`] = instituteId;
+        changes[`partnerApplications/${applicationUid}/reviewedAt`] = Date.now();
+        changes[`partnerApplications/${applicationUid}/reviewedBy`] = actor.uid;
+      }
+      await update(ref(database), changes);
       setInviteLink(`${window.location.origin}/register?ref=${code}`);
       setPartners(previous => [...previous, { id: instituteId, name: partnerName }]);
       setSyncId(instituteId);
@@ -137,6 +169,7 @@ export default function PartnerOnboardPage() {
       <Link href="/super-admin/partner-control" className="text-sm font-semibold text-[#C0152A]">← Partner control</Link>
       <p className="mt-8 text-xs font-bold uppercase tracking-[.2em] text-[#C0152A]">Super admin · partner operations</p>
       <h1 className="mt-3 font-serif text-4xl font-bold">Activate a partner</h1>
+      {applicationUid && <p className="mt-3 rounded-xl border border-[#C0152A]/15 bg-[#FDFAF4] p-4 text-sm">Reviewing a verified leader request. Check the organization details below before activation.</p>}
       <p className="mt-4 leading-7 text-[#5C463B]">The organization leader should <Link href="/partner-account" className="font-semibold text-[#C0152A] underline">create a leader account</Link> and verify their email. Activation gives that account access to this partner only; email verification is required to open the partner dashboard. Students still sign up themselves using the invitation link.</p>
 
       <form onSubmit={createPartner} className="mt-8 space-y-5 rounded-3xl border border-[#C0152A]/10 bg-[#FDFAF4] p-7 shadow-lg">

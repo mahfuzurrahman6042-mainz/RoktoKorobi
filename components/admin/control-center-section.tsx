@@ -20,6 +20,7 @@ const config: Record<SectionKey, { eyebrow: string; title: string; description: 
     { title: 'Activity log', description: 'See recorded platform activity.', href: '/super-admin/overview/activity', icon: Activity },
   ] },
   partners: { eyebrow: 'Institution network', title: 'Partners', description: 'Bring institutions on board and keep partner status easy to follow.', action: { title: 'Activate a partner', description: 'Create an institution and referral link.', href: '/super-admin/partner-onboard', icon: Plus }, links: [
+    { title: 'Organization requests', description: 'Review and respond to partner applications.', href: '/super-admin/partner-applications', icon: Building2 },
     { title: 'Partner control', description: 'Review institutions, status and referrals.', href: '/super-admin/partner-control', icon: Building2 },
     { title: 'Activate a partner', description: 'Onboard a verified institution leader.', href: '/super-admin/partner-onboard', icon: Plus },
     { title: 'Organizations', description: 'Manage registered organizations.', href: '/admin/organizations', icon: Network },

@@ -6,6 +6,13 @@ import Link from 'next/link';
 import { loginUser, onAuthStateChange } from '@/lib/firebase';
 import { Eye, EyeOff } from 'lucide-react';
 
+function destinationAfterLogin(verified: boolean) {
+  const partnerRequest = new URLSearchParams(window.location.search).get('next') === '/partner-request';
+  return verified
+    ? (partnerRequest ? '/partner-request' : '/dashboard')
+    : (partnerRequest ? '/verify-email?next=%2Fpartner-request' : '/verify-email');
+}
+
 export default function Login() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -26,7 +33,7 @@ export default function Login() {
 
     // Wait for Firebase to restore a persisted login before redirecting.
     return onAuthStateChange(user => {
-      if (user) router.replace(user.emailVerified ? '/dashboard' : '/verify-email');
+      if (user) router.replace(destinationAfterLogin(user.emailVerified));
     });
   }, [router]);
 
@@ -89,7 +96,7 @@ export default function Login() {
       // Firebase Authentication with remember me
       const userCredential = await loginUser(formData.email, formData.password, rememberMe);
 
-      router.push(userCredential.user.emailVerified ? '/dashboard' : '/verify-email');
+      router.push(destinationAfterLogin(userCredential.user.emailVerified));
     } catch (error: any) {
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         setError(language === 'bn'

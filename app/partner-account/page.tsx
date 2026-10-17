@@ -71,8 +71,9 @@ export default function PartnerAccountPage() {
         <p className="mt-3 leading-7 text-[#5C463B]">Create a personal account for the organization leader. You do not need to register as a blood donor. A super admin will separately review and activate your organization.</p>
         {complete ? <div role="status" className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-950">
           <CheckCircle2 size={28} aria-hidden="true" /><h2 className="mt-3 text-xl font-bold">Your account was created</h2>
-          <p className="mt-2 leading-7">{verificationWarning ? 'We could not send the verification email. Open the verification page to resend it.' : 'Check your inbox and verify your email address.'} Then tell the RoktoKorobi team which email you used. Only a super admin can activate a partner organization.</p>
-          <Link href="/verify-email" className="mt-5 inline-flex rounded-xl bg-[#A5102F] px-5 py-3 font-semibold text-white">Open email verification</Link>
+          <p className="mt-2 leading-7">{verificationWarning ? 'We could not send the verification email. Open the verification page to resend it.' : 'Check your inbox and verify your email address.'} After verifying, submit your organization request for super-admin review.</p>
+          <Link href="/verify-email?next=%2Fpartner-request" className="mt-5 inline-flex rounded-xl bg-[#A5102F] px-5 py-3 font-semibold text-white">Open email verification</Link>
+          <Link href="/partner-request" className="ml-3 mt-5 inline-flex rounded-xl border border-[#A5102F]/20 px-5 py-3 font-semibold text-[#A5102F]">Request partnership</Link>
         </div> : <form onSubmit={submit} className="mt-8 space-y-5">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-semibold">Full name<input required autoComplete="name" maxLength={100} value={form.name} onChange={event => setForm(previous => ({ ...previous, name: event.target.value }))} className={field} /></label>
