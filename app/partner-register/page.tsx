@@ -357,7 +357,7 @@ export default function PartnerRegister() {
             <div role="status" style={{ background: '#FDFAF4', border: '1px solid rgba(192,21,42,0.18)', borderRadius: '24px', padding: '32px', lineHeight: 1.7 }}>
               <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>Partner applications are currently closed</h2>
               <p>For the pilot, a RoktoKorobi super admin activates each partner after the organization leader creates an account. This form is not accepting submissions yet.</p>
-              <p style={{ marginTop: '12px' }}>If you have been invited to lead a partner organization, first <Link href="/register" style={{ color: '#C0152A', fontWeight: 700, textDecoration: 'underline' }}>create your account</Link>, then contact the RoktoKorobi team to complete activation.</p>
+              <p style={{ marginTop: '12px' }}>If you have been invited to lead a partner organization, first <Link href="/partner-account" style={{ color: '#C0152A', fontWeight: 700, textDecoration: 'underline' }}>create your leader account</Link>, then verify your email and contact the RoktoKorobi team to complete activation.</p>
             </div>
           )}
         </div>

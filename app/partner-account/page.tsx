@@ -1,0 +1,96 @@
+'use client';
+
+import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import type { User } from 'firebase/auth';
+import { ArrowLeft, Building2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
+
+type AccountForm = { name: string; email: string; phone: string; password: string; confirmPassword: string };
+
+export default function PartnerAccountPage() {
+  const [form, setForm] = useState<AccountForm>({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [createdUid, setCreatedUid] = useState<string | null>(null);
+  const [complete, setComplete] = useState(false);
+  const [verificationWarning, setVerificationWarning] = useState(false);
+  const [error, setError] = useState('');
+
+  const finishProfile = async (user: User) => {
+    const uid = user.uid;
+    const email = form.email.trim().toLowerCase();
+    if (!user || user.uid !== uid || user.email?.toLowerCase() !== email) {
+      throw new Error('Your session changed. Sign in with your new account, then contact the RoktoKorobi team if activation is unavailable.');
+    }
+    if (!database) throw new Error('The database is unavailable. Please try again later.');
+    const now = new Date().toISOString();
+    await update(ref(database, `users/${uid}`), {
+      uid, email, name: form.name.trim(), phone: form.phone.trim(),
+      isDonor: false, donations: 0, acceptedTerms: true, acceptedPrivacy: true,
+      consentVersion: '2026-10-01', consentedAt: now, createdAt: now, updatedAt: now,
+    });
+    try { await sendVerificationEmail(user); }
+    catch { setVerificationWarning(true); }
+    setComplete(true);
+  };
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError('');
+    if (form.password.length < 8) return setError('Use a password of at least 8 characters.');
+    if (form.password !== form.confirmPassword) return setError('The passwords do not match.');
+    if (!termsAccepted || !privacyAccepted) return setError('Accept the terms and privacy policy to continue.');
+    setBusy(true);
+    try {
+      const email = form.email.trim().toLowerCase();
+      const user = createdUid ? getCurrentUser() : (await registerUser(email, form.password)).user;
+      if (!user || (createdUid && user.uid !== createdUid)) throw new Error('Your session changed. Please sign in again.');
+      const uid = user.uid;
+      setCreatedUid(uid);
+      await updateProfile(user, { displayName: form.name.trim() });
+      await finishProfile(user);
+    } catch (cause) {
+      const code = (cause as { code?: string }).code;
+      setError(code === 'auth/email-already-in-use'
+        ? 'This email already has an account. Sign in instead, or use another email.'
+        : cause instanceof Error ? cause.message : 'Account creation did not finish. Please try again.');
+    } finally { setBusy(false); }
+  };
+
+  const field = 'mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white px-4 py-3 text-base focus-visible:outline-2 focus-visible:outline-[#A5102F]';
+  return <main className="min-h-screen bg-[#F5EDD8] px-5 py-8 text-[#1A0F0A] sm:py-12">
+    <div className="mx-auto max-w-2xl">
+      <Link href="/partner-register" className="inline-flex items-center gap-2 text-sm font-semibold text-[#A5102F] hover:underline"><ArrowLeft size={16} aria-hidden="true" />Back to partner information</Link>
+      <div className="mt-7 rounded-3xl border border-[#C0152A]/10 bg-[#FDFAF4] p-6 shadow-[0_18px_55px_rgba(68,25,27,.08)] sm:p-9">
+        <span className="inline-flex items-center gap-2 rounded-full bg-[#C0152A]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#A5102F]"><Building2 size={15} aria-hidden="true" />Partner leader account</span>
+        <h1 className="mt-5 font-serif text-3xl font-bold tracking-tight sm:text-4xl">Start with your own account</h1>
+        <p className="mt-3 leading-7 text-[#5C463B]">Create a personal account for the organization leader. You do not need to register as a blood donor. A super admin will separately review and activate your organization.</p>
+        {complete ? <div role="status" className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-950">
+          <CheckCircle2 size={28} aria-hidden="true" /><h2 className="mt-3 text-xl font-bold">Your account was created</h2>
+          <p className="mt-2 leading-7">{verificationWarning ? 'We could not send the verification email. Open the verification page to resend it.' : 'Check your inbox and verify your email address.'} Then tell the RoktoKorobi team which email you used. Only a super admin can activate a partner organization.</p>
+          <Link href="/verify-email" className="mt-5 inline-flex rounded-xl bg-[#A5102F] px-5 py-3 font-semibold text-white">Open email verification</Link>
+        </div> : <form onSubmit={submit} className="mt-8 space-y-5">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm font-semibold">Full name<input required autoComplete="name" maxLength={100} value={form.name} onChange={event => setForm(previous => ({ ...previous, name: event.target.value }))} className={field} /></label>
+            <label className="block text-sm font-semibold">Phone<input required type="tel" autoComplete="tel" maxLength={30} value={form.phone} onChange={event => setForm(previous => ({ ...previous, phone: event.target.value }))} className={field} /></label>
+          </div>
+          <label className="block text-sm font-semibold">Email address<input required type="email" autoComplete="email" maxLength={254} value={form.email} onChange={event => setForm(previous => ({ ...previous, email: event.target.value }))} className={field} /></label>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm font-semibold">Password<input required type="password" autoComplete="new-password" minLength={8} value={form.password} onChange={event => setForm(previous => ({ ...previous, password: event.target.value }))} className={field} /><span className="mt-1 block text-xs font-normal text-[#5C463B]">At least 8 characters.</span></label>
+            <label className="block text-sm font-semibold">Confirm password<input required type="password" autoComplete="new-password" minLength={8} value={form.confirmPassword} onChange={event => setForm(previous => ({ ...previous, confirmPassword: event.target.value }))} className={field} /></label>
+          </div>
+          <div className="space-y-3 border-t border-[#C0152A]/10 pt-5 text-sm">
+            <label className="flex items-start gap-3"><input required type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/terms-of-service" target="_blank" className="font-semibold text-[#A5102F] underline">Terms of Service</Link>.</span></label>
+            <label className="flex items-start gap-3"><input required type="checkbox" checked={privacyAccepted} onChange={event => setPrivacyAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/privacy-policy" target="_blank" className="font-semibold text-[#A5102F] underline">Privacy Policy</Link>.</span></label>
+          </div>
+          {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">{error}</p>}
+          <button disabled={busy} type="submit" className="w-full rounded-xl bg-[#A5102F] px-5 py-3.5 font-semibold text-white hover:bg-[#870D25] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A5102F] disabled:opacity-60">{busy ? 'Creating account…' : createdUid ? 'Finish account setup' : 'Create leader account'}</button>
+          <p className="text-center text-sm text-[#5C463B]">Already registered? <Link href="/login" className="font-semibold text-[#A5102F] underline">Sign in</Link></p>
+        </form>}
+      </div>
+      <p className="mt-5 flex items-start gap-2 text-sm text-[#5C463B]"><ShieldCheck size={17} className="mt-0.5 shrink-0" aria-hidden="true" />This form creates only a personal account. It cannot grant partner or admin access.</p>
+    </div>
+  </main>;
+}

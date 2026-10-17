@@ -137,7 +137,7 @@ export default function PartnerOnboardPage() {
       <Link href="/super-admin/partner-control" className="text-sm font-semibold text-[#C0152A]">← Partner control</Link>
       <p className="mt-8 text-xs font-bold uppercase tracking-[.2em] text-[#C0152A]">Super admin · partner operations</p>
       <h1 className="mt-3 font-serif text-4xl font-bold">Activate a partner</h1>
-      <p className="mt-4 leading-7 text-[#5C463B]">The organization leader must sign up and verify their own email first. Activation gives that account access to this partner only. Students still sign up themselves using the invitation link.</p>
+      <p className="mt-4 leading-7 text-[#5C463B]">The organization leader should <Link href="/partner-account" className="font-semibold text-[#C0152A] underline">create a leader account</Link> and verify their email. Activation gives that account access to this partner only; email verification is required to open the partner dashboard. Students still sign up themselves using the invitation link.</p>
 
       <form onSubmit={createPartner} className="mt-8 space-y-5 rounded-3xl border border-[#C0152A]/10 bg-[#FDFAF4] p-7 shadow-lg">
         <label className="block text-sm font-semibold">Organization name
