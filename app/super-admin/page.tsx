@@ -1,6 +1,6 @@
 'use client';
 
-import { SuperAdminDashboard } from '@/components/admin/super-admin-dashboard';
+import { ControlCenterDashboard } from '@/components/admin/control-center-dashboard';
 
 /**
  * The Super Admin route is intentionally a thin page shell. Authentication,
@@ -8,4 +8,4 @@ import { SuperAdminDashboard } from '@/components/admin/super-admin-dashboard';
  * app/super-admin/layout.tsx so every Super Admin child route uses the same
  * protected boundary and visual system.
  */
-export default function SuperAdminPage() { return <SuperAdminDashboard />; }
+export default function SuperAdminPage() { return <ControlCenterDashboard />; }

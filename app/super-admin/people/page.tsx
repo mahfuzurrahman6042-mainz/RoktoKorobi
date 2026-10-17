@@ -1,2 +1,2 @@
-import { SuperAdminSection } from '@/components/admin/super-admin-section';
-export default function PeoplePage() { return <SuperAdminSection section="people" />; }
+import { ControlCenterSection } from '@/components/admin/control-center-section';
+export default function PeoplePage() { return <ControlCenterSection section="people" />; }

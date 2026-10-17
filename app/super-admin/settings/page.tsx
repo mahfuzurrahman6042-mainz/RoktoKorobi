@@ -1,2 +1,2 @@
-import { SuperAdminSection } from '@/components/admin/super-admin-section';
-export default function SettingsPage() { return <SuperAdminSection section="settings" />; }
+import { ControlCenterSection } from '@/components/admin/control-center-section';
+export default function SettingsPage() { return <ControlCenterSection section="settings" />; }
