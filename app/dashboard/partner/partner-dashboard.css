@@ -1,0 +1,61 @@
+.partner-app{--cream:#F6EEDD;--card:#FDF9F3;--line:#E4D6BE;--crimson:#B8132A;--crimson-deep:#8E0F20;--ink:#2A1A14;--muted:#6B5A50;min-height:100vh;background:var(--cream);color:var(--ink);font-family:'Hind Siliguri',sans-serif}
+.partner-app *{box-sizing:border-box}
+.partner-app h1,.partner-app h2{font-family:'Playfair Display','Tiro Bangla','Hind Siliguri',serif;margin:0;color:var(--ink)}
+.partner-app h1{font-size:clamp(2rem,3vw,2.7rem);line-height:1.2}
+.partner-app h2{font-size:1.5rem;line-height:1.25}
+.partner-app p{margin:0}
+.partner-app .c{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+.partner-app .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:12px;font:600 15px 'Hind Siliguri',sans-serif;cursor:pointer;border:1.5px solid var(--crimson);background:var(--cream);color:var(--crimson-deep);text-decoration:none;white-space:nowrap}
+.partner-app .btn.p{background:var(--crimson);color:#fff}
+.partner-app .btn:hover:not(:disabled){background:#F3DADC}
+.partner-app .btn.p:hover:not(:disabled){background:var(--crimson-deep)}
+.partner-app .btn:disabled,.partner-app .partner-disabled{opacity:.6;cursor:not-allowed}
+.partner-app :is(.btn,.nav a,.tabbar a,.partner-text-button,.fld):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.partner-app .m{color:var(--muted);line-height:1.55}
+.partner-app .lab{font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.partner-app .chip{display:inline-block;width:max-content;font-size:13px;padding:4px 11px;border-radius:99px;background:#E3F1E4;color:#1F5B2C;font-weight:700;text-transform:capitalize}
+.partner-app .chip.g{background:#EFE6D3;color:var(--muted)}
+.partner-app .chip.r{background:#F8DDE0;color:var(--crimson-deep)}
+.partner-app .nav{display:flex;flex-direction:column;gap:5px;position:static;width:100%;height:auto;background:transparent;border:0;padding:0;box-shadow:none}
+.partner-app .nav a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border-radius:12px;color:var(--ink);text-decoration:none;font-weight:500}
+.partner-app .nav a:hover,.partner-app .nav a.on{background:#F3DADC;color:var(--crimson-deep)}
+.partner-app .nav a.on{font-weight:700}
+.partner-app .row{display:flex;gap:12px;align-items:center}
+.partner-app .f{flex:1;min-width:0}
+.partner-app .fld{flex:1;min-width:0;min-height:44px;padding:0 14px;border-radius:12px;background:var(--cream);border:1px solid var(--line);color:var(--ink);font:500 15px 'Hind Siliguri',sans-serif;overflow:hidden;text-overflow:ellipsis}
+.partner-app .code{font:700 20px/1.3 monospace;letter-spacing:.12em;color:var(--crimson-deep);overflow-wrap:anywhere}
+.partner-app .ico{width:44px;height:44px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F8DDE0;color:var(--crimson)}
+.partner-app .dem{background:var(--ink);color:var(--card);font-size:13px;padding:6px 14px;border-radius:99px;font-weight:600;white-space:nowrap}
+.partner-app.app{display:flex;align-items:stretch}
+.partner-app .side{width:260px;flex:none;padding:24px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;background:var(--card);position:sticky;top:0;height:100vh;overflow-y:auto}
+.partner-app .main{flex:1;min-width:0;width:100%;max-width:1100px;margin:0 auto;padding:36px 32px 60px;display:flex;flex-direction:column;gap:20px}
+.partner-app .tabbar{display:none}
+.partner-app .partner-brand{display:flex;align-items:center;gap:11px;color:var(--ink);text-decoration:none;font-weight:700;font-size:18px;line-height:1.1}
+.partner-app .partner-brand small{display:block;margin-top:5px;color:var(--muted);font-weight:500;font-size:12px}
+.partner-app .partner-brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--crimson);color:#fff;font-size:20px}
+.partner-app .partner-side-label{padding-left:14px;margin-top:12px}
+.partner-app .partner-side-footer{display:flex;gap:9px;align-items:center;margin-top:auto;padding:14px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.partner-app .partner-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding:2px 0 8px}
+.partner-app .partner-heading h1{margin:7px 0}
+.partner-app .partner-identity{display:flex;align-items:center;gap:17px}
+.partner-app .partner-identity h2{margin:3px 0 5px}
+.partner-app .partner-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.partner-app .partner-stat{display:flex;align-items:flex-start;gap:15px;min-width:0}
+.partner-app .partner-stat strong{display:block;font-size:30px;line-height:1.2;margin:9px 0 4px;font-weight:700}
+.partner-app .partner-stat .partner-freshness{font-size:20px;min-height:36px;display:flex;align-items:center}
+.partner-app .partner-stat .m{font-size:12px}
+.partner-app .partner-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:11px}
+.partner-app .partner-section-head h2{margin-top:4px}
+.partner-app .partner-link-row{margin-top:18px}
+.partner-app .partner-code-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding-top:18px;margin-top:18px;border-top:1px solid var(--line)}
+.partner-app .partner-text-button{display:inline-flex;align-items:center;gap:5px;min-height:44px;border:0;background:none;color:var(--crimson-deep);font:600 13px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
+.partner-app .partner-resource-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.partner-app .partner-next{display:flex;align-items:flex-start;gap:16px}
+.partner-app .partner-next h2{font-size:21px;margin-bottom:7px}
+.partner-app .partner-alert{padding:13px 16px;border-radius:12px;background:#F8DDE0;border:1px solid #E8ACB2;color:var(--crimson-deep)}
+.partner-app .partner-notice{padding:12px 16px;border-radius:12px;background:#E3F1E4;color:#1F5B2C}
+.partner-loading{display:grid;place-items:center;min-height:100vh;font-size:17px;font-weight:600}
+@media(max-width:1100px){.partner-app .partner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.partner-app .partner-stat:last-child{grid-column:1/-1}}
+@media(max-width:900px){.partner-app.app{display:block}.partner-app .side{display:none}.partner-app .main{padding:20px 16px calc(105px + env(safe-area-inset-bottom));max-width:760px}.partner-app .row{flex-direction:column;align-items:stretch}.partner-app .row .btn{width:100%}.partner-app .row>.fld{width:100%}.partner-app .tabbar{display:flex;position:fixed;z-index:30;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px #2A1A1410}.partner-app .tabbar a{flex:1;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;text-decoration:none;font-weight:500;color:var(--muted);border-radius:8px}.partner-app .tabbar a.on{font-weight:700;color:var(--crimson-deep);background:#F3DADC}.partner-app .partner-heading{flex-direction:column}.partner-app .partner-heading h1{font-size:28px}}
+@media(max-width:580px){.partner-app .c{padding:20px}.partner-app .partner-metrics{grid-template-columns:1fr}.partner-app .partner-stat:last-child{grid-column:auto}.partner-app .partner-identity{align-items:flex-start;flex-wrap:wrap}.partner-app .partner-identity .f{flex-basis:calc(100% - 70px)}.partner-app .partner-identity .chip{margin-left:61px}.partner-app .partner-resource-actions{flex-direction:column}.partner-app .partner-resource-actions .btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.partner-app *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
