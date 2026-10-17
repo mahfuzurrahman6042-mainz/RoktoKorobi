@@ -8,7 +8,7 @@ import { formatCount, formatDate } from '@/lib/admin/helpers';
 const actions = [
   { title: 'Activate a partner', detail: 'Create an institution after its leader has a verified account.', href: '/super-admin/partner-onboard', icon: Plus },
   { title: 'Review blood requests', detail: 'Check open and pending requests across the network.', href: '/super-admin/operations/requests', icon: Droplet },
-  { title: 'Manage access', detail: 'Review people, roles and administrator permissions.', href: '/super-admin/people', icon: ShieldCheck },
+  { title: 'Manage access', detail: 'Review accounts, roles and administrator permissions.', href: '/super-admin/people/users', icon: ShieldCheck },
   { title: 'Publish an update', detail: 'Write a blog post for donors and the community.', href: '/admin/blogs/new', icon: FileText },
 ];
 

@@ -1,2 +1,2 @@
-import ExistingUsersPage from '@/app/admin/users/page';
-export default ExistingUsersPage;
+import { UserControlPage } from '@/components/admin/user-control-page';
+export default function UsersPage() { return <UserControlPage />; }

@@ -174,6 +174,26 @@
 .cc-status-item span, .cc-status-item strong { display: block; }
 .cc-status-item span { color: var(--cc-muted); font-size: 11px; }
 .cc-status-item strong { margin-top: 7px; font-size: 13px; }
+.cc-control-grid { display: grid; grid-template-columns: minmax(260px, .85fr) minmax(0, 1.4fr); gap: 17px; align-items: start; }
+.cc-control-search { max-width: none; margin: 15px 18px; }
+.cc-control-list { max-height: 650px; overflow-y: auto; border-top: 1px solid var(--cc-line); }
+.cc-control-person { display: flex; align-items: center; gap: 10px; width: 100%; padding: 13px 17px; border: 0; border-bottom: 1px solid var(--cc-line); background: transparent; color: var(--cc-ink); text-align: left; cursor: pointer; }
+.cc-control-person:hover, .cc-control-person.is-selected { background: var(--cc-red-tint); }
+.cc-control-person > span:last-child { min-width: 0; }
+.cc-control-person strong, .cc-control-person small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-control-person strong { font-size: 12px; }
+.cc-control-person small { margin-top: 2px; color: var(--cc-muted); font-size: 11px; }
+.cc-control-detail .cc-panel-heading { display: block; }
+.cc-control-detail .cc-panel-heading small { display: block; margin-top: 4px; }
+.cc-control-form { display: grid; gap: 21px; padding: 20px; }
+.cc-control-field { display: grid; justify-items: start; gap: 9px; padding-top: 18px; border-top: 1px solid var(--cc-line); font-size: 12px; }
+.cc-control-field label, .cc-control-field > strong { font-weight: 800; }
+.cc-control-field p { color: var(--cc-muted); line-height: 1.5; }
+.cc-control-field select { width: min(100%, 380px); }
+.cc-control-field textarea { width: min(100%, 500px); padding: 10px; border: 1px solid var(--cc-line); border-radius: 9px; background: var(--cc-paper); color: var(--cc-ink); font: inherit; }
+.cc-control-field textarea:focus-visible { outline: 3px solid var(--cc-teal); outline-offset: 2px; }
+.cc-control-danger > strong { color: var(--cc-red-dark); }
+.cc-control-danger .cc-button { border-color: var(--cc-red); color: var(--cc-red-dark); }
 
 @media (max-width: 1100px) {
   .cc-sidebar { flex-basis: 214px; }
@@ -186,6 +206,7 @@
   .cc-menu-trigger { display: inline-grid; }
   .cc-shell .cc-main { padding: 25px 18px; }
   .cc-hero { align-items: start; flex-direction: column; }
+  .cc-control-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 620px) {
   .cc-topbar { padding: 8px 14px; }
