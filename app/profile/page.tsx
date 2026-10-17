@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getUserData, logoutUser, updateUserData } from '@/lib/firebase';
+import PartnerRosterConsent from './partner-roster-consent';
 
 export default function Profile() {
   const router = useRouter();
@@ -806,6 +807,8 @@ export default function Profile() {
               </div>
 
             </div>
+
+            {currentUser && <PartnerRosterConsent uid={currentUser.uid} verified={currentUser.emailVerified} />}
 
             <div className="btn-group">
               <button className="btn btn-primary" onClick={handleSave}>

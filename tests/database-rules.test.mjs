@@ -70,10 +70,26 @@ test('database rules protect partner requests and existing flows', async () => {
     await assertSucceeds(leader.ref('partnerInstitutes/newPartner').once('value'));
     const student = environment.authenticatedContext('student', { email: 'student@example.org', email_verified: false }).database();
     await assertSucceeds(student.ref('users/student').set({
-      uid: 'student', email: 'student@example.org', donations: 0,
+      uid: 'student', email: 'student@example.org', name: 'Referral Student', donations: 0,
       acceptedTerms: true, acceptedPrivacy: true,
       instituteId: 'newPartner', referralCode: 'KOROBI01',
     }));
+    const membership = { uid: 'student', name: 'Referral Student', joinedAt: '2026-10-18T00:00:00.000Z', consent: true };
+    await assertSucceeds(student.ref('partnerMembers/newPartner/student').set(membership));
+    const roster = await assertSucceeds(leader.ref('partnerMembers/newPartner').once('value'));
+    assert.equal(roster.val().student.name, 'Referral Student');
+    await assertFails(guest.ref('partnerMembers/newPartner').once('value'));
+    await assertFails(donor.ref('partnerMembers/newPartner').once('value'));
+    await assertFails(leader.ref('partnerMembers/p2').once('value'));
+    await assertFails(student.ref('partnerMembers/p2/student').set(membership));
+    await assertFails(student.ref('partnerMembers/newPartner/student/phone').set('01700000000'));
+    await assertFails(student.ref('partnerMembers/newPartner/student').set({ ...membership, phone: '01700000000' }));
+    await assertFails(donor.ref('partnerMembers/newPartner/student').set(membership));
+    await assertFails(student.ref('partnerMembers/newPartner/leader').set(membership));
+    await assertSucceeds(student.ref('partnerMembers/newPartner/student').once('value'));
+    await assertFails(student.ref('partnerMembers/newPartner').once('value'));
+    await assertSucceeds(student.ref('partnerMembers/newPartner/student').remove());
+    await assert.equal((await leader.ref('partnerMembers/newPartner').once('value')).exists(), false);
 
     await assertFails(guest.ref('testimonials').once('value'));
     const publicStories = await assertSucceeds(guest.ref('publicTestimonials').once('value'));

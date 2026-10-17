@@ -33,6 +33,7 @@ export default function RegisterDonor() {
   const [submitted, setSubmitted] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [shareWithPartner, setShareWithPartner] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -178,6 +179,11 @@ export default function RegisterDonor() {
       // Reject a bad partner invitation before creating an Auth account.
       let instituteId: string | null = null;
       if (formData.referralCode.trim()) {
+        if (!shareWithPartner) {
+          alert(language === 'bn' ? 'রেফারেল কোড ব্যবহার করতে পার্টনারের সাথে আপনার নাম শেয়ার করতে সম্মতি দিন।' : 'To use a referral code, please agree to share your name with its partner leader. Otherwise, remove the code.');
+          setSubmitting(false);
+          return;
+        }
         const code = formData.referralCode.trim().toUpperCase();
         if (!/^[A-Z0-9-]{4,32}$/.test(code)) {
           alert(language === 'bn' ? 'অবৈধ রেফারেল কোড' : 'Invalid referral code');
@@ -213,7 +219,7 @@ export default function RegisterDonor() {
 
       // Save donor data to Realtime Database
       const donorData = {
-        name: formData.name,
+        name: formData.name.trim(),
         email: normalizedEmail,
         phone: formData.phone,
         bloodGroup: formData.bloodGroup,
@@ -242,6 +248,22 @@ export default function RegisterDonor() {
 
       // Save to Firestore
       await saveUserData(userCredential.user.uid, donorData);
+
+      if (instituteId) {
+        try {
+          const { database, ref, set } = await import('@/lib/firebase');
+          if (!database) throw new Error('Database is unavailable.');
+          await set(ref(database, `partnerMembers/${instituteId}/${userCredential.user.uid}`), {
+            uid: userCredential.user.uid,
+            name: formData.name.trim(),
+            joinedAt: donorData.createdAt,
+            consent: true
+          });
+        } catch (rosterError) {
+          console.error('Partner roster enrollment error:', rosterError);
+          alert(language === 'bn' ? 'অ্যাকাউন্ট তৈরি হয়েছে, কিন্তু পার্টনার তালিকায় যোগ করা যায়নি। ইমেইল যাচাই করার পর প্রোফাইল থেকে আবার চেষ্টা করুন।' : 'Your account was created, but the partner roster could not be updated. After verifying your email, turn on partner visibility from your profile.');
+        }
+      }
 
       setSubmitted(true);
       setSubmitting(false);
@@ -673,6 +695,10 @@ export default function RegisterDonor() {
                       {language === 'bn' ? 'আমন্ত্রণকারী প্রতিষ্ঠান: ' : 'Invited by: '}{partnerInviteName}
                     </p>
                   )}
+                  {formData.referralCode.trim() && <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '12px', fontSize: '14px', color: '#3D2314' }}>
+                    <input type="checkbox" checked={shareWithPartner} onChange={event => setShareWithPartner(event.target.checked)} style={{ width: '20px', height: '20px', flexShrink: 0 }} />
+                    <span>{language === 'bn' ? 'আমি সম্মত যে এই রেফারেল কোডের পার্টনার লিডার আমার নাম ও যোগদানের তারিখ দেখতে পারবেন। ফোন নম্বর, ইমেইল ও চিকিৎসার তথ্য শেয়ার হবে না।' : 'I agree that this referral code’s partner leader can see my name and join date. My phone, email and medical details will not be shared.'}</span>
+                  </label>}
                 </div>
 
                 {/* Additional Information */}

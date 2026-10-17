@@ -54,6 +54,15 @@
 .partner-app .partner-next h2{font-size:21px;margin-bottom:7px}
 .partner-app .partner-alert{padding:13px 16px;border-radius:12px;background:#F8DDE0;border:1px solid #E8ACB2;color:var(--crimson-deep)}
 .partner-app .partner-notice{padding:12px 16px;border-radius:12px;background:#E3F1E4;color:#1F5B2C}
+.partner-app .partner-search-label{display:block;margin:18px 0 8px;font-size:14px;font-weight:700}
+.partner-app .partner-member-search{display:block;width:100%;max-width:400px}
+.partner-app .partner-member-list{list-style:none;margin:18px 0 0;padding:0}
+.partner-app .partner-member-list li{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+.partner-app .partner-member-list strong,.partner-app .partner-member-list small{display:block}
+.partner-app .partner-member-list small{color:var(--muted);margin-top:3px}
+.partner-app .partner-member-avatar{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:50%;background:#F3DADC;color:var(--crimson-deep);font-weight:700}
+.partner-app .partner-empty{padding:20px 0}
+.partner-app .partner-roster-note{font-size:12px;margin-top:12px!important}
 .partner-loading{display:grid;place-items:center;min-height:100vh;font-size:17px;font-weight:600}
 @media(max-width:1100px){.partner-app .partner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.partner-app .partner-stat:last-child{grid-column:1/-1}}
 @media(max-width:900px){.partner-app.app{display:block}.partner-app .side{display:none}.partner-app .main{padding:20px 16px calc(105px + env(safe-area-inset-bottom));max-width:760px}.partner-app .row{flex-direction:column;align-items:stretch}.partner-app .row .btn{width:100%}.partner-app .row>.fld{width:100%}.partner-app .tabbar{display:flex;position:fixed;z-index:30;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px #2A1A1410}.partner-app .tabbar a{flex:1;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;text-decoration:none;font-weight:500;color:var(--muted);border-radius:8px}.partner-app .tabbar a.on{font-weight:700;color:var(--crimson-deep);background:#F3DADC}.partner-app .partner-heading{flex-direction:column}.partner-app .partner-heading h1{font-size:28px}}

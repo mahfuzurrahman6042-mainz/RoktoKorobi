@@ -13,6 +13,21 @@
         ".validate": "newData.hasChildren(['name', 'instituteId', 'active']) && newData.child('name').isString() && newData.child('instituteId').isString() && newData.child('active').isBoolean()"
       }
     },
+    "partnerMembers": {
+      "$instituteId": {
+        ".read": "auth != null && auth.token.email_verified === true && root.child('partnerInstitutes').child($instituteId).child('status').val() === 'approved' && root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid",
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('users').child($uid).child('instituteId').val() === $instituteId && root.child('users').child($uid).child('referralCode').val() === root.child('partnerInstitutes').child($instituteId).child('referralCode').val() && root.child('partnerInvites').child(root.child('users').child($uid).child('referralCode').val()).child('active').val() === true && root.child('partnerInstitutes').child($instituteId).child('status').val() === 'approved' && newData.child('uid').val() === $uid && newData.child('name').val() === root.child('users').child($uid).child('name').val()))",
+          ".validate": "newData.hasChildren(['uid', 'name', 'joinedAt', 'consent']) && newData.child('uid').val() === $uid && newData.child('name').isString() && newData.child('name').val().length >= 2 && newData.child('name').val().length <= 120 && newData.child('joinedAt').isString() && newData.child('joinedAt').val().length <= 35 && newData.child('consent').val() === true",
+          "uid": { ".validate": "newData.val() === $uid" },
+          "name": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 120" },
+          "joinedAt": { ".validate": "newData.isString() && newData.val().length <= 35" },
+          "consent": { ".validate": "newData.val() === true" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
     "users": {
       ".indexOn": ["email", "instituteId"],
       ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",

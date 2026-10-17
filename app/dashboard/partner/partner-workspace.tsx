@@ -19,6 +19,8 @@ type Partner = {
   isPreview: boolean;
 };
 
+type PartnerMember = { uid: string; name: string; joinedAt: string; consent: true };
+
 const previewPartner: Partner = {
   name: 'Partner workspace preview', type: 'Student-led organization', status: 'preview',
   referralCode: 'YOUR-CODE', totalStudents: 0, totalDonations: 0, isPreview: true,
@@ -33,6 +35,9 @@ export default function PartnerWorkspace() {
   const [canShare, setCanShare] = useState(false);
   const [assetBusy, setAssetBusy] = useState('');
   const [inviteValid, setInviteValid] = useState(false);
+  const [members, setMembers] = useState<PartnerMember[]>([]);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [membersError, setMembersError] = useState('');
 
   useEffect(() => {
     setCanShare(typeof navigator.share === 'function');
@@ -51,6 +56,18 @@ export default function PartnerWorkspace() {
         }
         const institute = await getPartnerInstituteById(profile.instituteId);
         if (!institute) throw new Error('Your partner organization could not be found.');
+        if (institute.status === 'approved' && database) {
+          try {
+            const snapshot = await get(ref(database, `partnerMembers/${profile.instituteId}`));
+            const roster = snapshot.val() as Record<string, PartnerMember> | null;
+            setMembers(Object.entries(roster || {})
+              .filter(([uid, member]) => member?.uid === uid && member?.consent === true && typeof member?.name === 'string')
+              .map(([, member]) => member)
+              .sort((a, b) => b.joinedAt.localeCompare(a.joinedAt)));
+          } catch {
+            setMembersError('The referral roster could not be loaded. Please refresh or ask a super admin to check database access.');
+          }
+        }
         const candidate = String(institute.referralCode || '').trim().toUpperCase();
         if (institute.status === 'approved' && /^[A-Z0-9-]{4,32}$/.test(candidate) && database) {
           try {
@@ -88,6 +105,7 @@ export default function PartnerWorkspace() {
   const message = `Join ${partner.name}'s blood donor community on RoktoKorobi. Register here: ${link}`;
   const whatsapp = link ? `https://wa.me/?text=${encodeURIComponent(message)}` : '';
   const email = link ? `mailto:?subject=${encodeURIComponent(`Join ${partner.name} on RoktoKorobi`)}&body=${encodeURIComponent(message)}` : '';
+  const visibleMembers = members.filter(member => member.name.toLocaleLowerCase().includes(memberSearch.trim().toLocaleLowerCase()));
 
   const copy = async (value: string, label: string) => {
     try {
@@ -124,6 +142,7 @@ export default function PartnerWorkspace() {
 
   const nav = <>
     <a className="on" href="#overview" aria-current="page"><Home size={18} aria-hidden="true" />Overview</a>
+    <a href="#students"><Users size={18} aria-hidden="true" />Students</a>
     <a href="#resources"><Link2 size={18} aria-hidden="true" />Resources</a>
     <Link href="/"><ArrowUpRight size={18} aria-hidden="true" />Main site</Link>
   </>;
@@ -155,6 +174,16 @@ export default function PartnerWorkspace() {
         <div className="c partner-stat"><span className="ico"><Users size={21} aria-hidden="true" /></span><div><p className="lab">Referral signups</p><strong>{partner.totalStudents ?? '—'}</strong><p className="m">People who joined with your code</p></div></div>
         <div className="c partner-stat"><span className="ico"><Heart size={21} aria-hidden="true" /></span><div><p className="lab">Donations recorded</p><strong>{partner.totalDonations ?? '—'}</strong><p className="m">Reported donation count</p></div></div>
         <div className="c partner-stat"><span className="ico"><Clock3 size={21} aria-hidden="true" /></span><div><p className="lab">Data freshness</p><strong className="partner-freshness">{partner.isPreview ? 'Preview data' : partner.updatedAt ? new Date(partner.updatedAt).toLocaleDateString() : 'Awaiting sync'}</strong><p className="m">Counts are refreshed by a super admin</p></div></div>
+      </section>
+
+      <section className="c" id="students" aria-labelledby="students-title">
+        <div className="partner-section-head"><div><p className="lab">Your community</p><h2 id="students-title">Referred students</h2></div><span className="ico"><Users size={21} aria-hidden="true" /></span></div>
+        <p className="m">People who joined with your referral code and agreed to appear here. Only their name and join date are shown.</p>
+        {membersError && <p className="partner-alert" role="alert">{membersError}</p>}
+        <label className="partner-search-label" htmlFor="partner-member-search">Search by name</label>
+        <input className="fld partner-member-search" id="partner-member-search" type="search" value={memberSearch} onChange={event => setMemberSearch(event.target.value)} placeholder="Find a student" />
+        {visibleMembers.length > 0 ? <ul className="partner-member-list">{visibleMembers.map(member => <li key={member.uid}><span className="partner-member-avatar" aria-hidden="true">{member.name.trim().charAt(0).toLocaleUpperCase()}</span><span><strong>{member.name}</strong><small>Joined {new Date(member.joinedAt).toLocaleDateString()}</small></span></li>)}</ul> : <p className="m partner-empty">{memberSearch ? 'No matching students.' : 'No students have opted into this list yet. Share your link to invite them.'}</p>}
+        <p className="m partner-roster-note">Referral totals may be higher than this list because earlier signups are not shown without their consent.</p>
       </section>
 
       <section className="c" aria-labelledby="referral-title">
