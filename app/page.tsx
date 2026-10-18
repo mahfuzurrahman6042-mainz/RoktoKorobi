@@ -123,6 +123,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [navSolid, setNavSolid] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuCloseRef = useRef<HTMLButtonElement>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLLIElement>(null);
   const [selectedBloodType, setSelectedBloodType] = useState('');
@@ -433,6 +435,33 @@ export default function Home() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [profileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    mobileMenuCloseRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', closeOnEscape);
+      mobileMenuButtonRef.current?.focus();
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const closeOnDesktop = () => { if (desktop.matches) setMobileOpen(false); };
+    desktop.addEventListener('change', closeOnDesktop);
+    window.addEventListener('resize', closeOnDesktop);
+    return () => {
+      desktop.removeEventListener('change', closeOnDesktop);
+      window.removeEventListener('resize', closeOnDesktop);
+    };
+  }, []);
 
   if (!mounted) return null;
 
@@ -1128,6 +1157,8 @@ export default function Home() {
         
         {/* Mobile Menu Toggle */}
         <button 
+          ref={mobileMenuButtonRef}
+          type="button"
           className={`hamburger ${mobileOpen ? 'open' : ''}`} 
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? 'Close mobile menu' : 'Open mobile menu'}
@@ -1145,42 +1176,23 @@ export default function Home() {
         <div className="mobile-menu-header">
           <span className="mobile-menu-title">Menu</span>
           <button 
+            ref={mobileMenuCloseRef}
+            type="button"
             className="mobile-menu-close"
             onClick={() => setMobileOpen(false)}
             aria-label="Close mobile menu"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              fontSize: '24px',
-              cursor: 'pointer',
-              padding: '8px',
-              zIndex: 1000,
-              position: 'relative',
-              pointerEvents: 'auto'
-            }}
           >
             ✕
           </button>
         </div>
         <div className="mobile-menu-content">
           <button
+            type="button"
+            className="mobile-lang-btn"
             onClick={() => {
               const newLang = language === 'en' ? 'bn' : 'en';
               setLanguage(newLang);
               localStorage.setItem('language', newLang);
-            }}
-            style={{
-              background: 'rgba(220, 38, 38, 0.1)',
-              border: '1px solid #dc2626',
-              color: '#dc2626',
-              padding: '12px 24px',
-              borderRadius: '25px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '600',
-              textAlign: 'center',
-              marginBottom: '1rem'
             }}
           >
             {language === 'en' ? 'বাংলা' : 'English'}
@@ -1190,19 +1202,13 @@ export default function Home() {
               <Link href="/dashboard" onClick={() => setMobileOpen(false)} aria-label="Dashboard">Dashboard</Link>
               <Link href="/profile" onClick={() => setMobileOpen(false)} aria-label="Profile">Profile</Link>
               <button 
+                type="button"
+                className="mobile-logout"
                 onClick={() => {
                   localStorage.removeItem('isLoggedIn');
                   localStorage.removeItem('userEmail');
                   setIsLoggedIn(false);
                   router.push('/');
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  padding: '8px 16px'
                 }}
               >
                 Log Out
