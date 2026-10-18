@@ -587,49 +587,53 @@ export default function Home() {
           margin-bottom: 28px;
         }
 
-        .hero-card .card-btn-primary {
-          display: block !important;
+        .hero-actions {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 12px;
           width: 100%;
-          padding: 16px;
-          border: none;
+          max-width: 1000px;
+        }
+
+        .hero-card .hero-action {
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          min-width: 0;
+          min-height: 56px;
+          padding: 12px 18px;
+          border: 2px solid transparent;
           border-radius: 100px;
-          background: var(--red);
           color: #fff;
-          font-size: 17px;
-          font-weight: 700;
-          font-family: 'Hind Siliguri', sans-serif;
+          font: 700 16px/1.3 'Hind Siliguri', sans-serif;
+          text-align: center;
           cursor: pointer;
-          margin-bottom: 12px;
           transition: filter .15s, transform .15s;
-          box-shadow: 0 4px 20px rgba(190,21,40,0.35);
         }
 
-        .card-btn-primary:hover {
-          filter: brightness(.88);
+        .hero-card .hero-action--donor {
+          background: #BE1528;
+          box-shadow: 0 4px 20px rgba(190, 21, 40, .3);
         }
 
-        .card-btn-primary:active {
-          transform: scale(.98);
+        .hero-card .hero-action--partner {
+          background: #226B6C;
+          box-shadow: 0 4px 20px rgba(34, 107, 108, .24);
         }
 
-        .hero-card .card-btn-secondary {
-          display: block !important;
-          width: 100%;
-          padding: 14px;
-          border-radius: 100px;
-          border: 1.5px solid rgba(255, 255, 255, 0.25);
-          background: rgba(255, 255, 255, 0.06);
-          color: rgba(255, 255, 255, 0.8);
-          font-size: 17px;
-          font-weight: 600;
-          font-family: 'Hind Siliguri', sans-serif;
-          cursor: pointer;
-          transition: border-color .15s, background .15s;
+        .hero-card .hero-action--request {
+          background: #F2CC77;
+          color: #271A0C;
+          box-shadow: 0 4px 20px rgba(242, 204, 119, .2);
         }
 
-        .card-btn-secondary:hover {
-          border-color: rgba(255, 255, 255, 0.45);
-          background: rgba(255, 255, 255, 0.1);
+        .hero-card .hero-action:hover { filter: brightness(1.1); }
+        .hero-card .hero-action:active { transform: scale(.98); }
+        .hero-card .hero-action:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+        @media (max-width: 780px) {
+          .hero-actions { grid-template-columns: 1fr; }
         }
 
         /* ═══════════════════════════════════════
@@ -1255,17 +1259,19 @@ export default function Home() {
               : 'Bangladesh\'s largest blood donor network. We connect donors with people in need of blood.'}
           </p>
 
-          <button type="button" className="card-btn-primary" onClick={() => router.push('/register')}>
-            {language === 'bn' ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Register as a Blood Donor'}
-          </button>
+          <div className="hero-actions">
+            <button type="button" className="hero-action hero-action--donor" onClick={() => router.push('/register')}>
+              {language === 'bn' ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Register as a Blood Donor'}
+            </button>
 
-          <button type="button" className="card-btn-secondary" onClick={() => router.push('/partner-register')}>
-            {language === 'bn' ? 'পার্টনার হিসেবে নিবন্ধন করুন' : 'Partner with Us'}
-          </button>
+            <button type="button" className="hero-action hero-action--partner" onClick={() => router.push('/partner-register')}>
+              {language === 'bn' ? 'পার্টনার হিসেবে নিবন্ধন করুন' : 'Partner with Us'}
+            </button>
 
-          <button type="button" className="card-btn-secondary" onClick={() => router.push('/request')}>
-            {language === 'bn' ? 'রক্তের প্রয়োজন?' : 'Need Blood?'}
-          </button>
+            <button type="button" className="hero-action hero-action--request" onClick={() => router.push('/request')}>
+              {language === 'bn' ? 'রক্তের প্রয়োজন?' : 'Need Blood?'}
+            </button>
+          </div>
         </div>
       </section>
 
