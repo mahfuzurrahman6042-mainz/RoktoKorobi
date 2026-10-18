@@ -1,15 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, ArrowRight, ArrowUpRight, Building2, AlertTriangle as CircleAlert, Droplet, FileText, Heart, Plus, RefreshCw, ShieldCheck, Users } from 'lucide-react';
+import { Activity, ArrowRight, ArrowUpRight, Building2, AlertTriangle as CircleAlert, Droplet, Heart, Plus, RefreshCw, ShieldCheck, Users } from 'lucide-react';
 import { useAdmin } from './admin-layout';
-import { formatCount, formatDate } from '@/lib/admin/helpers';
+import { formatCount } from '@/lib/admin/helpers';
 
 const actions = [
   { title: 'Activate a partner', detail: 'Create an institution after its leader has a verified account.', href: '/super-admin/partner-onboard', cta: 'Start', icon: Plus },
   { title: 'Review blood requests', detail: 'Check open and pending requests across the network.', href: '/super-admin/operations/requests', cta: 'Open', icon: Droplet },
   { title: 'Manage access', detail: 'Review accounts, roles and administrator permissions.', href: '/super-admin/people/users', cta: 'Open', icon: ShieldCheck },
-  { title: 'Publish an update', detail: 'Write a blog post for donors and the community.', href: '/admin/blogs/new', cta: 'Write', icon: FileText },
+  { title: 'Review activity', detail: 'See the recent actions across the platform.', href: '/super-admin/overview/activity', cta: 'Open', icon: Activity },
 ];
 
 export function ControlCenterDashboard() {
@@ -43,7 +43,5 @@ export function ControlCenterDashboard() {
 
     <section className="cc-section" aria-labelledby="actions-heading"><div className="cc-section-heading"><div><p className="cc-eyebrow">Shortcuts</p><h2 id="actions-heading">Move directly to the work</h2></div></div><div className="cc-action-grid">{actions.map(({ title, detail, href, cta, icon: Icon }) => <Link className="cc-action-card" href={href} key={title}><span className="cc-action-icon"><Icon size={19} aria-hidden="true" /></span><span><strong>{title}</strong><small>{detail}</small></span><em>{cta}<ArrowRight size={15} aria-hidden="true" /></em></Link>)}</div></section>
 
-    <section className="cc-section cc-lower-grid" aria-label="Activity and guidance"><div className="cc-panel cc-dashboard-activity"><div className="cc-panel-heading"><h2>Recent activity</h2><Link className="cc-text-link" href="/super-admin/overview/activity">View all <ArrowRight size={14} aria-hidden="true" /></Link></div>{ready && snapshot.activities.length ? <ol className="cc-activity-list">{snapshot.activities.slice(0, 5).map(activity => <li key={activity.id}><span className="cc-activity-dot" aria-hidden="true" /><span><strong>{activity.type}</strong><small>{activity.description} · {activity.relatedLabel}</small></span><time dateTime={activity.occurredAt}>{formatDate(activity.occurredAt)}</time></li>)}</ol> : <div className="cc-empty"><Activity size={23} aria-hidden="true" /><strong>{ready ? 'No recent activity' : 'Activity is unavailable'}</strong><p>{ready ? 'Recorded platform activity will appear here.' : 'Connect to platform data to see recent changes.'}</p></div>}</div>
-      <aside className="cc-note" aria-label="Partner onboarding guidance"><CircleAlert size={18} aria-hidden="true" /><p><strong>Partner onboarding is admin-led</strong>The institution leader needs a verified account first. Then use Activate partner to create the institution and referral link. The public partner registration form is not accepting submissions yet.</p></aside></section>
   </div>;
 }

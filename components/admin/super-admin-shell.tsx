@@ -8,6 +8,7 @@ import { useAdminData } from '@/hooks/use-admin-data';
 import { unconnectedSource } from '@/lib/admin/data-source';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { AdminDataSource } from '@/lib/admin/types';
+import { activeSection, sectionPages } from './control-center-routes';
 import './super-admin.css';
 import './control-center.css';
 
@@ -30,15 +31,20 @@ const primaryNav = [
 ] as const;
 
 function PrimaryNav({ pathname, language, onNavigate, tabs = false }: { pathname: string; language: 'en' | 'bn'; onNavigate?: () => void; tabs?: boolean }) {
+  const activeHref = activeSection(pathname);
   return <nav className="cc-nav" aria-label={tabs ? (language === 'bn' ? 'কর্মক্ষেত্র ট্যাব' : 'Workspace tabs') : (language === 'bn' ? 'প্রধান নেভিগেশন' : 'Primary navigation')}>
     {!tabs && <span className="cc-nav-caption">{language === 'bn' ? 'কর্মক্ষেত্র' : 'Workspace'}</span>}
     {primaryNav.map(item => {
-      const active = item.href === '/super-admin' ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + '/');
+      const active = activeHref === item.href;
       const Icon = item.icon;
-      return <Link key={item.href} href={item.href} className={'cc-nav-link' + (active ? ' is-active' : '')} aria-current={active ? 'page' : undefined} onClick={onNavigate}>
+      return <Link key={item.href} href={item.href} className={'cc-nav-link' + (active ? ' is-active' : '')} aria-current={active ? pathname === item.href ? 'page' : 'location' : undefined} onClick={onNavigate}>
         <Icon size={19} aria-hidden="true" /><span>{item[language]}</span>
       </Link>;
     })}
+    {!tabs && activeHref && <div className="cc-subnav"><span className="cc-nav-caption">{language === 'bn' ? 'এই বিভাগে' : 'In this section'}</span>{sectionPages[activeHref].map(page => {
+      const selected = pathname === page.href || (page.href === '/super-admin' && pathname === '/super-admin/overview');
+      return <Link key={page.href} href={page.href} className={'cc-subnav-link' + (selected ? ' is-active' : '')} aria-current={selected && pathname !== activeHref ? 'page' : undefined} onClick={onNavigate}>{page.label}</Link>;
+    })}</div>}
   </nav>;
 }
 
@@ -49,7 +55,8 @@ export function SuperAdminShell({ children, source = unconnectedSource }: { chil
   const menuButton = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDialogElement>(null);
   const [accountError, setAccountError] = useState('');
-  const section = primaryNav.find(item => item.href === '/super-admin' ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + '/'));
+  const section = primaryNav.find(item => item.href === activeSection(pathname));
+  const currentPage = section ? sectionPages[section.href].find(page => page.href === pathname) : undefined;
   const closeMenu = () => menu.current?.close();
 
   useEffect(() => { menu.current?.close(); }, [pathname]);
@@ -75,7 +82,7 @@ export function SuperAdminShell({ children, source = unconnectedSource }: { chil
         <header className="cc-topbar">
           <button ref={menuButton} className="cc-icon-button cc-menu-trigger" type="button" aria-label={language === 'bn' ? 'মেনু খুলুন' : 'Open navigation'} onClick={() => menu.current?.showModal()}><Menu size={21} /></button>
           <Link href="/super-admin" className="cc-brand cc-mobile-brand"><span className="cc-brand-mark"><Droplet size={20} aria-hidden="true" /></span><span><strong>RoktoKorobi</strong></span></Link>
-          <div className="cc-topbar-title"><span>{language === 'bn' ? 'সুপার অ্যাডমিন' : 'Super admin'}</span><strong>{section?.[language] || (language === 'bn' ? 'কর্মক্ষেত্র' : 'Workspace')}</strong></div>
+          <div className="cc-topbar-title"><span>{language === 'bn' ? 'সুপার অ্যাডমিন' : 'Super admin'}</span><strong>{currentPage?.label || section?.[language] || (language === 'bn' ? 'কর্মক্ষেত্র' : 'Workspace')}</strong></div>
           <div className="cc-topbar-actions">
             <span className={'cc-connection' + (data.state === 'ready' ? ' is-ready' : '')}><i aria-hidden="true" />{data.state === 'ready' ? (language === 'bn' ? 'লাইভ ডাটা' : 'Live data') : data.state === 'loading' ? (language === 'bn' ? 'লোড হচ্ছে' : 'Syncing') : (language === 'bn' ? 'ডাটা পাওয়া যাচ্ছে না' : 'Data unavailable')}</span>
             <button className="cc-language" type="button" onClick={() => setLanguage(language === 'en' ? 'bn' : 'en')} aria-label={language === 'en' ? 'Switch to Bangla' : 'Switch to English'}>{language === 'en' ? 'বাংলা' : 'EN'}</button>

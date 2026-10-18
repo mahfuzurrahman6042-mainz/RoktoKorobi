@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { database, ref, get, getAllRoles, initializeRoles } from '@/lib/firebase';
 import { Shield, Settings, RefreshCw, Crown, User, ChevronRight } from 'lucide-react';
 
@@ -15,6 +16,7 @@ interface Role {
 }
 
 export default function RolesPage() {
+  const pathname = usePathname();
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(false);
@@ -85,7 +87,7 @@ export default function RolesPage() {
             {initializing ? 'Initializing...' : 'Initialize Roles'}
           </button>
           <Link
-            href="/admin/roles/permissions"
+            href={pathname.startsWith('/super-admin') ? '/super-admin/settings/permissions' : '/admin/roles/permissions'}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
             <Settings size={20} />
