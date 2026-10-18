@@ -1,7 +1,25 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { countUsers, countRequests, countPartners } = require('./public-stats');
 
 admin.initializeApp();
+
+// Publish aggregate-only figures. These event handlers are idempotent: a retry
+// recounts the source collection instead of incrementing a potentially stale total.
+exports.refreshPublicUserStats = functions.database.ref('/users/{uid}').onWrite(async () => {
+  const snapshot = await admin.database().ref('users').once('value');
+  await admin.database().ref('publicStats').update({ ...countUsers(snapshot.val()), updatedAt: Date.now() });
+});
+
+exports.refreshPublicRequestStats = functions.database.ref('/bloodRequests/{requestId}').onWrite(async () => {
+  const snapshot = await admin.database().ref('bloodRequests').once('value');
+  await admin.database().ref('publicStats').update({ requestsFulfilled: countRequests(snapshot.val()), updatedAt: Date.now() });
+});
+
+exports.refreshPublicPartnerStats = functions.database.ref('/partnerInstitutes/{instituteId}').onWrite(async () => {
+  const snapshot = await admin.database().ref('partnerInstitutes').once('value');
+  await admin.database().ref('publicStats').update({ partners: countPartners(snapshot.val()), updatedAt: Date.now() });
+});
 
 // Send push notification to eligible donors when a new blood request is created
 exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{requestId}')

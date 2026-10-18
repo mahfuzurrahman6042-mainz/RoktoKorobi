@@ -2,18 +2,25 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // Mock stats data for the original GitHub design
-    const stats = {
-      registered_donors: 15420,
-      blood_requests_fulfilled: 8934,
-      partner_organizations: 127
-    };
-
-    return NextResponse.json(stats);
-  } catch (error) {
+    const databaseUrl = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL;
+    if (!databaseUrl) throw new Error('Database URL is not configured');
+    const response = await fetch(`${databaseUrl.replace(/\/$/, '')}/publicStats.json`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Public stats read failed: ${response.status}`);
+    const stats = await response.json();
+    if (!stats || !['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt'].every(key => Number.isFinite(stats[key]) && stats[key] >= 0)) {
+      throw new Error('Public stats have not been published');
+    }
+    return NextResponse.json({
+      registered_users: stats.users,
+      registered_donors: stats.donors,
+      blood_requests_fulfilled: stats.requestsFulfilled,
+      partner_organizations: stats.partners,
+      updated_at: stats.updatedAt,
+    }, { headers: { 'Cache-Control': 'no-store' } });
+  } catch {
     return NextResponse.json(
-      { error: 'Failed to fetch stats' },
-      { status: 500 }
+      { error: 'Current statistics are unavailable' },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } }
     );
   }
 }

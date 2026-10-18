@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, getBloodRequestsStats, getPartnerOrganizationsCount, getTotalDonorCount } from "@/lib/firebase";
+import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, database, ref, onValue } from "@/lib/firebase";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import ToastNotifications from "@/components/ToastNotifications";
 import NotificationPermission from "@/components/NotificationPermission";
@@ -137,8 +137,11 @@ export default function Home() {
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [donors, setDonors] = useState<any[]>([]);
-  const [stats, setStats] = useState({ donorCount: 0, districtsCovered: 0, requestsFulfilled: 0, partnerOrgs: 0, stories: 0 });
-  const [testimonialStats, setTestimonialStats] = useState({ en: [{ n: '1', l: 'Donors' }, { n: '0', l: 'Lives Saved' }, { n: '0', l: 'Stories' }], bn: [{ n: '1', l: 'দাতা' }, { n: '0', l: 'জীবন বাঁচানো হয়েছে' }, { n: '0', l: 'গল্প' }] });
+  const [stats, setStats] = useState<{ users: number; donors: number; requestsFulfilled: number; partners: number; updatedAt: number } | null>(null);
+  const testimonialStats = {
+    en: [{ n: String(stats?.donors ?? '—'), l: 'Registered Donors' }, { n: String(stats?.requestsFulfilled ?? '—'), l: 'Requests Fulfilled' }, { n: String(stats?.partners ?? '—'), l: 'Partner Organisations' }],
+    bn: [{ n: String(stats?.donors ?? '—'), l: 'নিবন্ধিত দাতা' }, { n: String(stats?.requestsFulfilled ?? '—'), l: 'পূর্ণ অনুরোধ' }, { n: String(stats?.partners ?? '—'), l: 'অংশীদার সংস্থা' }],
+  };
   const [userData, setUserData] = useState<{ name: string; bloodGroup: string } | null>(null);
 
   // Mock donor data with Bangladesh locations - removed, using Firebase instead
@@ -182,50 +185,6 @@ export default function Home() {
         const donorsData = await listAllDonors();
         setDonors(donorsData);
         
-        // Get total donor count (including those in cooldown)
-        const totalDonorCount = await getTotalDonorCount();
-        console.log('Total donor count from Firebase:', totalDonorCount);
-        
-        // Calculate stats from available donors
-        const uniqueDistricts = new Set(donorsData.map((d: any) => d.district).filter(Boolean));
-        const districtsCovered = uniqueDistricts.size;
-        
-        // Fetch blood requests stats
-        // Guest visitors cannot read patient contact records just to calculate a counter.
-        const requestsStats = await getBloodRequestsStats().catch(() => ({ total: 0, fulfilled: 0 }));
-        console.log('Blood requests stats:', requestsStats);
-        
-        // Fetch partner organizations count
-        const partnerOrgsCount = await getPartnerOrganizationsCount();
-        console.log('Partner organizations count:', partnerOrgsCount);
-        
-        const finalStats = { 
-          donorCount: totalDonorCount, 
-          districtsCovered, 
-          requestsFulfilled: requestsStats.fulfilled, 
-          partnerOrgs: partnerOrgsCount,
-          stories: 0 // Will be updated when testimonials are fetched
-        };
-        
-        console.log('Final stats to set:', finalStats);
-        setStats(finalStats);
-        
-        // Update testimonial stats state with total donor count
-        const finalTestimonialStats = {
-          en: [
-            { n: '—', l: 'Donor directory paused' },
-            { n: requestsStats.fulfilled.toString(), l: 'Lives Saved' },
-            { n: partnerOrgsCount.toString(), l: 'Partner Organisations' },
-          ],
-          bn: [
-            { n: '—', l: 'দাতার তালিকা সাময়িক বন্ধ' },
-            { n: requestsStats.fulfilled.toString(), l: 'জীবন বাঁচানো হয়েছে' },
-            { n: partnerOrgsCount.toString(), l: 'অংশীদার সংস্থা' },
-          ]
-        };
-        
-        console.log('Final testimonial stats:', finalTestimonialStats);
-        setTestimonialStats(finalTestimonialStats);
       } catch (error) {
         console.log('Error fetching donors:', error);
         setDonors([]);
@@ -235,7 +194,18 @@ export default function Home() {
     fetchHospitals();
     fetchDonors();
 
-    return () => unsubscribe();
+    // Public, aggregate-only figures are published by the verified super admin.
+    // A missing or inaccessible snapshot is unknown, never a fabricated zero.
+    const stopStats = database ? onValue(ref(database, 'publicStats'), snapshot => {
+      const value = snapshot.val();
+      if (!value || !['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt'].every(key => Number.isFinite(value[key]) && value[key] >= 0)) {
+        setStats(null);
+        return;
+      }
+      setStats(value);
+    }, error => { console.error('Public statistics unavailable', error); setStats(null); }) : () => {};
+
+    return () => { unsubscribe(); stopStats(); };
   }, []);
 
   const fetchUserData = async (userId: string) => {
@@ -1324,18 +1294,23 @@ export default function Home() {
 
         <div className="stats">
           <div className="stat">
-            <div className="stat-num">—</div>
-            <div className="stat-label">{language === 'bn' ? 'দাতার তালিকা সাময়িক বন্ধ' : 'Donor directory paused'}</div>
+            <div className="stat-num">{stats?.users ?? '—'}</div>
+            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত সদস্য' : 'Registered Members'}</div>
           </div>
           <div className="stat">
-            <div className="stat-num">{stats.requestsFulfilled}</div>
+            <div className="stat-num">{stats?.donors ?? '—'}</div>
+            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত দাতা' : 'Registered Donors'}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">{stats?.requestsFulfilled ?? '—'}</div>
             <div className="stat-label">{language === 'bn' ? 'পূর্ণ অনুরোধ' : 'Requests Fulfilled'}</div>
           </div>
           <div className="stat">
-            <div className="stat-num">{stats.partnerOrgs}</div>
+            <div className="stat-num">{stats?.partners ?? '—'}</div>
             <div className="stat-label">{language === 'bn' ? 'অংশীদার সংস্থা' : 'Partner Organisations'}</div>
           </div>
         </div>
+        <p className="text-xs opacity-70" role="status">{stats ? `Counts last published ${new Date(stats.updatedAt).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-BD')}` : (language === 'bn' ? 'হালনাগাদ সংখ্যা পাওয়া যাচ্ছে না' : 'Current counts unavailable')}</p>
       </section>
 
       {/* Toast Notifications */}

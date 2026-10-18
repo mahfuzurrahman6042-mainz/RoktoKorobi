@@ -74,6 +74,12 @@
         ".read": "auth != null && auth.token.email_verified === true && (auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() || root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid)"
       }
     },
+    "publicStats": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      ".validate": "newData.hasChildren(['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt']) && newData.child('users').isNumber() && newData.child('users').val() >= 0 && newData.child('donors').isNumber() && newData.child('donors').val() >= 0 && newData.child('requestsFulfilled').isNumber() && newData.child('requestsFulfilled').val() >= 0 && newData.child('partners').isNumber() && newData.child('partners').val() >= 0 && newData.child('updatedAt').isNumber()",
+      "$other": { ".validate": false }
+    },
     "admins": {
       ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       ".write": false,

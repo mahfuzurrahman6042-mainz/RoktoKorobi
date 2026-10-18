@@ -1,7 +1,7 @@
 'use client';
 
 import type { User } from 'firebase/auth';
-import { database, get, isSuperAdmin, logoutUser, onAuthStateChange, ref } from '@/lib/firebase';
+import { database, get, isSuperAdmin, logoutUser, onAuthStateChange, ref, set } from '@/lib/firebase';
 import type { AdminDataSource, AdminSnapshot, Activity, Partner, RequestRecord, UserRecord } from './types';
 import { emptySnapshot } from './data-source';
 
@@ -58,6 +58,19 @@ export function createFirebaseAdminSource(user: User): AdminDataSource {
         profile: { displayName: user.displayName || user.email, emailVerified: user.emailVerified },
         donorCounts,
       };
+      // Only these aggregate figures are public. Never expose user, patient, or
+      // partner records to the homepage to calculate a counter.
+      try {
+        await set(ref(database, 'publicStats'), {
+          users: users.length,
+          donors: users.filter(item => asRecord(asRecord(usersSnap.val())[item.id]).isDonor === true).length,
+          requestsFulfilled: fulfilled,
+          partners: approved,
+          updatedAt: Date.now(),
+        });
+      } catch (error) {
+        console.error('Could not publish public statistics', error);
+      }
       return { state: 'ready', snapshot };
     },
     async signOut() { await logoutUser(); window.location.assign('/login'); },

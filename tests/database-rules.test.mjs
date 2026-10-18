@@ -48,6 +48,12 @@ test('database rules protect partner requests and existing flows', async () => {
     await assertFails(leader.ref('users/leader').update({ role: 'partner_admin' }));
     await assertSucceeds(leader.ref('users/leader').update({ donations: 1, lastDonationDate: '2026-10-17T00:00:00Z' }));
     await assertSucceeds(owner.ref('users').once('value'));
+    await assertSucceeds(guest.ref('publicStats').once('value'));
+    await assertFails(guest.ref('publicStats').set({ users: 99, donors: 99, requestsFulfilled: 99, partners: 99, updatedAt: Date.now() }));
+    await assertFails(leader.ref('publicStats').set({ users: 99, donors: 99, requestsFulfilled: 99, partners: 99, updatedAt: Date.now() }));
+    await assertFails(owner.ref('publicStats').set({ users: -1, donors: 1, requestsFulfilled: 0, partners: 0, updatedAt: Date.now() }));
+    await assertSucceeds(owner.ref('publicStats').set({ users: 2, donors: 1, requestsFulfilled: 0, partners: 0, updatedAt: Date.now() }));
+    await assertSucceeds(guest.ref('publicStats').once('value'));
 
     const request = { uid: 'leader', email: 'leader@example.org', organizationName: 'Korobi Club', organizationType: 'ngo', district: 'Dhaka', contactPhone: '0123456789', message: '', status: 'pending', createdAt: Date.now() };
     await assertFails(unverified.ref('partnerApplications/unverified').set({ ...request, uid: 'unverified', email: 'unverified@example.org' }));
