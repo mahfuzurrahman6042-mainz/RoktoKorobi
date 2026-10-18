@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { equalTo, orderByChild, query } from 'firebase/database';
 import { database, get, getCurrentUser, isSuperAdmin, onAuthStateChange, push, ref, update } from '@/lib/firebase';
+import { countPartnerImpact } from '@/lib/partner-metrics';
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -142,18 +143,19 @@ export default function PartnerOnboardPage() {
     setSyncBusy(true);
     setSyncMessage('');
     try {
-      const members = await get(query(ref(database, 'users'), orderByChild('instituteId'), equalTo(syncId)));
-      const profiles = (Object.values(members.val() || {}) as Array<{ donations?: number; role?: string }>).filter(profile => profile.role !== 'partner_admin');
-      const totalStudents = profiles.length;
-      const totalDonations = profiles.reduce((sum, profile) => sum + (Number(profile.donations) || 0), 0);
+      const [members, requests] = await Promise.all([
+        get(query(ref(database, 'users'), orderByChild('instituteId'), equalTo(syncId))),
+        get(ref(database, 'bloodRequests')),
+      ]);
+      const { totalStudents, totalDonors, totalDonations, totalBloodRequests } = countPartnerImpact(members.val(), requests.val());
       const updatedAt = new Date().toISOString();
       await update(ref(database), {
-        [`partnerStats/${syncId}`]: { totalStudents, totalDonations, updatedAt },
-        [`partnerInstitutes/${syncId}/totalDonors`]: totalStudents,
+        [`partnerStats/${syncId}`]: { totalStudents, totalDonors, totalDonations, totalBloodRequests, updatedAt },
+        [`partnerInstitutes/${syncId}/totalDonors`]: totalDonors,
         [`partnerInstitutes/${syncId}/totalDonations`]: totalDonations,
         [`partnerInstitutes/${syncId}/updatedAt`]: updatedAt
       });
-      setSyncMessage(`Updated: ${totalStudents} students and ${totalDonations} recorded donations.`);
+      setSyncMessage(`Updated: ${totalStudents} signups, ${totalDonors} donors, ${totalDonations} donations and ${totalBloodRequests} blood requests.`);
     } catch {
       setSyncMessage('Could not refresh partner counts. Check your super-admin access and database rules.');
     } finally {
@@ -197,7 +199,7 @@ export default function PartnerOnboardPage() {
       </div>}
       <section className="mt-8 rounded-3xl border border-[#C0152A]/10 bg-[#FDFAF4] p-7">
         <h2 className="font-serif text-2xl font-bold">Refresh partner counts</h2>
-        <p className="mt-2 text-sm leading-6 text-[#5C463B]">For this free pilot, a super admin refreshes aggregate counts after each signup batch. Partner leaders never download student profiles.</p>
+        <p className="mt-2 text-sm leading-6 text-[#5C463B]">Refresh signups, registered donors, donations and blood requests for one partner. Partner leaders see only aggregate counts, never private student or request records.</p>
         <select value={syncId} onChange={event => setSyncId(event.target.value)} className="mt-5 w-full rounded-xl border border-[#C0152A]/20 bg-white p-3">
           <option value="">Select a partner</option>
           {partners.map(partner => <option key={partner.id} value={partner.id}>{partner.name}</option>)}

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowUpRight, Home, Link2, Menu, Share2, ShieldCheck, Users, X } from 'lucide-react';
+import { ArrowUpRight, BarChart3, Home, Link2, Menu, Share2, ShieldCheck, Users, X } from 'lucide-react';
 import { database, get, getPartnerInstituteById, getPartnerStats, getUserData, onAuthStateChange, ref } from '@/lib/firebase';
 import { buildPartnerLink, downloadImage, makePartnerArtwork, qrForLink } from './partner-assets';
 import './partner-dashboard.css';
@@ -14,7 +14,9 @@ export type Partner = {
   status: string;
   referralCode: string;
   totalStudents: number | null;
+  totalDonors: number | null;
   totalDonations: number | null;
+  totalBloodRequests: number | null;
   updatedAt?: string;
   isPreview: boolean;
 };
@@ -49,13 +51,14 @@ export function usePartnerWorkspace() {
 const sections = [
   { href: '/dashboard/partner', label: 'Overview', icon: Home },
   { href: '/dashboard/partner/students', label: 'Students', icon: Users },
+  { href: '/dashboard/partner/impact', label: 'Impact', icon: BarChart3 },
   { href: '/dashboard/partner/referral', label: 'Referral link', icon: Link2 },
   { href: '/dashboard/partner/outreach', label: 'Outreach tools', icon: Share2 },
 ];
 
 const previewPartner: Partner = {
   name: 'Partner workspace preview', type: 'Student-led organization', status: 'preview',
-  referralCode: 'YOUR-CODE', totalStudents: 0, totalDonations: 0, isPreview: true,
+  referralCode: 'YOUR-CODE', totalStudents: 0, totalDonors: 0, totalDonations: 0, totalBloodRequests: 0, isPreview: true,
 };
 
 export default function PartnerWorkspace({ children }: { children: ReactNode }) {
@@ -122,7 +125,9 @@ export default function PartnerWorkspace({ children }: { children: ReactNode }) 
           status: String(institute.status || 'pending'),
           referralCode: String(institute.referralCode || ''),
           totalStudents: stats?.totalStudents ?? null,
+          totalDonors: stats?.totalDonors ?? null,
           totalDonations: stats?.totalDonations ?? null,
+          totalBloodRequests: stats?.totalBloodRequests ?? null,
           updatedAt: stats?.updatedAt,
           isPreview: false,
         });

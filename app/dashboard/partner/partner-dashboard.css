@@ -41,6 +41,10 @@ html:has(.partner-app),body:has(.partner-app){overflow-x:clip;overflow-y:visible
 .partner-app .partner-identity{display:flex;align-items:center;gap:17px}
 .partner-app .partner-identity h2{margin:3px 0 5px}
 .partner-app .partner-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.partner-app .partner-impact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.partner-app .partner-impact-note{display:flex;align-items:flex-start;gap:14px}
+.partner-app .partner-impact-note>svg{flex:none;color:var(--crimson)}
+.partner-app .partner-impact-note h2{font-size:20px;margin-bottom:7px}
 .partner-app .partner-stat{display:flex;align-items:flex-start;gap:15px;min-width:0}
 .partner-app .partner-stat strong{display:block;font-size:30px;line-height:1.2;margin:9px 0 4px;font-weight:700}
 .partner-app .partner-stat .partner-freshness{font-size:20px;min-height:36px;display:flex;align-items:center}
@@ -66,6 +70,8 @@ html:has(.partner-app),body:has(.partner-app){overflow-x:clip;overflow-y:visible
 .partner-app .partner-roster-note{font-size:12px;margin-top:12px!important}
 .partner-app .partner-overview-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .partner-app .partner-quick-title{font-size:1.35rem;margin-bottom:14px}
+.partner-app .partner-actions-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.partner-app .partner-actions-heading .partner-quick-title{margin-bottom:0}
 .partner-app .partner-quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .partner-app .partner-quick-card{display:flex;align-items:flex-start;gap:12px;color:var(--ink);text-decoration:none;min-width:0}
 .partner-app .partner-quick-card:hover{border-color:var(--crimson)}
@@ -91,5 +97,5 @@ html:has(.partner-app),body:has(.partner-app){overflow-x:clip;overflow-y:visible
   .partner-app .partner-heading h1{font-size:28px}
   .partner-app .partner-metrics,.partner-app .partner-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-@media(max-width:580px){.partner-app .c{padding:20px}.partner-app .main{padding:20px 16px 40px}.partner-app .partner-overview-heading{flex-direction:column}.partner-app .partner-metrics,.partner-app .partner-quick-grid{grid-template-columns:1fr}.partner-app .partner-identity{align-items:flex-start;flex-wrap:wrap}.partner-app .partner-identity .f{flex-basis:calc(100% - 70px)}.partner-app .partner-identity .chip{margin-left:61px}.partner-app .partner-resource-actions{flex-direction:column}.partner-app .partner-resource-actions .btn{width:100%}}
+@media(max-width:580px){.partner-app .c{padding:20px}.partner-app .main{padding:20px 16px 40px}.partner-app .partner-overview-heading,.partner-app .partner-actions-heading{flex-direction:column;align-items:flex-start}.partner-app .partner-metrics,.partner-app .partner-impact-grid,.partner-app .partner-quick-grid{grid-template-columns:1fr}.partner-app .partner-identity{align-items:flex-start;flex-wrap:wrap}.partner-app .partner-identity .f{flex-basis:calc(100% - 70px)}.partner-app .partner-identity .chip{margin-left:61px}.partner-app .partner-resource-actions{flex-direction:column}.partner-app .partner-resource-actions .btn{width:100%}}
 @media(prefers-reduced-motion:reduce){.partner-app *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

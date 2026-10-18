@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, Building2, Check, Clock3, Copy, Download, Heart, Link2, Mail, MessageCircle, QrCode, Share2, Users } from 'lucide-react';
+import { ArrowUpRight, BarChart3, Building2, Check, Clock3, Copy, Download, Heart, Link2, Mail, MessageCircle, QrCode, Share2, Users } from 'lucide-react';
 import { usePartnerWorkspace } from './partner-workspace';
 
 function PageHeader({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
@@ -25,13 +25,29 @@ export function PartnerOverview() {
       <div className="c partner-stat"><span className="ico"><Clock3 size={21} aria-hidden="true" /></span><div><p className="lab">Data freshness</p><strong className="partner-freshness">{partner.isPreview ? 'Preview data' : partner.updatedAt ? new Date(partner.updatedAt).toLocaleDateString() : 'Awaiting sync'}</strong><p className="m">Counts are refreshed by a super admin</p></div></div>
     </section>
     <section aria-labelledby="partner-actions-title">
-      <h2 id="partner-actions-title" className="partner-quick-title">Quick actions</h2>
+      <div className="partner-actions-heading"><h2 id="partner-actions-title" className="partner-quick-title">Quick actions</h2><Link href={route('/dashboard/partner/impact')} className="partner-text-button"><BarChart3 size={17} aria-hidden="true" />View all impact metrics <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
       <div className="partner-quick-grid">
         <Link className="c partner-quick-card" href={route('/dashboard/partner/students')}><span className="ico"><Users size={21} aria-hidden="true" /></span><span><strong>Students</strong><small>Find people who joined with your code.</small></span><ArrowUpRight size={18} aria-hidden="true" /></Link>
         <Link className="c partner-quick-card" href={route('/dashboard/partner/referral')}><span className="ico"><Link2 size={21} aria-hidden="true" /></span><span><strong>Referral link</strong><small>Copy your organization’s signup link.</small></span><ArrowUpRight size={18} aria-hidden="true" /></Link>
         <Link className="c partner-quick-card" href={route('/dashboard/partner/outreach')}><span className="ico"><Share2 size={21} aria-hidden="true" /></span><span><strong>Outreach tools</strong><small>Share a QR code, poster or message.</small></span><ArrowUpRight size={18} aria-hidden="true" /></Link>
       </div>
     </section>
+  </>;
+}
+
+export function PartnerImpact() {
+  const { partner } = usePartnerWorkspace();
+  const formatCount = (value: number | null) => value === null ? '—' : value.toLocaleString();
+  const refreshedAt = partner.updatedAt ? new Date(partner.updatedAt) : null;
+  return <>
+    <PageHeader eyebrow="Your organization" title="Impact at a glance" description="Track the activity connected to your organization’s referral code." />
+    <section className="partner-impact-grid" aria-label="Partner impact totals">
+      <div className="c partner-stat"><span className="ico"><Users size={21} aria-hidden="true" /></span><div><p className="lab">Total signups</p><strong>{formatCount(partner.totalStudents)}</strong><p className="m">Accounts registered with your referral code, excluding your leader account.</p></div></div>
+      <div className="c partner-stat"><span className="ico"><Heart size={21} aria-hidden="true" /></span><div><p className="lab">Registered donors</p><strong>{formatCount(partner.totalDonors)}</strong><p className="m">Referred accounts marked as donors; this does not confirm medical eligibility.</p></div></div>
+      <div className="c partner-stat"><span className="ico"><BarChart3 size={21} aria-hidden="true" /></span><div><p className="lab">Donations recorded</p><strong>{formatCount(partner.totalDonations)}</strong><p className="m">Sum of donations recorded on referred accounts.</p></div></div>
+      <div className="c partner-stat"><span className="ico"><Clock3 size={21} aria-hidden="true" /></span><div><p className="lab">Blood requests</p><strong>{formatCount(partner.totalBloodRequests)}</strong><p className="m">Requests submitted by referred accounts that still exist in the system.</p></div></div>
+    </section>
+    <section className="c partner-impact-note" aria-label="About these numbers"><Clock3 size={20} aria-hidden="true" /><div><h2>About these numbers</h2><p className="m">{partner.isPreview ? 'These are preview figures, not live data.' : refreshedAt && !Number.isNaN(refreshedAt.getTime()) ? `Last refreshed ${refreshedAt.toLocaleString()}. A super admin refreshes these totals; new activity will not appear immediately.` : 'No counts have been refreshed yet. Ask a super admin to refresh this organization’s totals.'} Only totals are shared here, not private member or patient details.</p></div></section>
   </>;
 }
 
