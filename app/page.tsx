@@ -618,16 +618,9 @@ export default function Home() {
         }
 
         .hero-card .hero-action--partner {
-          background: #fff;
-          color: #1C1010;
-          box-shadow: 0 4px 20px rgba(255, 255, 255, .12);
-        }
-
-        @supports (-webkit-text-stroke: 1px #1C1010) {
-          .hero-card .hero-action--partner {
-            -webkit-text-fill-color: transparent;
-            -webkit-text-stroke: 1px #1C1010;
-          }
+          background: #FDF9F3;
+          color: #2A1A14;
+          box-shadow: 0 4px 20px rgba(253, 249, 243, .12);
         }
 
         .hero-card .hero-action--request {
