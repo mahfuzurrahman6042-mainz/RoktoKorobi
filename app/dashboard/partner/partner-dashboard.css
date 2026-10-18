@@ -1,3 +1,4 @@
+html:has(.partner-app),body:has(.partner-app){overflow-x:clip;overflow-y:visible}
 .partner-app{--cream:#F6EEDD;--card:#FDF9F3;--line:#E4D6BE;--crimson:#B8132A;--crimson-deep:#8E0F20;--ink:#2A1A14;--muted:#6B5A50;min-height:100vh;background:var(--cream);color:var(--ink);font-family:'Hind Siliguri',sans-serif}
 .partner-app *{box-sizing:border-box}
 .partner-app h1,.partner-app h2{font-family:'Playfair Display','Tiro Bangla','Hind Siliguri',serif;margin:0;color:var(--ink)}
@@ -10,7 +11,7 @@
 .partner-app .btn:hover:not(:disabled){background:#F3DADC}
 .partner-app .btn.p:hover:not(:disabled){background:var(--crimson-deep)}
 .partner-app .btn:disabled,.partner-app .partner-disabled{opacity:.6;cursor:not-allowed}
-.partner-app :is(.btn,.nav a,.tabbar a,.partner-text-button,.fld):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.partner-app :is(.btn,.nav a,.partner-text-button,.fld,.partner-quick-card,.partner-menu-button,.partner-drawer-close):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .partner-app .m{color:var(--muted);line-height:1.55}
 .partner-app .lab{font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .partner-app .chip{display:inline-block;width:max-content;font-size:13px;padding:4px 11px;border-radius:99px;background:#E3F1E4;color:#1F5B2C;font-weight:700;text-transform:capitalize}
@@ -29,7 +30,7 @@
 .partner-app.app{display:flex;align-items:stretch}
 .partner-app .side{width:260px;flex:none;padding:24px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;background:var(--card);position:sticky;top:0;height:100vh;overflow-y:auto}
 .partner-app .main{flex:1;min-width:0;width:100%;max-width:1100px;margin:0 auto;padding:36px 32px 60px;display:flex;flex-direction:column;gap:20px}
-.partner-app .tabbar{display:none}
+.partner-app .partner-mobile-topbar,.partner-app .partner-drawer-close,.partner-app .partner-menu-backdrop{display:none}
 .partner-app .partner-brand{display:flex;align-items:center;gap:11px;color:var(--ink);text-decoration:none;font-weight:700;font-size:18px;line-height:1.1}
 .partner-app .partner-brand small{display:block;margin-top:5px;color:var(--muted);font-weight:500;font-size:12px}
 .partner-app .partner-brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--crimson);color:#fff;font-size:20px}
@@ -56,15 +57,39 @@
 .partner-app .partner-notice{padding:12px 16px;border-radius:12px;background:#E3F1E4;color:#1F5B2C}
 .partner-app .partner-search-label{display:block;margin:18px 0 8px;font-size:14px;font-weight:700}
 .partner-app .partner-member-search{display:block;width:100%;max-width:400px}
-.partner-app .partner-member-list{list-style:none;margin:18px 0 0;padding:0}
+.partner-app .partner-member-list{list-style:none;margin:18px 0 0;padding:0;max-height:min(58vh,620px);overflow-y:auto}
 .partner-app .partner-member-list li{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
 .partner-app .partner-member-list strong,.partner-app .partner-member-list small{display:block}
 .partner-app .partner-member-list small{color:var(--muted);margin-top:3px}
 .partner-app .partner-member-avatar{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:50%;background:#F3DADC;color:var(--crimson-deep);font-weight:700}
 .partner-app .partner-empty{padding:20px 0}
 .partner-app .partner-roster-note{font-size:12px;margin-top:12px!important}
+.partner-app .partner-overview-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.partner-app .partner-quick-title{font-size:1.35rem;margin-bottom:14px}
+.partner-app .partner-quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.partner-app .partner-quick-card{display:flex;align-items:flex-start;gap:12px;color:var(--ink);text-decoration:none;min-width:0}
+.partner-app .partner-quick-card:hover{border-color:var(--crimson)}
+.partner-app .partner-quick-card>span:nth-child(2){flex:1;min-width:0}
+.partner-app .partner-quick-card strong,.partner-app .partner-quick-card small{display:block}
+.partner-app .partner-quick-card strong{font-size:16px;margin:2px 0 6px}
+.partner-app .partner-quick-card small{font-size:12px;color:var(--muted);line-height:1.45}
+.partner-app .partner-quick-card>svg{color:var(--crimson-deep);flex:none}
 .partner-loading{display:grid;place-items:center;min-height:100vh;font-size:17px;font-weight:600}
-@media(max-width:1100px){.partner-app .partner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.partner-app .partner-stat:last-child{grid-column:1/-1}}
-@media(max-width:900px){.partner-app.app{display:block}.partner-app .side{display:none}.partner-app .main{padding:20px 16px calc(105px + env(safe-area-inset-bottom));max-width:760px}.partner-app .row{flex-direction:column;align-items:stretch}.partner-app .row .btn{width:100%}.partner-app .row>.fld{width:100%}.partner-app .tabbar{display:flex;position:fixed;z-index:30;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px #2A1A1410}.partner-app .tabbar a{flex:1;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;text-decoration:none;font-weight:500;color:var(--muted);border-radius:8px}.partner-app .tabbar a.on{font-weight:700;color:var(--crimson-deep);background:#F3DADC}.partner-app .partner-heading{flex-direction:column}.partner-app .partner-heading h1{font-size:28px}}
-@media(max-width:580px){.partner-app .c{padding:20px}.partner-app .partner-metrics{grid-template-columns:1fr}.partner-app .partner-stat:last-child{grid-column:auto}.partner-app .partner-identity{align-items:flex-start;flex-wrap:wrap}.partner-app .partner-identity .f{flex-basis:calc(100% - 70px)}.partner-app .partner-identity .chip{margin-left:61px}.partner-app .partner-resource-actions{flex-direction:column}.partner-app .partner-resource-actions .btn{width:100%}}
+@media(max-width:1023px){
+  .partner-app.app{display:block}
+  .partner-app .partner-mobile-topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+  .partner-app .partner-menu-button,.partner-app .partner-drawer-close{display:grid;place-items:center;width:44px;height:44px;flex:none;border:1px solid var(--line);border-radius:12px;background:var(--cream);color:var(--ink);cursor:pointer}
+  .partner-app .partner-menu-backdrop{display:block;position:fixed;inset:0;z-index:50;width:100%;height:100dvh;border:0;background:#2A1A1480;cursor:pointer}
+  .partner-app .side{position:fixed;inset:0 auto 0 0;z-index:60;width:min(310px,calc(100vw - 48px));height:100dvh;max-height:100dvh;overflow-y:auto;visibility:hidden;transform:translateX(-100%);transition:transform .2s ease,visibility .2s ease;box-shadow:8px 0 30px #2A1A1425}
+  .partner-app .side.partner-side-open{visibility:visible;transform:translateX(0)}
+  .partner-app .partner-drawer-close{position:absolute;top:19px;right:14px}
+  .partner-app .side>.partner-brand{padding-right:40px}
+  .partner-app .main{padding:28px 20px 48px;max-width:900px}
+  .partner-app .row{flex-direction:column;align-items:stretch}
+  .partner-app .row .btn,.partner-app .row>.fld{width:100%}
+  .partner-app .partner-heading{flex-direction:column}
+  .partner-app .partner-heading h1{font-size:28px}
+  .partner-app .partner-metrics,.partner-app .partner-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:580px){.partner-app .c{padding:20px}.partner-app .main{padding:20px 16px 40px}.partner-app .partner-overview-heading{flex-direction:column}.partner-app .partner-metrics,.partner-app .partner-quick-grid{grid-template-columns:1fr}.partner-app .partner-identity{align-items:flex-start;flex-wrap:wrap}.partner-app .partner-identity .f{flex-basis:calc(100% - 70px)}.partner-app .partner-identity .chip{margin-left:61px}.partner-app .partner-resource-actions{flex-direction:column}.partner-app .partner-resource-actions .btn{width:100%}}
 @media(prefers-reduced-motion:reduce){.partner-app *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

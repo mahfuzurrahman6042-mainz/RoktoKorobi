@@ -1,3 +1,5 @@
-import PartnerWorkspace from './partner-workspace';
+import { PartnerOverview } from './partner-sections';
 
-export default PartnerWorkspace;
+export default function PartnerPage() {
+  return <PartnerOverview />;
+}
