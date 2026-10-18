@@ -618,14 +618,23 @@ export default function Home() {
         }
 
         .hero-card .hero-action--partner {
-          background: #226B6C;
-          box-shadow: 0 4px 20px rgba(34, 107, 108, .24);
+          background: #fff;
+          color: #1C1010;
+          box-shadow: 0 4px 20px rgba(255, 255, 255, .12);
+        }
+
+        @supports (-webkit-text-stroke: 1px #1C1010) {
+          .hero-card .hero-action--partner {
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 1px #1C1010;
+          }
         }
 
         .hero-card .hero-action--request {
-          background: #F2CC77;
-          color: #271A0C;
-          box-shadow: 0 4px 20px rgba(242, 204, 119, .2);
+          background: #080808;
+          border-color: rgba(255, 255, 255, .35);
+          color: #fff;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
         }
 
         .hero-card .hero-action:hover { filter: brightness(1.1); }
