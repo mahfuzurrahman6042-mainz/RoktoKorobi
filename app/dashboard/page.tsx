@@ -12,9 +12,9 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [userData, setUserData] = useState({
-    name: 'Mahfuzur Rahman',
+    name: '',
     email: '',
-    bloodGroup: 'O+',
+    bloodGroup: '',
     donations: 0,
     fulfilledRequests: 0,
     rating: 0
@@ -120,7 +120,9 @@ export default function Dashboard() {
               router.replace('/dashboard/partner');
               return;
             }
-            setUserData(prev => ({ ...prev, ...data }));
+            setUserData(prev => ({ ...prev, ...data, name: data.name || user.displayName || user.email?.split('@')[0] || 'User' }));
+          } else {
+            setUserData(prev => ({ ...prev, name: user.displayName || user.email?.split('@')[0] || 'User', email: user.email || '' }));
           }
           // Check if user is super admin
           const adminCheck = await isSuperAdmin(user.email || '');

@@ -12,11 +12,11 @@ export default function Profile() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [kebabOpen, setKebabOpen] = useState(false);
   const [userData, setUserData] = useState({
-    name: 'Mahfuzur Rahman',
-    email: 'test@example.com',
-    bloodGroup: 'O+',
-    phone: '0171-1234567',
-    location: 'Dhaka',
+    name: '',
+    email: '',
+    bloodGroup: '',
+    phone: '',
+    location: '',
     donations: 0,
     lastDonation: null,
     rating: 0
@@ -155,7 +155,7 @@ export default function Profile() {
           setCurrentUser(user);
           const data = await getUserData(user.uid);
           if (data) {
-            setUserData(prev => ({ ...prev, ...data }));
+            setUserData(prev => ({ ...prev, ...data, name: data.name || user.displayName || user.email?.split('@')[0] || 'User' }));
           } else {
             setUserData(prev => ({ ...prev, email: user.email || '', name: user.displayName || 'User' }));
           }

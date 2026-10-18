@@ -25,17 +25,19 @@ export default function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [currentSessionEmail, setCurrentSessionEmail] = useState('');
 
   useEffect(() => {
     setMounted(true);
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
 
-    // Wait for Firebase to restore a persisted login before redirecting.
+    // Keep the form available so someone using a shared browser can sign in
+    // with a different account instead of being sent back to the old session.
     return onAuthStateChange(user => {
-      if (user) router.replace(destinationAfterLogin(user.emailVerified));
+      setCurrentSessionEmail(user?.email || '');
     });
-  }, [router]);
+  }, []);
 
   const t = (key: string) => {
     const translations: Record<string, any> = {
@@ -169,6 +171,9 @@ export default function Login() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {currentSessionEmail && <p role="status" style={{ padding: '12px 16px', borderRadius: '12px', background: '#F5EDD8', color: '#3D2314', fontSize: '14px' }}>
+                Signed in as {currentSessionEmail}. Enter another account below to switch.
+              </p>}
               
               {/* Email */}
               <div>
