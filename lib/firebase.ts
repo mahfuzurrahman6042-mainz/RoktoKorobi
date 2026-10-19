@@ -219,11 +219,43 @@ const districtCoordinates: Record<string, { lat: number; lng: number }> = {
   'Satkhira': { lat: 22.7188, lng: 89.0745 }
 };
 
-// Public donor listings are paused until a consented, non-identifying directory
-// is available. Never download /users (including phone and medical data) here.
-export const listAllDonors = async () => [];
+// The public donor directory is a separate, consented collection. Never read
+// /users here: that path contains private contact and medical information.
+export const listAllDonors = async () => {
+  if (!database) throw new Error('Database not initialized');
+  const snapshot = await get(ref(database, 'donors'));
+  if (!snapshot.exists()) return [];
 
-export const getTotalDonorCount = async () => 0;
+  const data = snapshot.val();
+  return Object.entries(data).flatMap(([id, raw]: [string, any]) => {
+    const value = raw && typeof raw === 'object' ? raw : {};
+    const district = String(value.district || '').trim();
+    const country = String(value.country || 'BD').toUpperCase();
+    const bloodGroup = String(value.bloodGroup || '');
+    // Never render a donor's user-supplied GPS coordinates on a public map.
+    const coordinates = country === 'BD' ? districtCoordinates[district] : undefined;
+    const lat = Number(coordinates?.lat);
+    const lng = Number(coordinates?.lng);
+    // Only explicit public-map opt-ins belong in the directory. Never expose
+    // private profile names, contact details, or exact user-supplied addresses.
+    if (value.publicMapConsent !== true || !district || country !== 'BD'
+      || !['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(bloodGroup)
+      || !Number.isFinite(lat) || !Number.isFinite(lng)) return [];
+    return [{
+      id,
+      name: 'Available donor',
+      bloodGroup,
+      country,
+      district,
+      location: district,
+      lat,
+      lng,
+      available: value.available !== false,
+    }];
+  });
+};
+
+export const getTotalDonorCount = async () => (await listAllDonors()).length;
 export const listAllHospitals = async () => {
   if (!database) throw new Error('Database not initialized');
   const hospitalsRef = ref(database, 'hospitals');

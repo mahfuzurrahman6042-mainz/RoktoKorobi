@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 import { ArrowUpRight, BarChart3, Home, Link2, Menu, Share2, ShieldCheck, Users, X } from 'lucide-react';
 import { database, get, getPartnerInstituteById, getPartnerStats, getUserData, onAuthStateChange, ref } from '@/lib/firebase';
 import { buildPartnerLink, downloadImage, makePartnerArtwork, qrForLink } from './partner-assets';
@@ -200,12 +201,12 @@ export default function PartnerWorkspace({ children }: { children: ReactNode }) 
   return <PartnerContext.Provider value={{ partner, members, membersError, code, shareable, link, message, whatsapp, email, canShare, assetBusy, copy, download, nativeShare }}>
     <div className="partner-app app">
       <header className="partner-mobile-topbar">
-        <Link className="partner-brand" href={partner.isPreview ? '/dashboard/partner?preview=1' : '/dashboard/partner'}><span className="partner-brand-mark" aria-hidden="true">✚</span><span>RoktoKorobi<small>Partner workspace</small></span></Link>
+        <Link className="partner-brand" href={partner.isPreview ? '/dashboard/partner?preview=1' : '/dashboard/partner'} aria-label="RoktoKorobi partner workspace"><BrandLogo size={38} subtitle="Partner workspace" /></Link>
         <button className="partner-menu-button" type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="partner-sidebar" onClick={() => setMenuOpen(open => !open)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button>
       </header>
       {menuOpen && <button className="partner-menu-backdrop" type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)} />}
       <aside className={`side${menuOpen ? ' partner-side-open' : ''}`} id="partner-sidebar" aria-label="Partner navigation">
-        <Link className="partner-brand" href={partner.isPreview ? '/dashboard/partner?preview=1' : '/dashboard/partner'} onClick={() => setMenuOpen(false)}><span className="partner-brand-mark" aria-hidden="true">✚</span><span>RoktoKorobi<small>Partner workspace</small></span></Link>
+        <Link className="partner-brand" href={partner.isPreview ? '/dashboard/partner?preview=1' : '/dashboard/partner'} onClick={() => setMenuOpen(false)} aria-label="RoktoKorobi partner workspace"><BrandLogo size={38} subtitle="Partner workspace" /></Link>
         <button className="partner-drawer-close" type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={21} aria-hidden="true" /></button>
         <div className="partner-side-label lab">Workspace</div>
         <nav className="nav">{navigation}</nav>

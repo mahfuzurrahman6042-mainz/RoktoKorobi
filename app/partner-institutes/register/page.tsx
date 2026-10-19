@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 
 const publicApplicationsOpen = false;
 
@@ -70,11 +71,7 @@ export default function PartnerInstituteRegister() {
         borderBottom: '1px solid rgba(192,21,42,0.12)', boxShadow: '0 2px 40px rgba(26,15,10,0.08)'
       }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-          <span style={{ fontSize: '36px', lineHeight: 1 }}>🩸</span>
-          <div>
-            <span style={{ fontFamily: 'serif', fontSize: '24px', color: '#C0152A', letterSpacing: '-0.01em' }}>রক্তকরবী</span>
-            <span style={{ fontSize: '10px', color: '#1B5E6B', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', display: 'block', marginTop: '2px' }}>RoktoKorobi</span>
-          </div>
+          <BrandLogo />
         </Link>
         <Link href="/" style={{ background: '#C0152A', color: '#fff', padding: '10px 26px', borderRadius: '100px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', boxShadow: '0 4px 20px rgba(192,21,42,0.3)' }}>
           Back to Home

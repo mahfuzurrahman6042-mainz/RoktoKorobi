@@ -3,18 +3,24 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
+import CountryField from '@/components/CountryField';
+import { enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
+import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
 
 export default function Signup() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [language, setLanguage] = useState('en');
+  const [country, setCountry] = useState<CountryCode>('BD');
+  const [createdUid, setCreatedUid] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
-    userType: 'donor'
+    userType: 'recipient'
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -46,7 +52,7 @@ export default function Signup() {
       signup: { en: 'Create Account', bn: 'অ্যাকাউন্ট তৈরি করুন' },
       back: { en: 'Back to Home', bn: 'হোমে ফিরে যান' },
       login: { en: 'Already have an account? Login', bn: 'ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন' },
-      success: { en: 'Account created successfully! Redirecting to login...', bn: 'অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! লগইনে পুনঃনির্দেশিত হচ্ছে...' },
+      success: { en: 'Account created. Please verify your email to continue.', bn: 'অ্যাকাউন্ট তৈরি হয়েছে। চালিয়ে যেতে ইমেইল যাচাই করুন।' },
       signing: { en: 'Creating account...', bn: 'অ্যাকাউন্ট তৈরি হচ্ছে...' },
       passwordMismatch: { en: 'Passwords do not match', bn: 'পাসওয়ার্ড মেলে না' },
       weakPassword: { en: 'Password must be at least 6 characters', bn: 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে' },
@@ -93,24 +99,39 @@ export default function Signup() {
     e.preventDefault();
 
     if (!validateForm()) return;
+    if (!enrollmentOpen(country)) return setError('Account enrollment is not open in this country yet.');
+    if (!validPhoneForCountry(formData.phone, country)) return setError('Enter a valid phone number for the selected country.');
 
     setSubmitting(true);
     setError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const email = formData.email.trim().toLowerCase();
+      const user = createdUid ? getCurrentUser() : (await registerUser(email, formData.password)).user;
+      if (!user || user.email?.toLowerCase() !== email || (createdUid && user.uid !== createdUid)) {
+        throw new Error('Your session changed. Sign in again to finish account setup.');
+      }
+      setCreatedUid(user.uid);
+      if (!database) throw new Error('The database is unavailable. Please try again.');
+      await updateProfile(user, { displayName: formData.name.trim() });
+      const now = new Date().toISOString();
+      await update(ref(database, `users/${user.uid}`), {
+        uid: user.uid, email, name: formData.name.trim(), phone: formData.phone.trim(), country,
+        isDonor: false, donations: 0, acceptedTerms: true, acceptedPrivacy: true,
+        consentVersion: '2026-10-01', consentedAt: now, createdAt: now, updatedAt: now,
+      });
+      try { await sendVerificationEmail(user); }
+      catch (cause) { console.error('Could not send verification email', cause); }
 
       setSubmitted(true);
       setSubmitting(false);
 
-      // Redirect to login after 2 seconds
       setTimeout(() => {
-        router.push('/login');
+        router.push('/verify-email?next=%2Fdashboard');
       }, 2000);
-    } catch (error) {
+    } catch (cause) {
       setSubmitting(false);
-      setError(language === 'bn' ? 'অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Failed to create account. Please try again.');
+      setError(cause instanceof Error ? cause.message : 'Account creation failed. Please try again.');
     }
   };
 
@@ -126,11 +147,7 @@ export default function Signup() {
         borderBottom: '1px solid rgba(192,21,42,0.12)', boxShadow: '0 2px 40px rgba(26,15,10,0.08)'
       }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-          <span style={{ fontSize: '36px', lineHeight: 1 }}>🩸</span>
-          <div>
-            <span style={{ fontFamily: 'serif', fontSize: '24px', color: '#dc2626', letterSpacing: '-0.01em' }}>রক্তকরবী</span>
-            <span style={{ fontSize: '10px', color: '#1B5E6B', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', display: 'block', marginTop: '2px' }}>RoktoKorobi</span>
-          </div>
+          <BrandLogo />
         </Link>
         <Link href="/" style={{ background: '#dc2626', color: '#fff', padding: '10px 26px', borderRadius: '100px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', boxShadow: '0 4px 20px rgba(220,38,38,0.3)' }}>
           {t('back')}
@@ -153,8 +170,12 @@ export default function Signup() {
                 {t('title')}
               </h1>
               <p style={{ fontSize: '16px', color: '#3D2314', lineHeight: 1.6 }}>
-                {t('subtitle')}
+                Create a general account first. Donor and partner registration have separate review steps.
               </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-3 text-sm font-semibold text-[#A5102F]">
+                <Link href="/register" className="underline">Register as a donor</Link>
+                <Link href="/partner-account" className="underline">Join as a partner leader</Link>
+              </div>
             </div>
 
             {/* Success Message */}
@@ -182,6 +203,7 @@ export default function Signup() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <CountryField value={country} onChange={setCountry} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-[#F5EDD8] px-4 py-3 text-base" />
                   
                   {/* Name and Email */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -245,7 +267,7 @@ export default function Signup() {
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
-                        {t('userType')} *
+                        Joining as
                       </label>
                       <select
                         name="userType"
@@ -258,9 +280,7 @@ export default function Signup() {
                           outline: 'none', transition: 'all 0.3s'
                         }}
                       >
-                        <option value="donor">{t('donor')}</option>
-                        <option value="recipient">{t('recipient')}</option>
-                        <option value="hospital">{t('hospital')}</option>
+                        <option value="recipient">General account</option>
                       </select>
                     </div>
                   </div>

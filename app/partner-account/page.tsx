@@ -5,11 +5,14 @@ import Link from 'next/link';
 import type { User } from 'firebase/auth';
 import { ArrowLeft, Building2, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
+import CountryField from '@/components/CountryField';
+import { enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
 
 type AccountForm = { name: string; email: string; phone: string; password: string; confirmPassword: string };
 
 export default function PartnerAccountPage() {
   const [form, setForm] = useState<AccountForm>({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [country, setCountry] = useState<CountryCode>('BD');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -29,7 +32,7 @@ export default function PartnerAccountPage() {
     if (!database) throw new Error('The database is unavailable. Please try again later.');
     const now = new Date().toISOString();
     await update(ref(database, `users/${uid}`), {
-      uid, email, name: form.name.trim(), phone: form.phone.trim(),
+      uid, email, name: form.name.trim(), phone: form.phone.trim(), country,
       isDonor: false, donations: 0, acceptedTerms: true, acceptedPrivacy: true,
       consentVersion: '2026-10-01', consentedAt: now, createdAt: now, updatedAt: now,
     });
@@ -41,6 +44,8 @@ export default function PartnerAccountPage() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
+    if (!enrollmentOpen(country)) return setError('Partner enrollment is not open in this country yet.');
+    if (!validPhoneForCountry(form.phone, country)) return setError('Enter a valid phone number for the selected country.');
     if (form.password.length < 8) return setError('Use a password of at least 8 characters.');
     if (form.password !== form.confirmPassword) return setError('The passwords do not match.');
     if (!termsAccepted || !privacyAccepted) return setError('Accept the terms and privacy policy to continue.');
@@ -75,6 +80,7 @@ export default function PartnerAccountPage() {
           <Link href="/verify-email?next=%2Fpartner-request" className="mt-5 inline-flex rounded-xl bg-[#A5102F] px-5 py-3 font-semibold text-white">Open email verification</Link>
           <Link href="/partner-request" className="ml-3 mt-5 inline-flex rounded-xl border border-[#A5102F]/20 px-5 py-3 font-semibold text-[#A5102F]">Request partnership</Link>
         </div> : <form onSubmit={submit} className="mt-8 space-y-5">
+          <CountryField value={country} onChange={setCountry} className={field} />
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-semibold">Full name<input required autoComplete="name" maxLength={100} value={form.name} onChange={event => setForm(previous => ({ ...previous, name: event.target.value }))} className={field} /></label>
             <label className="block text-sm font-semibold">Phone<input required type="tel" autoComplete="tel" maxLength={30} value={form.phone} onChange={event => setForm(previous => ({ ...previous, phone: event.target.value }))} className={field} /></label>

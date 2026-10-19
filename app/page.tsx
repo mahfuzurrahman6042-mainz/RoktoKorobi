@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 import dynamic from "next/dynamic";
 import { TestimonialButton } from "@/components/TestimonialButton";
 import { MapErrorBoundary } from "@/components/MapErrorBoundary";
@@ -139,6 +140,7 @@ export default function Home() {
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [donors, setDonors] = useState<any[]>([]);
+  const [directoryLoading, setDirectoryLoading] = useState(true);
   const [stats, setStats] = useState<{ users: number; donors: number; requestsFulfilled: number; partners: number; updatedAt: number } | null>(null);
   const testimonialStats = {
     en: [{ n: String(stats?.donors ?? '—'), l: 'Registered Donors' }, { n: String(stats?.requestsFulfilled ?? '—'), l: 'Requests Fulfilled' }, { n: String(stats?.partners ?? '—'), l: 'Partner Organisations' }],
@@ -190,6 +192,8 @@ export default function Home() {
       } catch (error) {
         console.log('Error fetching donors:', error);
         setDonors([]);
+      } finally {
+        setDirectoryLoading(false);
       }
     };
 
@@ -956,14 +960,7 @@ export default function Home() {
       {/* Navigation with Mobile Responsive */}
       <nav className={`nav ${navSolid ? 'solid' : ''} ${mobileOpen ? 'mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-logo" aria-label="RoktoKorobi - Home" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, minWidth: 0 }}>
-          <svg width="26" height="32" viewBox="0 0 32 38" fill="none">
-            <path d="M16 2C16 2 2 16 2 24C2 31.2 8.3 36 16 36C23.7 36 30 31.2 30 24C30 16 16 2 16 2Z" fill="#dc2626" opacity=".15"/>
-            <path d="M16 6C16 6 5 18 5 25C5 30.5 10 35 16 35C22 35 27 30.5 27 25C27 18 16 6 16 6Z" fill="#dc2626"/>
-          </svg>
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25 }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: '#dc2626' }}>রক্তকরবী</span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: 2.5, color: '#c4a0a0', textTransform: 'uppercase' }}>roktokorobi</span>
-          </div>
+          <BrandLogo />
         </Link>
         
         {/* Desktop Navigation */}
@@ -971,7 +968,7 @@ export default function Home() {
           <li role="none"><Link href="/" role="menuitem" aria-label={t('home')}>{t('home')}</Link></li>
           <li role="none"><Link href="/donors" role="menuitem" aria-label={t('donors')}>{t('donors')}</Link></li>
           <li role="none"><Link href="/request" role="menuitem" aria-label={t('request')}>{t('request')}</Link></li>
-          <li role="none"><Link href="/partner-register" role="menuitem" aria-label={language === 'bn' ? 'পার্টনার নিবন্ধন' : 'Partner Registration'}>{language === 'bn' ? 'পার্টনার নিবন্ধন' : 'Partner Registration'}</Link></li>
+          <li role="none"><Link href="/partner-account" role="menuitem" aria-label={language === 'bn' ? 'পার্টনার নিবন্ধন' : 'Partner Registration'}>{language === 'bn' ? 'পার্টনার নিবন্ধন' : 'Partner Registration'}</Link></li>
           <li role="none"><Link href="/eligibility" role="menuitem" aria-label={t('eligibilityLink')}>{t('eligibilityLink')}</Link></li>
           <li role="none"><Link href="/blog" role="menuitem" aria-label={t('blog')}>{t('blog')}</Link></li>
           <li role="none"><Link href="/illustrations" role="menuitem" aria-label={t('chitrokothon')}>{t('chitrokothon')}</Link></li>
@@ -1266,7 +1263,7 @@ export default function Home() {
               {language === 'bn' ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Register as a Blood Donor'}
             </button>
 
-            <button type="button" className="hero-action hero-action--partner" onClick={() => router.push('/partner-register')}>
+            <button type="button" className="hero-action hero-action--partner" onClick={() => router.push('/partner-account')}>
               {language === 'bn' ? 'পার্টনার হিসেবে নিবন্ধন করুন' : 'Partner with Us'}
             </button>
 
@@ -1914,7 +1911,7 @@ export default function Home() {
                   hospitals={hospitals.length > 0 ? hospitals : []}
                 />
               </MapErrorBoundary>
-              {hospitals.length === 0 && (
+              {directoryLoading && (
                 <div
                   style={{
                     position: "absolute",
@@ -1947,6 +1944,11 @@ export default function Home() {
                   >
                     {language === 'bn' ? 'আপনার কাছাকাছি দাতা খুঁজছে…' : 'Loading donors near you…'}
                   </span>
+                </div>
+              )}
+              {!directoryLoading && donors.length === 0 && (
+                <div role="status" style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 10, maxWidth: 420, padding: '12px 16px', background: 'rgba(253, 249, 243, .96)', borderRadius: 12, color: '#2A1A14', boxShadow: '0 4px 18px rgba(0,0,0,.12)' }}>
+                  {language === 'bn' ? 'এখনও প্রকাশের সম্মতি দেওয়া কোনো রক্তদাতা নেই। মানচিত্র চালু আছে; নতুন দাতারা সম্মতি দিলে এখানে দেখা যাবে।' : 'No donors have opted into the public map yet. The map is active and will show consented donors here.'}
                 </div>
               )}
             </div>
@@ -1988,7 +1990,7 @@ export default function Home() {
           >
             {language === 'bn'
               ? 'নিবন্ধিত দাতারা লাইভ ম্যাপে দেখা যায় — রোগীরা সহজেই খুঁজে পান।'
-              : 'Donors who register appear on the live map for nearby patients to find.'}
+              : 'Only donors who explicitly opt into the public directory can appear on this map. Locations are shown at district level.'}
           </p>
           <a
             href="/donors"

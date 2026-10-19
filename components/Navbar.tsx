@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import BrandLogo from '@/components/BrandLogo';
 
 interface NavbarProps {
   language?: string;
@@ -96,11 +97,7 @@ export default function Navbar({
       <nav className="navbar" role="navigation" aria-label="Main navigation">
         <div className="nav-container">
           <Link href="/" className="nav-logo" aria-label="RoktoKorobi Home">
-            <div className="logo-icon">🩸</div>
-            <div className="logo-text">
-              <span className="logo-bn">রক্তকরবী</span>
-              <span className="logo-en">ROKTOKOROBI</span>
-            </div>
+            <BrandLogo />
           </Link>
 
           <ul className="nav-links" role="menubar">

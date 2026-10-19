@@ -4,6 +4,10 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+const escapeHtml = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, character => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[character] || character));
+
 // Fix for default markers in Leaflet with webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -25,7 +29,7 @@ interface BangladeshMapProps {
     available: boolean;
     phone?: string;
   }>;
-  hospitals: Array<{
+  hospitals?: Array<{
     id: number;
     name: string;
     lat: number;
@@ -45,8 +49,8 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
     if (!mapRef.current || mapInstanceRef.current) return;
     try {
       const map = L.map(mapRef.current, {
-        center: [23.6850, 90.3563],
-        zoom: 7,
+        center: [center.lat, center.lng],
+        zoom,
         scrollWheelZoom: false,
       });
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -54,8 +58,21 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
         maxZoom: 18,
       }).addTo(map);
       mapInstanceRef.current = map;
-      setTimeout(() => map.invalidateSize(), 300);
-      setTimeout(() => map.invalidateSize(), 800);
+      const invalidateSize = () => map.invalidateSize({ pan: false });
+      const resizeObserver = typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(invalidateSize)
+        : null;
+      resizeObserver?.observe(mapRef.current);
+      requestAnimationFrame(invalidateSize);
+      const firstResize = setTimeout(invalidateSize, 300);
+      const secondResize = setTimeout(invalidateSize, 800);
+      return () => {
+        clearTimeout(firstResize);
+        clearTimeout(secondResize);
+        resizeObserver?.disconnect();
+        map.remove();
+        mapInstanceRef.current = null;
+      };
     } catch (error) {
       console.error('Map init error:', error);
     }
@@ -128,13 +145,13 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
           .bindPopup(`
             <div style="font-family: 'Inter', sans-serif; padding: 12px; min-width: 180px;">
               <h4 style="margin: 0 0 8px 0; color: #111111; font-size: 15px; font-weight: 700;">
-                ${donor.name || 'Donor'}
+                Available donor
               </h4>
               <p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">
                 <strong>রক্তের গ্রুপ:</strong> <span style="color: ${bgColor}; font-weight: 600;">${donor.bloodGroup}</span>
               </p>
               <p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">
-                <strong>অবস্থান:</strong> ${donor.location || 'Unknown'}
+                <strong>অবস্থান:</strong> ${escapeHtml(donor.location || 'Unknown')}
               </p>
               <p style="margin: 4px 0; color: ${donor.available ? '#22c55e' : '#ef4444'}; font-size: 12px; font-weight: 600;">
                 ${donor.available ? '✓ উপলব্ধ' : '✗ অনুপলব্ধ'}
@@ -162,7 +179,7 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
             align-items: center;
             gap: 4px;
           ">
-            🏥 ${hospital.bloodNeeded || 'হাসপাতাল'}
+            🏥 ${escapeHtml(hospital.bloodNeeded || 'হাসপাতাল')}
           </div>
         `,
         className: 'custom-div-icon',
@@ -175,14 +192,14 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; padding: 8px;">
             <h4 style="margin: 0 0 8px 0; color: #111111; font-size: 14px; font-weight: 600;">
-              ${hospital.name}
+              ${escapeHtml(hospital.name)}
             </h4>
             <p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">
               <strong>ধরন:</strong> ${hospital.emergency ? 'জরুরি বিভাগ' : 'সাধারণ বিভাগ'}
             </p>
             ${hospital.bloodNeeded ? `
               <p style="margin: 4px 0; color: #dc2626; font-size: 12px; font-weight: 600;">
-                রক্ত প্রয়োজন: ${hospital.bloodNeeded}
+                রক্ত প্রয়োজন: ${escapeHtml(hospital.bloodNeeded)}
               </p>
             ` : '<p style="margin: 4px 0; color: #6b6b6b; font-size: 12px;">বর্তমানে রক্তের প্রয়োজন নেই</p>'}
           </div>

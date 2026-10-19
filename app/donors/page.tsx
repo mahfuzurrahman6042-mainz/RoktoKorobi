@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { listAllDonors } from '@/lib/firebase';
+import { listAllDonors, listAllHospitals } from '@/lib/firebase';
+import BrandLogo from '@/components/BrandLogo';
 
 // Dynamic import for Leaflet map (SSR disabled)
 const BangladeshMap = dynamic(() => import('@/components/BangladeshMap'), {
@@ -235,15 +236,13 @@ const districts = [
   }
 ];
 
-// Hospital data for map (empty - will be populated from Firebase)
-const hospitals: any[] = [];
-
 export default function DonorsPage() {
   const [language, setLanguage] = useState('en');
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [donors, setDonors] = useState([]);
   const [filteredDonors, setFilteredDonors] = useState([]);
+  const [hospitals, setHospitals] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [statCount, setStatCount] = useState(0);
@@ -269,8 +268,18 @@ export default function DonorsPage() {
     // Load donors from Firebase Realtime Database
     const loadDonors = async () => {
       try {
-        const donorsData = await listAllDonors();
-        console.log('Loaded donors:', donorsData.length, donorsData);
+        const [donorsData, hospitalsData] = await Promise.all([
+          listAllDonors(),
+          listAllHospitals(),
+        ]);
+        setHospitals(hospitalsData.map((hospital: any) => ({
+          id: hospital.id,
+          name: hospital.name || 'Hospital',
+          lat: Number(hospital.lat ?? hospital.coordinates?.lat),
+          lng: Number(hospital.lng ?? hospital.coordinates?.lng),
+          emergency: hospital.emergency === true,
+          bloodNeeded: hospital.bloodNeeded || null,
+        })).filter((hospital: any) => Number.isFinite(hospital.lat) && Number.isFinite(hospital.lng)));
         if (donorsData && donorsData.length > 0) {
           const donorsArray = donorsData.map((doc: any) => ({
             id: doc.id,
@@ -281,8 +290,8 @@ export default function DonorsPage() {
             bloodGroup: doc.bloodGroup || 'Unknown',
             district: doc.district || 'Unknown',
             districtBn: doc.district || 'Unknown',
-            lat: doc.lat || 23.8103,
-            lng: doc.lng || 90.4125,
+            lat: doc.lat,
+            lng: doc.lng,
             lastDonated: doc.lastDonation || 'Unknown',
             lastDonatedEn: doc.lastDonation || 'Unknown',
             available: doc.available !== false,
@@ -432,15 +441,7 @@ export default function DonorsPage() {
         boxShadow: '0 2px 20px rgba(0, 0, 0, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-          <span style={{ fontSize: '28px' }}>🩸</span>
-          <span style={{
-            fontSize: '24px',
-            fontWeight: 800,
-            color: '#8B1A1A',
-            whiteSpace: 'nowrap'
-          }}>
-            {language === 'bn' ? 'রক্তকরবী' : 'RoktoKorobi'}
-          </span>
+          <BrandLogo />
         </div>
         <div className="donors-nav-links" style={{
           display: 'flex',

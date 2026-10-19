@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getUserData, logoutUser, updateUserData } from '@/lib/firebase';
 import PartnerRosterConsent from './partner-roster-consent';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function Profile() {
   const router = useRouter();
@@ -619,12 +620,7 @@ export default function Profile() {
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-brand">
             <div className="brand-left">
-              <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-                <div>
-                  <div className="brand-text-bn">রক্তকরবী</div>
-                  <div className="brand-text-en">{t.brandSub}</div>
-                </div>
-              </div>
+              <BrandLogo size={38} subtitle={t.brandSub} />
             </div>
             <button className="sidebar-close" onClick={closeSidebar} aria-label="Close menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>

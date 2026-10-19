@@ -3,12 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
+import CountryField from '@/components/CountryField';
+import { enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
 import { Eye, EyeOff } from 'lucide-react';
 import { registerUser, saveUserData, updateProfile, sendVerificationEmail } from '@/lib/firebase';
 
 export default function RegisterDonor() {
   const router = useRouter();
   const [language, setLanguage] = useState('en');
+  const [country, setCountry] = useState<CountryCode>('BD');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -117,6 +121,14 @@ export default function RegisterDonor() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!enrollmentOpen(country)) {
+      alert('Donor enrollment is not yet open in this country.');
+      return;
+    }
+    if (!validPhoneForCountry(formData.phone, country)) {
+      alert('Enter a valid phone number for the selected country.');
+      return;
+    }
     
     // Validate required fields
     if (!formData.name || !formData.email || !formData.password || !formData.phone || 
@@ -222,6 +234,7 @@ export default function RegisterDonor() {
         name: formData.name.trim(),
         email: normalizedEmail,
         phone: formData.phone,
+        country,
         bloodGroup: formData.bloodGroup,
         age: age,
         weight: weight,
@@ -338,11 +351,7 @@ export default function RegisterDonor() {
         borderBottom: '1px solid rgba(192,21,42,0.12)', boxShadow: '0 2px 40px rgba(26,15,10,0.08)'
       }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-          <span style={{ fontSize: '36px', lineHeight: 1 }}>🩸</span>
-          <div>
-            <span style={{ fontFamily: 'serif', fontSize: '24px', color: '#C0152A', letterSpacing: '-0.01em' }}>রক্তকরবী</span>
-            <span style={{ fontSize: '10px', color: '#1B5E6B', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', display: 'block', marginTop: '2px' }}>RoktoKorobi</span>
-          </div>
+          <BrandLogo />
         </Link>
         <Link href="/" style={{ background: '#C0152A', color: '#fff', padding: '10px 26px', borderRadius: '100px', fontWeight: 600, fontSize: '13px', textDecoration: 'none', boxShadow: '0 4px 20px rgba(192,21,42,0.3)' }}>
           {t('back')}
@@ -463,6 +472,7 @@ export default function RegisterDonor() {
                 </div>
 
                 {/* Contact and Medical Info */}
+                <CountryField value={country} onChange={setCountry} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-[#F5EDD8] px-4 py-3 text-base" />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
