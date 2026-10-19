@@ -38,6 +38,7 @@ export default function RegisterDonor() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [shareWithPartner, setShareWithPartner] = useState(false);
+  const [mapConsent, setMapConsent] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -252,6 +253,7 @@ export default function RegisterDonor() {
         consentedAt: new Date().toISOString(),
         dateOfBirth: formData.dateOfBirth,
         isDonor: true,
+        publicMapConsent: mapConsent,
         donations: 0,
         fulfilledRequests: 0,
         rating: 4.8,
@@ -761,6 +763,13 @@ export default function RegisterDonor() {
                     }}
                   />
                 </div>
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 16, border: '1.5px solid rgba(192,21,42,0.18)', borderRadius: 12, background: '#F5EDD8', color: '#3D2314', lineHeight: 1.5 }}>
+                  <input type="checkbox" checked={mapConsent} onChange={event => setMapConsent(event.target.checked)} style={{ width: 20, height: 20, flexShrink: 0, marginTop: 2 }} />
+                  <span>{language === 'bn'
+                    ? 'আমি আমার রক্তের গ্রুপ ও নিবন্ধনের জেলা সর্বজনীন দাতা মানচিত্রে দেখাতে সম্মতি দিচ্ছি। আমার নাম, ফোন, পূর্ণ ঠিকানা বা সঠিক অবস্থান দেখানো হবে না। প্রোফাইল থেকে যেকোনো সময় এটি বন্ধ করতে পারব। ইমেইল যাচাইয়ের পর এটি চালু হবে।'
+                    : 'I agree to show my blood group and registration district on the public donor map after email verification. My name, phone, full address and exact location will not be shown. I can turn this off from my profile at any time.'}</span>
+                </label>
 
                 {/* Terms and Privacy Checkboxes */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>

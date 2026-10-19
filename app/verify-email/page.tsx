@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { reload, type User } from 'firebase/auth';
-import { onAuthStateChange, sendVerificationEmail, logoutUser } from '@/lib/firebase';
+import { onAuthStateChange, sendVerificationEmail, logoutUser, syncPublicDonorListing } from '@/lib/firebase';
 
 function destinationAfterVerification() {
   return new URLSearchParams(window.location.search).get('next') === '/partner-request' ? '/partner-request' : '/dashboard';
@@ -17,10 +17,21 @@ export default function VerifyEmailPage() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
 
+  const finishVerification = async (verifiedUser: User) => {
+    try {
+      await verifiedUser.getIdToken(true);
+      await syncPublicDonorListing(verifiedUser.uid);
+    } catch (error) {
+      // Map publication must not prevent a verified user from using their account.
+      console.error('Could not sync donor map listing after verification', error);
+    }
+    router.replace(destinationAfterVerification());
+  };
+
   useEffect(() => onAuthStateChange(currentUser => {
     setUser(currentUser);
     setLoading(false);
-    if (currentUser?.emailVerified) router.replace(destinationAfterVerification());
+    if (currentUser?.emailVerified) void finishVerification(currentUser);
   }), [router]);
 
   const checkVerification = async () => {
@@ -30,7 +41,7 @@ export default function VerifyEmailPage() {
     try {
       await reload(user);
       await user.getIdToken(true);
-      if (user.emailVerified) router.replace(destinationAfterVerification());
+      if (user.emailVerified) await finishVerification(user);
       else setNotice('Your email is not verified yet. Open the link in your inbox, then check again.');
     } catch {
       setNotice('We could not check your email status. Please try again.');

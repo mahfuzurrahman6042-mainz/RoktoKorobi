@@ -216,7 +216,61 @@ const districtCoordinates: Record<string, { lat: number; lng: number }> = {
   'Magura': { lat: 23.4786, lng: 89.4170 },
   'Meherpur': { lat: 23.7624, lng: 88.6318 },
   'Narail': { lat: 23.1723, lng: 89.4988 },
-  'Satkhira': { lat: 22.7188, lng: 89.0745 }
+  'Satkhira': { lat: 22.7188, lng: 89.0745 },
+  // District centroids for names present in the registration form but missing
+  // from the original map. Source: open-admin-data/bangladesh-administrative-divisions.
+  'Comilla': { lat: 23.437, lng: 91.033 },
+  'Habiganj': { lat: 24.369, lng: 91.432 },
+  'Jamalpur': { lat: 24.977, lng: 89.847 },
+  'Moulvibazar': { lat: 24.481, lng: 91.916 },
+  'Mymensingh': { lat: 24.699, lng: 90.43 },
+  'Netrokona': { lat: 24.871, lng: 90.845 },
+  'Nilphamari': { lat: 26.026, lng: 88.93 },
+  'Panchagarh': { lat: 26.285, lng: 88.579 },
+  'Rangpur': { lat: 25.651, lng: 89.237 },
+  'Sherpur': { lat: 25.083, lng: 90.075 }
+};
+
+const districtAliases: Record<string, string> = {
+  Barishal: 'Barisal', Bogura: 'Bogra', Chattogram: 'Chittagong',
+  'Coxs Bazar': "Cox'sBazar", 'Cox\'s Bazar': "Cox'sBazar",
+  Jashore: 'Jessore', Joypurhat: 'Jaipurhat', Khagrachhari: 'Khagrachari',
+  Cumilla: 'Comilla', Netrakona: 'Netrokona', Chapainababganj: 'Nawabganj',
+  Chapainawabganj: 'Nawabganj', Jhalokathi: 'Jhalokati',
+};
+
+export const publicDistrictKey = (district: string) =>
+  (districtAliases[district] || district).trim().toLowerCase();
+
+export const getPublicDistrictCoordinates = (district: string) =>
+  districtCoordinates[districtAliases[district] || district] || null;
+
+// The public record contains no name, phone, address, or user GPS coordinates.
+// A donor must opt in explicitly; an unverified account can never publish.
+export const syncPublicDonorListing = async (userId: string) => {
+  if (!database || !auth?.currentUser || auth.currentUser.uid !== userId || !auth.currentUser.emailVerified) {
+    throw new Error('Verify your email before updating the public donor map.');
+  }
+  const profile = await getUserData(userId);
+  if (profile?.isDonor !== true) return false;
+  const publicRef = ref(database, `donors/${userId}`);
+  if (profile.publicMapConsent !== true) {
+    await remove(publicRef);
+    return false;
+  }
+  if ((profile.country || 'BD') !== 'BD' || !getPublicDistrictCoordinates(profile.district || '')
+    || !['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(profile.bloodGroup)) {
+    throw new Error('A valid Bangladesh district and blood group are needed to appear on the map.');
+  }
+  await set(publicRef, {
+    uid: userId,
+    country: 'BD',
+    district: profile.district,
+    bloodGroup: profile.bloodGroup,
+    available: profile.availability !== false,
+    publicMapConsent: true,
+  });
+  return true;
 };
 
 // The public donor directory is a separate, consented collection. Never read
@@ -233,7 +287,7 @@ export const listAllDonors = async () => {
     const country = String(value.country || 'BD').toUpperCase();
     const bloodGroup = String(value.bloodGroup || '');
     // Never render a donor's user-supplied GPS coordinates on a public map.
-    const coordinates = country === 'BD' ? districtCoordinates[district] : undefined;
+    const coordinates = country === 'BD' ? getPublicDistrictCoordinates(district) : null;
     const lat = Number(coordinates?.lat);
     const lng = Number(coordinates?.lng);
     // Only explicit public-map opt-ins belong in the directory. Never expose

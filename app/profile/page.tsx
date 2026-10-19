@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, getUserData, logoutUser, updateUserData } from '@/lib/firebase';
+import { getCurrentUser, getUserData, logoutUser, syncPublicDonorListing, updateUserData } from '@/lib/firebase';
 import PartnerRosterConsent from './partner-roster-consent';
+import DonorMapConsent from './donor-map-consent';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function Profile() {
@@ -198,7 +199,21 @@ export default function Profile() {
   const handleSave = async () => {
     if (!currentUser) return;
     try {
-      await updateUserData(currentUser.uid, userData);
+      await updateUserData(currentUser.uid, {
+        name: userData.name,
+        phone: userData.phone,
+        location: userData.location,
+        bloodGroup: userData.bloodGroup,
+      });
+      if (currentUser.emailVerified) {
+        try {
+          await syncPublicDonorListing(currentUser.uid);
+        } catch (mapError) {
+          console.error('Could not refresh public donor map entry', mapError);
+          alert('Profile saved, but the public map could not be refreshed. Check your map visibility setting below.');
+          return;
+        }
+      }
       alert(language === 'bn' ? 'প্রোফাইল আপডেট করা হয়েছে!' : 'Profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -750,7 +765,7 @@ export default function Profile() {
                   <input
                     type="email"
                     value={userData.email}
-                    onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
+                    readOnly
                   />
                 </div>
                 <div className="form-group">
@@ -805,6 +820,7 @@ export default function Profile() {
             </div>
 
             {currentUser && <PartnerRosterConsent uid={currentUser.uid} verified={currentUser.emailVerified} />}
+            {currentUser && <DonorMapConsent uid={currentUser.uid} verified={currentUser.emailVerified} />}
 
             <div className="btn-group">
               <button className="btn btn-primary" onClick={handleSave}>

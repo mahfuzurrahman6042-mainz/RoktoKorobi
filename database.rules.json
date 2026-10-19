@@ -139,7 +139,18 @@
     },
     "donors": {
       ".read": true,
-      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
+      ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('users').child($uid).child('isDonor').val() === true && (root.child('users').child($uid).child('country').val() === 'BD' || !root.child('users').child($uid).child('country').exists()) && (!newData.exists() || root.child('users').child($uid).child('publicMapConsent').val() === true)",
+        ".validate": "newData.hasChildren(['uid', 'country', 'district', 'bloodGroup', 'available', 'publicMapConsent']) && newData.child('uid').val() === $uid && newData.child('country').val() === 'BD' && newData.child('district').val() === root.child('users').child($uid).child('district').val() && newData.child('bloodGroup').val() === root.child('users').child($uid).child('bloodGroup').val() && newData.child('available').isBoolean() && newData.child('publicMapConsent').val() === true",
+        "uid": { ".validate": "newData.isString() && newData.val() === $uid" },
+        "country": { ".validate": "newData.val() === 'BD'" },
+        "district": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80" },
+        "bloodGroup": { ".validate": "newData.val() === 'A+' || newData.val() === 'A-' || newData.val() === 'B+' || newData.val() === 'B-' || newData.val() === 'AB+' || newData.val() === 'AB-' || newData.val() === 'O+' || newData.val() === 'O-'" },
+        "available": { ".validate": "newData.isBoolean()" },
+        "publicMapConsent": { ".validate": "newData.val() === true" },
+        "$other": { ".validate": false }
+      }
     },
     "hospitals": {
       ".read": true,

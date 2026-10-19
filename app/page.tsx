@@ -11,7 +11,7 @@ import { BlogSection } from "@/components/BlogSection";
 import { GallerySection } from "@/components/GallerySection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import TickerBanner from "@/components/TickerBanner";
-import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, database, ref, onValue } from "@/lib/firebase";
+import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthStateChange, logoutUser, database, ref, onValue, publicDistrictKey } from "@/lib/firebase";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import ToastNotifications from "@/components/ToastNotifications";
 import NotificationPermission from "@/components/NotificationPermission";
@@ -132,6 +132,7 @@ export default function Home() {
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [area, setArea] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [hasSearchedDonors, setHasSearchedDonors] = useState(false);
   const [eligAge, setEligAge] = useState('');
   const [eligWeight, setEligWeight] = useState('');
   const [eligHealth, setEligHealth] = useState('');
@@ -287,13 +288,13 @@ export default function Home() {
       // Filter donors based on blood type and location
       const filteredDonors = donors.filter(donor => {
         const bloodMatch = selectedBloodType === 'all' || donor.bloodGroup === selectedBloodType;
-        const locationMatch = !selectedDistrict || 
-          donor.district?.toLowerCase() === selectedDistrict.toLowerCase() ||
-          donor.location?.toLowerCase().includes(selectedDistrict.toLowerCase());
+        const locationMatch = !selectedDistrict ||
+          publicDistrictKey(donor.district || '') === publicDistrictKey(selectedDistrict);
         return bloodMatch && locationMatch;
       });
       
       setSearchResults(filteredDonors);
+      setHasSearchedDonors(true);
       setEligResult({ eligible: true, message: language === 'bn' ? `${filteredDonors.length} জন দাতা পাওয়া গেছে` : `Found ${filteredDonors.length} donors` });
     } catch (error) {
       setEligResult({ eligible: false, message: language === 'bn' ? 'অনুসন্ধান ব্যর্থ হয়েছে' : 'Search failed' });
@@ -1907,7 +1908,7 @@ export default function Home() {
                 <BangladeshMap
                   center={{ lat: 23.6850, lng: 90.3563 }}
                   zoom={7}
-                  donors={searchResults.length > 0 ? searchResults : donors}
+                  donors={hasSearchedDonors ? searchResults : donors}
                   hospitals={hospitals.length > 0 ? hospitals : []}
                 />
               </MapErrorBoundary>

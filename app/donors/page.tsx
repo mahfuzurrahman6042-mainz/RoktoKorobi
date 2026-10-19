@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { listAllDonors, listAllHospitals } from '@/lib/firebase';
+import { listAllDonors, listAllHospitals, publicDistrictKey } from '@/lib/firebase';
 import BrandLogo from '@/components/BrandLogo';
 
 // Dynamic import for Leaflet map (SSR disabled)
@@ -346,13 +346,10 @@ export default function DonorsPage() {
     setTimeout(() => {
       const filtered = donors.filter(donor => {
         const matchesBlood = !selectedBloodGroup || donor.blood === selectedBloodGroup || donor.bloodGroup === selectedBloodGroup;
-        const matchesDistrict = !selectedDistrict || 
-          donor.district === selectedDistrict || 
-          donor.district?.toLowerCase() === selectedDistrict?.toLowerCase() ||
-          donor.location?.toLowerCase().includes(selectedDistrict?.toLowerCase());
+        const matchesDistrict = !selectedDistrict ||
+          publicDistrictKey(donor.district || '') === publicDistrictKey(selectedDistrict);
         return matchesBlood && matchesDistrict;
       });
-      console.log('Filter results:', { selectedBloodGroup, selectedDistrict, totalDonors: donors.length, filteredCount: filtered.length });
       setFilteredDonors(filtered.length > 0 ? filtered : []);
       setLoading(false);
     }, 600);
@@ -635,8 +632,8 @@ export default function DonorsPage() {
       }}>
         <div role="status" style={{ maxWidth: '960px', margin: '0 auto 28px', padding: '14px 18px', borderRadius: '12px', background: '#fff', color: '#8B1A1A', fontSize: '14px', fontWeight: 600 }}>
           {language === 'bn'
-            ? 'গোপনীয়তা সুরক্ষার জন্য দাতার তালিকা সাময়িকভাবে বন্ধ আছে। ব্যক্তিগত যোগাযোগের তথ্য দেখানো হচ্ছে না।'
-            : 'The donor directory is temporarily paused while we protect personal information. No private donor contact details are displayed.'}
+            ? 'মানচিত্রে কেবল সম্মতি দেওয়া রক্তদাতার রক্তের গ্রুপ ও জেলা দেখা যায়। নাম, ফোন নম্বর বা পূর্ণ ঠিকানা প্রকাশ করা হয় না।'
+            : 'The map shows only opted-in donors by blood group and district. Names, phone numbers and full addresses are not published.'}
         </div>
         <div style={{
           position: 'absolute',
@@ -1021,7 +1018,9 @@ export default function DonorsPage() {
             borderRadius: '24px',
             overflow: 'hidden',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            height: '350px'
+            height: '420px',
+            display: 'flex',
+            flexDirection: 'column'
           }}>
             <div style={{
               padding: '24px 32px',
@@ -1033,33 +1032,8 @@ export default function DonorsPage() {
               <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#1A1A1A' }}>
                 {t.map_header}
               </h3>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button style={{
-                  padding: '8px 16px',
-                  background: '#8B1A1A',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}>
-                  {t.map_street}
-                </button>
-                <button style={{
-                  padding: '8px 16px',
-                  background: 'transparent',
-                  color: '#666',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}>
-                  {t.map_satellite}
-                </button>
-              </div>
             </div>
+            <div style={{ flex: 1, minHeight: 0 }}>
             <BangladeshMap 
               center={{ lat: 23.685, lng: 90.3563 }}
               zoom={7}
@@ -1076,6 +1050,7 @@ export default function DonorsPage() {
               }))}
               hospitals={hospitals}
             />
+            </div>
           </div>
 
           {/* Legend */}
