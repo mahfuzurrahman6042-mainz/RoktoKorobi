@@ -63,7 +63,7 @@ export function createFirebaseAdminSource(user: User): AdminDataSource {
       try {
         await set(ref(database, 'publicStats'), {
           users: users.length,
-          donors: users.filter(item => asRecord(asRecord(usersSnap.val())[item.id]).isDonor === true).length,
+          donors: users.filter(item => asRecord(asRecord(usersSnap.val())[item.id]).isDonor === true && asRecord(asRecord(usersSnap.val())[item.id]).availability !== false).length,
           requestsFulfilled: fulfilled,
           partners: approved,
           updatedAt: Date.now(),
