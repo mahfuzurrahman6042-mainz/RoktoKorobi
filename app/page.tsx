@@ -1307,7 +1307,7 @@ export default function Home() {
         <div className="stats">
           <div className="stat">
             <div className="stat-num">{stats?.users ?? '—'}</div>
-            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত সদস্য' : 'Registered Members'}</div>
+            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত ব্যবহারকারী' : 'Registered Users'}</div>
           </div>
           <div className="stat">
             <div className="stat-num">{stats?.donors ?? '—'}</div>
