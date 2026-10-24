@@ -629,7 +629,7 @@ export default function TermsOfService() {
           ) : (
             <>
               {[
-                ['3.1', 'Age Requirement', 'Users must be at least 18 years of age to use the Platform.'],
+                ['3.1', 'Age Requirement', 'Blood donors must be at least 18 years old. Ordinary accounts do not require a donor-age declaration.'],
                 ['3.2', 'Accurate Information', 'All information provided during registration must be accurate, complete, and up to date.'],
                 ['3.3', 'Account Responsibility', 'Users are responsible for maintaining the security of their account and the confidentiality of their password.'],
                 ['3.4', 'One Account Per User', 'Each User may maintain only one account.'],

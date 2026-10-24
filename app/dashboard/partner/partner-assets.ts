@@ -1,13 +1,15 @@
 import QRCode from 'qrcode';
+import { localCountryTesting, type CountryCode } from '@/lib/countries';
 
 const ink = '#2A1A14';
 const cream = '#F6EEDD';
 const crimson = '#B8132A';
 
-export const buildPartnerLink = (rawCode: string) => {
+export const buildPartnerLink = (rawCode: string, country: CountryCode = 'BD') => {
   const code = rawCode.trim().toUpperCase();
   if (code === 'YOUR-CODE' || !/^[A-Z0-9-]{4,32}$/.test(code)) throw new Error('A valid partner code is required.');
-  return `https://www.roktokorobi.org/register?ref=${encodeURIComponent(code)}`;
+  const origin = localCountryTesting() && typeof window !== 'undefined' ? window.location.origin : 'https://www.roktokorobi.org';
+  return `${origin}/register?ref=${encodeURIComponent(code)}${country === 'BD' ? '' : `&country=${country}`}`;
 };
 
 export const qrForLink = (link: string) => QRCode.toDataURL(link, {

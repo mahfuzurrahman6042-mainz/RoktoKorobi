@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, BarChart3, Building2, Check, Clock3, Copy, Download, Heart, Link2, Mail, MessageCircle, QrCode, Share2, Users } from 'lucide-react';
 import { usePartnerWorkspace } from './partner-workspace';
+import { COUNTRIES, enrollmentOpen } from '@/lib/countries';
 
 function PageHeader({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return <header className="partner-heading"><div><p className="lab">{eyebrow}</p><h1>{title}</h1><p className="m">{description}</p></div></header>;
@@ -16,7 +17,7 @@ export function PartnerOverview() {
     <div className="partner-overview-heading"><PageHeader eyebrow="Partner overview" title="Make every connection count." description="A clear home for your organization’s donor outreach." />{partner.isPreview && <span className="dem">Demo preview · sharing disabled</span>}</div>
     <section className="c partner-identity" aria-label="Organization">
       <span className="ico"><Building2 size={23} aria-hidden="true" /></span>
-      <div className="f"><p className="lab">Your organization</p><h2>{partner.name}</h2><p className="m">{partner.type}</p></div>
+      <div className="f"><p className="lab">Your organization</p><h2>{partner.name}</h2><p className="m">{partner.type} · {COUNTRIES.find(item => item.code === partner.country)?.name}</p></div>
       <span className={`chip ${partner.status === 'approved' ? '' : partner.isPreview ? 'g' : 'r'}`}>{partner.isPreview ? 'Preview' : partner.status}</span>
     </section>
     <section aria-label="Partner metrics" className="partner-metrics">
@@ -71,12 +72,14 @@ export function PartnerStudents() {
 
 export function PartnerReferral() {
   const { partner, code, shareable, link, copy } = usePartnerWorkspace();
+  const signupOpen = enrollmentOpen(partner.country);
   return <>
     <PageHeader eyebrow="Grow your network" title="Your referral link" description="Give donors a direct way to register with your organization." />
     <section className="c" aria-labelledby="referral-title">
       <div className="partner-section-head"><div><p className="lab">Grow your network</p><h2 id="referral-title">Your referral link</h2></div><span className="ico"><Link2 size={21} aria-hidden="true" /></span></div>
       <p className="m">Share this link so donors can register with your organization’s code already filled in.</p>
-      <div className="row partner-link-row"><input className="fld" aria-label="Referral link" readOnly value={link || 'A real link appears after your organization is approved.'} onFocus={event => event.currentTarget.select()} /><button className="btn p" type="button" disabled={!link} onClick={() => void copy(link, 'Link')}><Copy size={17} aria-hidden="true" />Copy link</button>{link && <a className="btn" href={link} target="_blank" rel="noopener noreferrer"><ArrowUpRight size={17} aria-hidden="true" />Open</a>}</div>
+      {!partner.isPreview && !signupOpen && <p className="partner-alert" role="status">Donor registration is not open in {COUNTRIES.find(item => item.code === partner.country)?.name} yet. Referral sharing will become available after the country launch checks are complete.</p>}
+      <div className="row partner-link-row"><input className="fld" aria-label="Referral link" readOnly value={link || 'A real link appears after your organization is approved and signup opens.'} onFocus={event => event.currentTarget.select()} /><button className="btn p" type="button" disabled={!link} onClick={() => void copy(link, 'Link')}><Copy size={17} aria-hidden="true" />Copy link</button>{link && <a className="btn" href={link} target="_blank" rel="noopener noreferrer"><ArrowUpRight size={17} aria-hidden="true" />Open</a>}</div>
       <div className="partner-code-row"><span className="lab">Referral code</span><span className="code">{partner.isPreview ? 'Demo only' : code || 'Not assigned'}</span>{shareable && <button className="partner-text-button" type="button" onClick={() => void copy(code, 'Code')}><Copy size={15} aria-hidden="true" />Copy code</button>}</div>
     </section>
   </>;

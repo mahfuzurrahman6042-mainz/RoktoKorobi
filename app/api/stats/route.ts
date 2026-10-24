@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import { localCountryTesting } from '@/lib/countries';
 
 export async function GET() {
   try {
-    const databaseUrl = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL;
+    const databaseUrl = localCountryTesting() ? 'http://127.0.0.1:9000' : process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL;
     if (!databaseUrl) throw new Error('Database URL is not configured');
-    const response = await fetch(`${databaseUrl.replace(/\/$/, '')}/publicStats.json`, { cache: 'no-store' });
+    const statsUrl = new URL(`${databaseUrl.replace(/\/$/, '')}/publicStats.json`);
+    if (localCountryTesting()) statsUrl.searchParams.set('ns', 'demo-roktokorobi-rules-default-rtdb');
+    const response = await fetch(statsUrl, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Public stats read failed: ${response.status}`);
     const stats = await response.json();
     if (!stats || !['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt'].every(key => Number.isFinite(stats[key]) && stats[key] >= 0)) {

@@ -5,6 +5,7 @@ import { sendMessage, markMessageAsRead } from '@/lib/firebase';
 import { getCurrentUser } from '@/lib/firebase';
 import { getMessagesForCurrentUser } from '@/lib/secure-messaging';
 import { Send, X, MessageCircle } from 'lucide-react';
+import type { CountryCode } from '@/lib/countries';
 
 interface Message {
   id: string;
@@ -18,13 +19,14 @@ interface Message {
 
 interface MessagingChatProps {
   requestId: string;
+  country: CountryCode;
   receiverId: string;
   receiverName?: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function MessagingChat({ requestId, receiverId, receiverName, isOpen, onClose }: MessagingChatProps) {
+export default function MessagingChat({ requestId, country, receiverId, receiverName, isOpen, onClose }: MessagingChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -48,16 +50,16 @@ export default function MessagingChat({ requestId, receiverId, receiverName, isO
       // Mark messages as read when they're received
       msgs.forEach(async (msg) => {
         if (msg.receiverId === currentUser?.uid && !msg.read) {
-          try { await markMessageAsRead(msg.id, requestId); }
+          try { await markMessageAsRead(msg.id, requestId, country); }
           catch (error) { console.error('Could not mark message as read:', error); }
         }
       });
-    });
+    }, country);
 
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [requestId, isOpen, currentUser]);
+  }, [requestId, country, isOpen, currentUser]);
 
   useEffect(() => {
     scrollToBottom();
@@ -73,7 +75,7 @@ export default function MessagingChat({ requestId, receiverId, receiverName, isO
 
     setSending(true);
     try {
-      await sendMessage(currentUser.uid, receiverId, requestId, newMessage.trim());
+      await sendMessage(currentUser.uid, receiverId, requestId, newMessage.trim(), country);
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);

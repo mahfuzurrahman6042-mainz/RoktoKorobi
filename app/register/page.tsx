@@ -5,14 +5,19 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import CountryField from '@/components/CountryField';
-import { enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
+import { countryForRecord, enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
+import { policyConsentVersion, policyReviewHref } from '@/lib/policy-links';
+import CountryPolicyConsent from '@/components/country-policy-consent';
 import { Eye, EyeOff } from 'lucide-react';
 import { registerUser, saveUserData, updateProfile, sendVerificationEmail } from '@/lib/firebase';
+import type { CountryArea } from '@/lib/country-areas';
 
 export default function RegisterDonor() {
   const router = useRouter();
   const [language, setLanguage] = useState('en');
   const [country, setCountry] = useState<CountryCode>('BD');
+  const [region, setRegion] = useState('');
+  const [areaOptions, setAreaOptions] = useState<CountryArea[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,6 +29,7 @@ export default function RegisterDonor() {
     gender: '',
     location: '',
     district: '',
+    areaId: '',
     availability: true,
     lastDonation: '',
     medicalConditions: '',
@@ -45,9 +51,35 @@ export default function RegisterDonor() {
   const [partnerInviteName, setPartnerInviteName] = useState('');
 
   useEffect(() => {
+    if (country === 'BD') { setAreaOptions([]); return; }
+    let active = true;
+    void import('@/lib/country-areas').then(({ listCountryAreas }) => {
+      if (active) setAreaOptions(listCountryAreas(country));
+    });
+    return () => { active = false; };
+  }, [country]);
+
+  const changeCountry = (nextCountry: CountryCode) => {
+    setCountry(nextCountry);
+    setRegion('');
+    setAreaOptions([]);
+    setFormData(previous => ({ ...previous, district: '', areaId: '', location: '' }));
+    setAcceptTerms(false);
+    setAcceptPrivacy(false);
+    setShareWithPartner(false);
+    setMapConsent(false);
+  };
+
+  const regions = [...new Set(areaOptions.map(area => area.region))];
+  const cities = areaOptions.filter(area => area.region === region);
+
+  useEffect(() => {
     const savedLang = localStorage.getItem('language') || 'en';
     setLanguage(savedLang);
-    const referralCode = new URLSearchParams(window.location.search).get('ref')?.trim();
+    const params = new URLSearchParams(window.location.search);
+    const referralCode = params.get('ref')?.trim();
+    const invitedCountry = params.get('country');
+    if (invitedCountry === 'IN' || invitedCountry === 'PK') { setCountry(invitedCountry); setLanguage('en'); }
     if (referralCode) {
       setFormData(previous => ({ ...previous, referralCode }));
     }
@@ -66,14 +98,14 @@ export default function RegisterDonor() {
         if (!database) return;
         const snapshot = await get(ref(database, `partnerInvites/${code}`));
         const invite = snapshot.val();
-        if (!cancelled) setPartnerInviteName(invite?.active && invite?.instituteId ? invite.name || '' : '');
+        if (!cancelled) setPartnerInviteName(invite?.active && invite?.instituteId && countryForRecord(invite.country) === country ? invite.name || '' : '');
       } catch {
         if (!cancelled) setPartnerInviteName('');
       }
     };
     loadInvite();
     return () => { cancelled = true; };
-  }, [formData.referralCode]);
+  }, [formData.referralCode, country]);
 
   const t = (key: string) => {
     const translations: Record<string, any> = {
@@ -128,6 +160,10 @@ export default function RegisterDonor() {
     }
     if (!validPhoneForCountry(formData.phone, country)) {
       alert('Enter a valid phone number for the selected country.');
+      return;
+    }
+    if (country !== 'BD' && !areaOptions.some(area => area.id === formData.areaId && area.name === formData.district)) {
+      alert('Select a city in your country for the approximate donor map location.');
       return;
     }
     
@@ -192,7 +228,9 @@ export default function RegisterDonor() {
       // Reject a bad partner invitation before creating an Auth account.
       let instituteId: string | null = null;
       if (formData.referralCode.trim()) {
-        if (!shareWithPartner) {
+        // Preserve the Bangladesh pilot flow. For the new-country flow, a
+        // referral may be attributed without publishing a roster entry.
+        if (country === 'BD' && !shareWithPartner) {
           alert(language === 'bn' ? 'রেফারেল কোড ব্যবহার করতে পার্টনারের সাথে আপনার নাম শেয়ার করতে সম্মতি দিন।' : 'To use a referral code, please agree to share your name with its partner leader. Otherwise, remove the code.');
           setSubmitting(false);
           return;
@@ -207,7 +245,7 @@ export default function RegisterDonor() {
         if (!database) throw new Error('Database is unavailable. Please try again later.');
         const snapshot = await get(ref(database, `partnerInvites/${code}`));
         const invite = snapshot.val();
-        instituteId = invite?.active && invite?.instituteId ? invite.instituteId : null;
+        instituteId = invite?.active && invite?.instituteId && countryForRecord(invite.country) === country ? invite.instituteId : null;
         if (!instituteId) {
           alert(language === 'bn' ? 'অবৈধ রেফারেল কোড' : 'Invalid referral code');
           setSubmitting(false);
@@ -242,6 +280,7 @@ export default function RegisterDonor() {
         gender: formData.gender,
         location: formData.location,
         district: formData.district,
+        areaId: country === 'BD' ? null : formData.areaId,
         availability: formData.availability,
         lastDonation: formData.lastDonation,
         medicalConditions: formData.medicalConditions,
@@ -249,7 +288,7 @@ export default function RegisterDonor() {
         uid: userCredential.user.uid,
         acceptedTerms: true,
         acceptedPrivacy: true,
-        consentVersion: '2026-10-01',
+        consentVersion: policyConsentVersion(country),
         consentedAt: new Date().toISOString(),
         dateOfBirth: formData.dateOfBirth,
         isDonor: true,
@@ -264,7 +303,7 @@ export default function RegisterDonor() {
       // Save to Firestore
       await saveUserData(userCredential.user.uid, donorData);
 
-      if (instituteId) {
+      if (instituteId && shareWithPartner) {
         try {
           const { database, ref, set } = await import('@/lib/firebase');
           if (!database) throw new Error('Database is unavailable.');
@@ -474,7 +513,7 @@ export default function RegisterDonor() {
                 </div>
 
                 {/* Contact and Medical Info */}
-                <CountryField value={country} onChange={setCountry} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-[#F5EDD8] px-4 py-3 text-base" />
+                <CountryField value={country} onChange={changeCountry} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-[#F5EDD8] px-4 py-3 text-base" />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
@@ -586,17 +625,35 @@ export default function RegisterDonor() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#3D2314', marginBottom: '8px' }}>
-                      {t('district')} *
+                      {country === 'BD' ? t('district') : 'Nearest city / service area'} *
                     </label>
+                    {country !== 'BD' && <>
+                      <select aria-label="State or province" value={region} required onChange={event => {
+                        setRegion(event.target.value);
+                        setFormData(previous => ({ ...previous, district: '', areaId: '' }));
+                      }} style={{ width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)', borderRadius: 12, fontSize: 16, background: '#F5EDD8', marginBottom: 8 }}>
+                        <option value="">Select state / province</option>
+                        {regions.map(item => <option key={item} value={item}>{item}</option>)}
+                      </select>
+                      <select aria-label="Nearest city" value={formData.areaId} required disabled={!region} onChange={event => {
+                        const area = cities.find(item => item.id === event.target.value);
+                        setFormData(previous => ({ ...previous, areaId: area?.id || '', district: area?.name || '' }));
+                      }} style={{ width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)', borderRadius: 12, fontSize: 16, background: '#F5EDD8' }}>
+                        <option value="">Select nearest city</option>
+                        {cities.map(area => <option key={area.id} value={area.id}>{area.name}</option>)}
+                      </select>
+                      <small style={{ display: 'block', marginTop: 6, color: '#6B5A50' }}>Only this approximate city area can appear on the map, not your street address.</small>
+                    </>}
                     <select
                       name="district"
                       value={formData.district}
                       onChange={handleInputChange}
-                      required
+                      required={country === 'BD'}
+                      disabled={country !== 'BD'}
                       style={{
                         width: '100%', padding: '14px 18px', border: '1.5px solid rgba(26,15,10,0.1)',
                         borderRadius: '12px', fontSize: '16px', background: '#F5EDD8',
-                        outline: 'none', transition: 'all 0.3s'
+                        outline: 'none', transition: 'all 0.3s', display: country === 'BD' ? 'block' : 'none'
                       }}
                     >
                       <option value="">{language === 'bn' ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
@@ -708,7 +765,7 @@ export default function RegisterDonor() {
                     </p>
                   )}
                   {formData.referralCode.trim() && <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '12px', fontSize: '14px', color: '#3D2314' }}>
-                    <input type="checkbox" checked={shareWithPartner} onChange={event => setShareWithPartner(event.target.checked)} style={{ width: '20px', height: '20px', flexShrink: 0 }} />
+                    <input type="checkbox" checked={shareWithPartner} disabled={!enrollmentOpen(country)} onChange={event => setShareWithPartner(event.target.checked)} style={{ width: '20px', height: '20px', flexShrink: 0 }} />
                     <span>{language === 'bn' ? 'আমি সম্মত যে এই রেফারেল কোডের পার্টনার লিডার আমার নাম ও যোগদানের তারিখ দেখতে পারবেন। ফোন নম্বর, ইমেইল ও চিকিৎসার তথ্য শেয়ার হবে না।' : 'I agree that this referral code’s partner leader can see my name and join date. My phone, email and medical details will not be shared.'}</span>
                   </label>}
                 </div>
@@ -765,7 +822,7 @@ export default function RegisterDonor() {
                 </div>
 
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 16, border: '1.5px solid rgba(192,21,42,0.18)', borderRadius: 12, background: '#F5EDD8', color: '#3D2314', lineHeight: 1.5 }}>
-                  <input type="checkbox" checked={mapConsent} onChange={event => setMapConsent(event.target.checked)} style={{ width: 20, height: 20, flexShrink: 0, marginTop: 2 }} />
+                  <input type="checkbox" checked={mapConsent} disabled={!enrollmentOpen(country)} onChange={event => setMapConsent(event.target.checked)} style={{ width: 20, height: 20, flexShrink: 0, marginTop: 2 }} />
                   <span>{language === 'bn'
                     ? 'আমি আমার রক্তের গ্রুপ ও নিবন্ধনের জেলা সর্বজনীন দাতা মানচিত্রে দেখাতে সম্মতি দিচ্ছি। আমার নাম, ফোন, পূর্ণ ঠিকানা বা সঠিক অবস্থান দেখানো হবে না। প্রোফাইল থেকে যেকোনো সময় এটি বন্ধ করতে পারব। ইমেইল যাচাইয়ের পর এটি চালু হবে।'
                     : 'I agree to show my blood group and registration district on the public donor map after email verification. My name, phone, full address and exact location will not be shown. I can turn this off from my profile at any time.'}</span>
@@ -773,6 +830,13 @@ export default function RegisterDonor() {
 
                 {/* Terms and Privacy Checkboxes */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
+                  {country !== 'BD' && !enrollmentOpen(country) && <div role="status" style={{ padding: 16, border: '1.5px solid rgba(192,21,42,0.2)', borderRadius: 12, background: '#F5EDD8' }}>
+                    <p>{country === 'IN' ? 'India' : 'Pakistan'} donor enrollment is not open yet.</p>
+                    {policyReviewHref(country, 'terms') && <Link href={policyReviewHref(country, 'terms')!} target="_blank" style={{ color: '#C0152A', marginRight: 16 }}>Terms</Link>}
+                    {policyReviewHref(country, 'privacy') && <Link href={policyReviewHref(country, 'privacy')!} target="_blank" style={{ color: '#C0152A' }}>Privacy Policy</Link>}
+                  </div>}
+                  <CountryPolicyConsent country={country} terms={acceptTerms} privacy={acceptPrivacy} onTerms={setAcceptTerms} onPrivacy={setAcceptPrivacy} />
+                  {country === 'BD' && <>
                   {/* Terms of Service */}
                   <div style={{
                     background: '#F5EDD8',
@@ -784,6 +848,7 @@ export default function RegisterDonor() {
                       <input
                         type="checkbox"
                         checked={acceptTerms}
+                        disabled={!enrollmentOpen(country)}
                         onChange={(e) => setAcceptTerms(e.target.checked)}
                         required
                         style={{ width: '20px', height: '20px', marginTop: '2px', flexShrink: 0 }}
@@ -794,6 +859,7 @@ export default function RegisterDonor() {
                         </label>
                         <button
                           type="button"
+                          disabled={!enrollmentOpen(country)}
                           onClick={() => setShowTerms(!showTerms)}
                           style={{
                             background: 'none',
@@ -850,6 +916,7 @@ export default function RegisterDonor() {
                       <input
                         type="checkbox"
                         checked={acceptPrivacy}
+                        disabled={!enrollmentOpen(country)}
                         onChange={(e) => setAcceptPrivacy(e.target.checked)}
                         required
                         style={{ width: '20px', height: '20px', marginTop: '2px', flexShrink: 0 }}
@@ -860,6 +927,7 @@ export default function RegisterDonor() {
                         </label>
                         <button
                           type="button"
+                          disabled={!enrollmentOpen(country)}
                           onClick={() => setShowPrivacy(!showPrivacy)}
                           style={{
                             background: 'none',
@@ -904,13 +972,14 @@ export default function RegisterDonor() {
                       </div>
                     </div>
                   </div>
+                  </>}
 
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={submitting || !acceptTerms || !acceptPrivacy}
+                  disabled={submitting || !enrollmentOpen(country) || !acceptTerms || !acceptPrivacy}
                   style={{
                     width: '100%', padding: '16px', background: '#C0152A',
                     color: '#fff', border: 'none', borderRadius: '14px',

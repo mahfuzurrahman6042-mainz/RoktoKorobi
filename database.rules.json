@@ -9,16 +9,21 @@
     "partnerInvites": {
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$code": {
-        ".read": true,
-        ".validate": "newData.hasChildren(['name', 'instituteId', 'active']) && newData.child('name').isString() && newData.child('instituteId').isString() && newData.child('active').isBoolean()"
+        ".read": "(auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()) || (auth != null && auth.token.email_verified === true && data.child('country').exists() && data.child('country').val() === root.child('users').child(auth.uid).child('country').val()) || ((!data.child('country').exists() || data.child('country').val() === 'BD') && (auth === null || (root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD')))) || (auth === null && data.child('active').val() === true && (data.child('country').val() === 'IN' || data.child('country').val() === 'PK') && root.child('settings/countryLaunch').child(data.child('country').val()).val() === true && root.child('partnerInstitutes').child(data.child('instituteId').val()).child('status').val() === 'approved' && root.child('partnerInstitutes').child(data.child('instituteId').val()).child('country').val() === data.child('country').val())",
+        ".validate": "newData.hasChildren(['name', 'instituteId', 'active']) && newData.child('name').isString() && newData.child('instituteId').isString() && newData.child('active').isBoolean() && (!newData.child('country').exists() || newData.child('country').val() === 'BD' || newData.child('country').val() === 'IN' || newData.child('country').val() === 'PK')",
+        "name": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 120" },
+        "instituteId": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "country": { ".validate": "newData.val() === 'BD' || newData.val() === 'IN' || newData.val() === 'PK'" },
+        "active": { ".validate": "newData.isBoolean()" },
+        "$other": { ".validate": false }
       }
     },
     "partnerMembers": {
       "$instituteId": {
-        ".read": "auth != null && auth.token.email_verified === true && root.child('partnerInstitutes').child($instituteId).child('status').val() === 'approved' && root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid",
+        ".read": "auth != null && auth.token.email_verified === true && root.child('partnerInstitutes').child($instituteId).child('status').val() === 'approved' && root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid && (root.child('partnerInstitutes').child($instituteId).child('country').exists() ? root.child('partnerInstitutes').child($instituteId).child('country').val() : 'BD') === (root.child('users').child(auth.uid).child('country').exists() ? root.child('users').child(auth.uid).child('country').val() : 'BD')",
         "$uid": {
-          ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
-          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('users').child($uid).child('instituteId').val() === $instituteId && root.child('users').child($uid).child('referralCode').val() === root.child('partnerInstitutes').child($instituteId).child('referralCode').val() && root.child('partnerInvites').child(root.child('users').child($uid).child('referralCode').val()).child('active').val() === true && root.child('partnerInstitutes').child($instituteId).child('status').val() === 'approved' && newData.child('uid').val() === $uid && newData.child('name').val() === root.child('users').child($uid).child('name').val()))",
+          ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true && (root.child('partnerInstitutes').child($instituteId).child('country').exists() ? root.child('partnerInstitutes').child($instituteId).child('country').val() : 'BD') === (root.child('users').child($uid).child('country').exists() ? root.child('users').child($uid).child('country').val() : 'BD')",
+          ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('users').child($uid).child('instituteId').val() === $instituteId && root.child('users').child($uid).child('referralCode').val() === root.child('partnerInstitutes').child($instituteId).child('referralCode').val() && root.child('partnerInvites').child(root.child('users').child($uid).child('referralCode').val()).child('active').val() === true && root.child('partnerInstitutes').child($instituteId).child('status').val() === 'approved' && (root.child('partnerInstitutes').child($instituteId).child('country').exists() ? root.child('partnerInstitutes').child($instituteId).child('country').val() : 'BD') === (root.child('users').child($uid).child('country').exists() ? root.child('users').child($uid).child('country').val() : 'BD') && newData.child('uid').val() === $uid && newData.child('name').val() === root.child('users').child($uid).child('name').val()))",
           ".validate": "newData.hasChildren(['uid', 'name', 'joinedAt', 'consent']) && newData.child('uid').val() === $uid && newData.child('name').isString() && newData.child('name').val().length >= 2 && newData.child('name').val().length <= 120 && newData.child('joinedAt').isString() && newData.child('joinedAt').val().length <= 35 && newData.child('consent').val() === true",
           "uid": { ".validate": "newData.val() === $uid" },
           "name": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 120" },
@@ -35,14 +40,14 @@
       "$uid": {
         ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
         ".write": "auth != null && auth.uid === $uid && newData.exists() && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && (data.exists() ? (newData.child('role').val() === data.child('role').val() && (newData.child('donations').val() === data.child('donations').val() || (data.child('donations').isNumber() && newData.child('donations').isNumber() && newData.child('donations').val() === data.child('donations').val() + 1 && newData.child('lastDonationDate').isString() && newData.child('lastDonationDate').val() !== data.child('lastDonationDate').val())) && newData.child('emailVerified').val() === data.child('emailVerified').val() && newData.child('instituteId').val() === data.child('instituteId').val() && newData.child('referralCode').val() === data.child('referralCode').val() && newData.child('isBanned').val() === data.child('isBanned').val() && newData.child('banReason').val() === data.child('banReason').val() && newData.child('bannedAt').val() === data.child('bannedAt').val() && newData.child('bannedBy').val() === data.child('bannedBy').val() && newData.child('reviewStatus').val() === data.child('reviewStatus').val() && newData.child('reviewedAt').val() === data.child('reviewedAt').val() && newData.child('reviewedBy').val() === data.child('reviewedBy').val() && newData.child('roleAssignedAt').val() === data.child('roleAssignedAt').val() && newData.child('roleAssignedBy').val() === data.child('roleAssignedBy').val()) : (!newData.child('role').exists() && newData.child('donations').val() === 0 && !newData.child('emailVerified').exists() && !newData.child('isBanned').exists() && !newData.child('banReason').exists() && !newData.child('bannedAt').exists() && !newData.child('bannedBy').exists() && !newData.child('reviewStatus').exists() && !newData.child('reviewedAt').exists() && !newData.child('reviewedBy').exists() && !newData.child('roleAssignedAt').exists() && !newData.child('roleAssignedBy').exists() && ((!newData.child('instituteId').exists() && !newData.child('referralCode').exists()) || (newData.child('instituteId').val() === root.child('partnerInvites').child(newData.child('referralCode').val()).child('instituteId').val() && root.child('partnerInvites').child(newData.child('referralCode').val()).child('active').val() === true))))",
-        ".validate": "newData.child('email').isString() && (data.exists() || (newData.hasChildren(['uid', 'acceptedTerms', 'acceptedPrivacy']) && newData.child('acceptedTerms').val() === true && newData.child('acceptedPrivacy').val() === true))"
+        ".validate": "newData.child('email').isString() && (data.exists() ? newData.child('country').val() === data.child('country').val() : (newData.child('country').val() === 'BD' || ((newData.child('country').val() === 'IN' || newData.child('country').val() === 'PK') && root.child('settings/countryLaunch').child(newData.child('country').val()).val() === true))) && (!newData.child('instituteId').exists() || (auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()) || (root.child('partnerInstitutes').child(newData.child('instituteId').val()).child('country').val() === newData.child('country').val() || (newData.child('country').val() === 'BD' && !root.child('partnerInstitutes').child(newData.child('instituteId').val()).child('country').exists()))) && (data.exists() || (newData.hasChildren(['uid', 'acceptedTerms', 'acceptedPrivacy']) && newData.child('acceptedTerms').val() === true && newData.child('acceptedPrivacy').val() === true)) && (newData.child('country').val() === 'BD' || (data.exists() ? newData.child('isDonor').val() === data.child('isDonor').val() : (!newData.child('isDonor').exists() || newData.child('isDonor').val() === false || (newData.child('isDonor').val() === true && newData.child('age').isNumber() && newData.child('age').val() >= 18 && newData.child('dateOfBirth').isString()))))"
       }
     },
     "partnerInstitutes": {
       ".read": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$instituteId": {
-        ".read": "auth != null && auth.token.email_verified === true && data.child('adminUserId').val() === auth.uid"
+        ".read": "auth != null && auth.token.email_verified === true && data.child('adminUserId').val() === auth.uid && (data.child('country').exists() ? data.child('country').val() : 'BD') === (root.child('users').child(auth.uid).child('country').exists() ? root.child('users').child(auth.uid).child('country').val() : 'BD')"
       }
     },
     "partnerApplications": {
@@ -50,13 +55,15 @@
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid && auth.token.email_verified === true",
-        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('users').child($uid).child('email').val() === auth.token.email && !data.exists() && newData.exists() && newData.child('uid').val() === $uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending'",
-        ".validate": "newData.hasChildren(['uid', 'email', 'organizationName', 'organizationType', 'district', 'contactPhone', 'message', 'status', 'createdAt'])",
+        ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('users').child($uid).child('email').val() === auth.token.email && !data.exists() && newData.exists() && newData.child('uid').val() === $uid && newData.child('email').val() === auth.token.email && newData.child('status').val() === 'pending' && (newData.child('country').val() === root.child('users').child($uid).child('country').val() || (newData.child('country').val() === 'BD' && !root.child('users').child($uid).child('country').exists()))",
+        ".validate": "newData.hasChildren(['uid', 'email', 'country', 'organizationName', 'organizationType', 'district', 'contactPhone', 'message', 'status', 'createdAt']) && (data.exists() || newData.child('city').exists())",
         "uid": { ".validate": "newData.isString() && newData.val() === $uid" },
         "email": { ".validate": "newData.isString() && newData.val().length <= 254" },
+        "country": { ".validate": "newData.val() === 'BD' || newData.val() === 'IN' || newData.val() === 'PK'" },
         "organizationName": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 120" },
         "organizationType": { ".validate": "newData.val() === 'ngo' || newData.val() === 'university' || newData.val() === 'college' || newData.val() === 'corporate'" },
         "district": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80" },
+        "city": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80" },
         "contactPhone": { ".validate": "newData.isString() && newData.val().length >= 5 && newData.val().length <= 30" },
         "message": { ".validate": "newData.isString() && newData.val().length <= 500" },
         "status": { ".validate": "newData.val() === 'pending' || newData.val() === 'approved' || newData.val() === 'rejected'" },
@@ -71,13 +78,18 @@
     "partnerStats": {
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$instituteId": {
-        ".read": "auth != null && auth.token.email_verified === true && (auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() || root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid)"
+        ".read": "auth != null && auth.token.email_verified === true && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('partnerInstitutes').child($instituteId).child('adminUserId').val() === auth.uid && (root.child('partnerInstitutes').child($instituteId).child('country').exists() ? root.child('partnerInstitutes').child($instituteId).child('country').val() : 'BD') === (root.child('users').child(auth.uid).child('country').exists() ? root.child('users').child(auth.uid).child('country').val() : 'BD')))"
       }
     },
     "publicStats": {
-      ".read": true,
+      ".read": "auth === null || (auth.token.email_verified === true && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD'))))",
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       ".validate": "newData.hasChildren(['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt']) && newData.child('users').isNumber() && newData.child('users').val() >= 0 && newData.child('donors').isNumber() && newData.child('donors').val() >= 0 && newData.child('requestsFulfilled').isNumber() && newData.child('requestsFulfilled').val() >= 0 && newData.child('partners').isNumber() && newData.child('partners').val() >= 0 && newData.child('updatedAt').isNumber()",
+      "users": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+      "donors": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+      "requestsFulfilled": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+      "partners": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+      "updatedAt": { ".validate": "newData.isNumber()" },
       "$other": { ".validate": false }
     },
     "admins": {
@@ -107,21 +119,78 @@
       }
     },
     "bloodRequests": {
-      ".read": "auth != null && auth.token.email_verified === true",
+      ".read": "auth != null && auth.token.email_verified === true && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD')))",
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$requestId": {
-        ".write": "auth != null && auth.token.email_verified === true && ((!data.exists() && newData.exists() && newData.child('userId').val() === auth.uid) || (data.exists() && data.child('userId').val() === auth.uid && (!newData.exists() || newData.child('userId').val() === auth.uid)))"
+        ".write": "auth != null && auth.token.email_verified === true && root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD') && ((!data.exists() && newData.exists() && newData.child('userId').val() === auth.uid && newData.child('country').val() === 'BD') || (data.exists() && data.child('userId').val() === auth.uid && (!newData.exists() || (newData.child('userId').val() === auth.uid && newData.child('country').val() === data.child('country').val()))))"
+      }
+    },
+    "countryData": {
+      "$country": {
+        "publicStats": {
+          ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country",
+          ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() && ($country === 'IN' || $country === 'PK')",
+          ".validate": "newData.hasChildren(['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt']) && newData.child('users').isNumber() && newData.child('users').val() >= 0 && newData.child('donors').isNumber() && newData.child('donors').val() >= 0 && newData.child('requestsFulfilled').isNumber() && newData.child('requestsFulfilled').val() >= 0 && newData.child('partners').isNumber() && newData.child('partners').val() >= 0 && newData.child('updatedAt').isNumber()",
+          "users": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "donors": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "requestsFulfilled": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "partners": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "updatedAt": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
+        },
+        "donors": {
+          ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country))",
+          ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() && ($country === 'IN' || $country === 'PK')",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child($uid).child('country').val() === $country && ($country === 'IN' || $country === 'PK') && root.child('users').child($uid).child('isDonor').val() === true && (!newData.exists() || root.child('users').child($uid).child('publicMapConsent').val() === true)",
+            ".validate": "newData.hasChildren(['uid', 'country', 'district', 'areaId', 'bloodGroup', 'available', 'publicMapConsent']) && newData.child('uid').val() === $uid && newData.child('country').val() === $country && newData.child('district').val() === root.child('users').child($uid).child('district').val() && newData.child('areaId').val() === root.child('users').child($uid).child('areaId').val() && newData.child('bloodGroup').val() === root.child('users').child($uid).child('bloodGroup').val() && newData.child('available').isBoolean() && newData.child('publicMapConsent').val() === true",
+            "uid": { ".validate": "newData.isString() && newData.val() === $uid" },
+            "country": { ".validate": "newData.val() === $country" },
+            "district": { ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80" },
+            "areaId": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 12 && newData.val() === root.child('users').child($uid).child('areaId').val()" },
+            "bloodGroup": { ".validate": "newData.val() === 'A+' || newData.val() === 'A-' || newData.val() === 'B+' || newData.val() === 'B-' || newData.val() === 'AB+' || newData.val() === 'AB-' || newData.val() === 'O+' || newData.val() === 'O-'" },
+            "available": { ".validate": "newData.isBoolean()" },
+            "publicMapConsent": { ".validate": "newData.val() === true" },
+            "$other": { ".validate": false }
+          }
+        },
+        "hospitals": {
+          ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country))",
+          ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() && ($country === 'IN' || $country === 'PK')"
+        },
+        "messages": {
+          "$requestId": {
+            ".indexOn": ["senderId", "receiverId"],
+            ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && root.child('countryData').child($country).child('bloodRequests').child($requestId).exists() && (root.child('countryData').child($country).child('bloodRequests').child($requestId).child('userId').val() === auth.uid || (query.orderByChild === 'senderId' && query.equalTo === auth.uid) || (query.orderByChild === 'receiverId' && query.equalTo === auth.uid))",
+            "$messageId": {
+              ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && root.child('countryData').child($country).child('bloodRequests').child($requestId).exists() && (data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)",
+              ".write": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && (root.child('countryData').child($country).child('bloodRequests').child($requestId).child('status').val() === 'approved' || root.child('countryData').child($country).child('bloodRequests').child($requestId).child('status').val() === 'open') && !data.exists() && newData.exists() && newData.child('senderId').val() === auth.uid && newData.child('receiverId').val() === root.child('countryData').child($country).child('bloodRequests').child($requestId).child('userId').val() && newData.child('requestId').val() === $requestId && newData.child('read').val() === false",
+              "read": {
+                ".write": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && auth.uid === data.parent().child('receiverId').val() && newData.val() === true"
+              }
+            }
+          }
+        },
+        "bloodRequests": {
+          ".indexOn": ["status", "userId"],
+          ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && ((query.orderByChild === 'status' && (query.equalTo === 'approved' || query.equalTo === 'open')) || (query.orderByChild === 'userId' && query.equalTo === auth.uid))))",
+          ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val() && ($country === 'IN' || $country === 'PK')",
+          "$requestId": {
+            ".read": "auth != null && auth.token.email_verified === true && ($country === 'IN' || $country === 'PK') && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && (data.child('userId').val() === auth.uid || data.child('status').val() === 'approved' || data.child('status').val() === 'open')))",
+            ".write": "auth != null && auth.token.email_verified === true && root.child('settings/countryLaunch').child($country).val() === true && root.child('users').child(auth.uid).child('country').val() === $country && ($country === 'IN' || $country === 'PK') && ((!data.exists() && newData.exists() && newData.child('userId').val() === auth.uid && newData.child('country').val() === $country && newData.child('status').val() === 'pending' && newData.child('fulfilled').val() === false) || (data.exists() && data.child('userId').val() === auth.uid && (!newData.exists() || (newData.child('userId').val() === auth.uid && newData.child('country').val() === $country && (newData.child('status').val() === data.child('status').val() || ((data.child('status').val() === 'approved' || data.child('status').val() === 'open') && newData.child('status').val() === 'fulfilled' && newData.child('fulfilled').val() === true))))))"
+          }
+        }
       }
     },
     "messages": {
       "$requestId": {
         ".indexOn": ["senderId", "receiverId"],
-        ".read": "auth != null && auth.token.email_verified === true && (root.child('bloodRequests').child($requestId).child('userId').val() === auth.uid || (query.orderByChild === 'senderId' && query.equalTo === auth.uid) || (query.orderByChild === 'receiverId' && query.equalTo === auth.uid))",
+        ".read": "auth != null && auth.token.email_verified === true && root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD') && (root.child('bloodRequests').child($requestId).child('userId').val() === auth.uid || (query.orderByChild === 'senderId' && query.equalTo === auth.uid) || (query.orderByChild === 'receiverId' && query.equalTo === auth.uid))",
         "$messageId": {
-          ".read": "auth != null && auth.token.email_verified === true && (data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)",
-          ".write": "auth != null && auth.token.email_verified === true && !data.exists() && newData.exists() && newData.child('senderId').val() === auth.uid && newData.child('receiverId').val() === root.child('bloodRequests').child($requestId).child('userId').val() && newData.child('requestId').val() === $requestId && newData.child('read').val() === false",
+          ".read": "auth != null && auth.token.email_verified === true && root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD') && (data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)",
+          ".write": "auth != null && auth.token.email_verified === true && root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD') && !data.exists() && newData.exists() && newData.child('senderId').val() === auth.uid && newData.child('receiverId').val() === root.child('bloodRequests').child($requestId).child('userId').val() && newData.child('requestId').val() === $requestId && newData.child('read').val() === false",
           "read": {
-            ".write": "auth != null && auth.token.email_verified === true && auth.uid === data.parent().child('receiverId').val() && newData.val() === true"
+            ".write": "auth != null && auth.token.email_verified === true && root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD') && auth.uid === data.parent().child('receiverId').val() && newData.val() === true"
           }
         }
       }
@@ -138,7 +207,7 @@
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "donors": {
-      ".read": true,
+      ".read": "auth === null || (auth.token.email_verified === true && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD'))))",
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()",
       "$uid": {
         ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && root.child('users').child($uid).child('isDonor').val() === true && (root.child('users').child($uid).child('country').val() === 'BD' || !root.child('users').child($uid).child('country').exists()) && (!newData.exists() || root.child('users').child($uid).child('publicMapConsent').val() === true)",
@@ -153,7 +222,7 @@
       }
     },
     "hospitals": {
-      ".read": true,
+      ".read": "auth === null || (auth.token.email_verified === true && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD'))))",
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "blogPosts": {
@@ -165,7 +234,7 @@
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "organizations": {
-      ".read": true,
+      ".read": "auth === null || (auth.token.email_verified === true && (auth.token.email === root.child('admins/super_admin/email').val() || (root.child('users').child(auth.uid).exists() && (!root.child('users').child(auth.uid).child('country').exists() || root.child('users').child(auth.uid).child('country').val() === 'BD'))))",
       ".write": "auth != null && auth.token.email_verified === true && auth.token.email === root.child('admins/super_admin/email').val()"
     },
     "settings": {

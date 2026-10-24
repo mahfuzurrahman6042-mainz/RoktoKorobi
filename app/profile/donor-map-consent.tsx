@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { database, get, getUserData, ref, syncPublicDonorListing, update } from '@/lib/firebase';
+import { countryDataPath, countryForRecord, enrollmentOpen, type CountryCode } from '@/lib/countries';
 
 export default function DonorMapConsent({ uid, verified }: { uid: string; verified: boolean }) {
   const [district, setDistrict] = useState('');
   const [isDonor, setIsDonor] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [country, setCountry] = useState<CountryCode | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
 
@@ -17,10 +19,13 @@ export default function DonorMapConsent({ uid, verified }: { uid: string; verifi
       try {
         const profile = await getUserData(uid);
         if (!profile?.isDonor) return;
-        const listing = (await get(ref(database!, `donors/${uid}`))).val();
+        const profileCountry = countryForRecord(profile.country);
+        if (!profileCountry || !enrollmentOpen(profileCountry)) return;
+        const listing = (await get(ref(database!, `${countryDataPath(profileCountry, 'donors')}/${uid}`))).val();
         if (!cancelled) {
           setIsDonor(true);
-          setDistrict(profile.district || 'your district');
+          setCountry(profileCountry);
+          setDistrict(profile.district || 'your area');
           setVisible(listing?.publicMapConsent === true);
         }
       } catch {
@@ -31,7 +36,7 @@ export default function DonorMapConsent({ uid, verified }: { uid: string; verifi
     return () => { cancelled = true; };
   }, [uid, verified]);
 
-  if (!isDonor || !database) return null;
+  if (!isDonor || !country || !database) return null;
 
   const toggle = async () => {
     if (busy) return;
@@ -41,7 +46,7 @@ export default function DonorMapConsent({ uid, verified }: { uid: string; verifi
       const profileRef = ref(database!, `users/${uid}`);
       if (visible) {
         await update(ref(database!), {
-          [`donors/${uid}`]: null,
+          [`${countryDataPath(country, 'donors')}/${uid}`]: null,
           [`users/${uid}/publicMapConsent`]: false,
         });
         setVisible(false);
@@ -55,7 +60,7 @@ export default function DonorMapConsent({ uid, verified }: { uid: string; verifi
           throw error;
         }
         setVisible(true);
-        setNotice('Your blood group and district are now visible on the public donor map.');
+        setNotice('Your blood group and approximate area are now visible on the donor map.');
       }
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not update map visibility. Please try again.');
@@ -67,11 +72,11 @@ export default function DonorMapConsent({ uid, verified }: { uid: string; verifi
   return <section className="profile-card" aria-label="Public donor map visibility" style={{ marginTop: 20 }}>
     <h3>Public donor map</h3>
     <p style={{ margin: '12px 0', lineHeight: 1.5 }}>
-      {visible ? 'Your blood group and district are visible.' : 'You are not currently shown on the public map.'}
-      {' '}If you opt in, the marker represents {district} district, not your home address. Your name, phone, precise location and medical information are never published.
+      {visible ? 'Your blood group and approximate area are visible.' : 'You are not currently shown on the donor map.'}
+      {' '}If you opt in, the marker represents {district}, not your home address. Your name, phone, exact address and GPS location are not included in the map marker.
     </p>
     <button className="btn btn-primary" type="button" disabled={busy || !verified} onClick={() => void toggle()}>
-      {busy ? 'Updating…' : visible ? 'Remove me from map' : 'Show my district on map'}
+      {busy ? 'Updating…' : visible ? 'Remove me from map' : 'Show my area on map'}
     </button>
     {notice && <p role="status" style={{ marginTop: 12 }}>{notice}</p>}
   </section>;

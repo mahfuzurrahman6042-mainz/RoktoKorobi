@@ -8,9 +8,10 @@ import SocialShare from '@/components/SocialShare';
 import CalendarIntegration from '@/components/CalendarIntegration';
 import MessagingChat from '@/components/MessagingChat';
 import LoginRequiredModal from '@/components/LoginRequiredModal';
-import { ref, set, get, update, remove, onValue, push } from 'firebase/database';
+import { ref, set, get, update, remove, onValue, push, query, orderByChild, equalTo } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import { getCurrentUser, recordDonation } from '@/lib/firebase';
+import { getCurrentUser, getUserData, onAuthStateChange, recordDonation } from '@/lib/firebase';
+import { countryDataPath, countryForRecord, enrollmentOpen, recordBelongsToCountry, type CountryCode } from '@/lib/countries';
 
 const bloodGroups = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
 const urgencyColors = ["#22c55e", "#f59e0b", "#ef4444", "#A32D2D"];
@@ -47,6 +48,8 @@ export default function BloodRequest() {
   const [chatOpen, setChatOpen] = useState(false);
   const [activeRequest, setActiveRequest] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [accountCountry, setAccountCountry] = useState<CountryCode | null>(null);
+  const [countryDisclosureConfirmed, setCountryDisclosureConfirmed] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const formRef = useRef(null);
 
@@ -56,12 +59,12 @@ export default function BloodRequest() {
 
   const handleMarkFulfilled = async (requestId: string) => {
     try {
-      if (!database) {
+      if (!database || !accountCountry || !enrollmentOpen(accountCountry)) {
         console.error('Database not initialized');
         return;
       }
       
-      const requestRef = ref(database, `bloodRequests/${requestId}`);
+      const requestRef = ref(database, countryDataPath(accountCountry, 'bloodRequests') + '/' + requestId);
       await update(requestRef, { fulfilled: true, status: 'fulfilled' });
       
       // Record donation for current user if they're a donor
@@ -98,12 +101,12 @@ export default function BloodRequest() {
   const handleDeleteRequest = async (requestId: string) => {
     if (window.confirm(language === 'bn' ? 'আপনি কি এই অনুরোধটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this request?')) {
       try {
-        if (!database) {
+        if (!database || !accountCountry || !enrollmentOpen(accountCountry)) {
           console.error('Database not initialized');
           return;
         }
         
-        const requestRef = ref(database, `bloodRequests/${requestId}`);
+        const requestRef = ref(database, countryDataPath(accountCountry, 'bloodRequests') + '/' + requestId);
         await remove(requestRef);
       } catch (error) {
         console.error('Error deleting request:', error);
@@ -122,46 +125,66 @@ export default function BloodRequest() {
     setTimeout(() => setHeroVis(true), 80);
     setTimeout(() => setFormVis(true), 300);
 
-    // Fetch current user
-    const fetchUser = async () => {
-      const user = await getCurrentUser();
+    let active = true;
+    const unsubscribe = onAuthStateChange(async user => {
       setCurrentUser(user);
-    };
-    fetchUser();
-    
-    // Fetch blood requests from Realtime Database
-    if (database) {
-      const requestsRef = ref(database, 'bloodRequests');
-      const unsubscribe = onValue(requestsRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const requestsArray = Object.keys(data).map(key => ({ id: key, ...data[key] as any }));
-          // Sort by timestamp, newest first
-          requestsArray.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-          setRequests(requestsArray);
-          
-          // Update stats
-          const fulfilledCount = requestsArray.filter(req => req.fulfilled).length;
-          setStats({
-            totalRequests: requestsArray.length,
-            fulfilledRequests: fulfilledCount,
-            totalDonations: fulfilledCount
-          });
-        } else {
-          setRequests([]);
-          setStats({
-            totalRequests: 0,
-            fulfilledRequests: 0,
-            totalDonations: 0
-          });
-        }
-      }, (error) => {
-        console.error('Error fetching blood requests:', error);
-      });
-
-      return () => unsubscribe();
-    }
+      setAccountCountry(null);
+      setCountryDisclosureConfirmed(false);
+      setRequests([]);
+      setStats({ totalRequests: 0, fulfilledRequests: 0, totalDonations: 0 });
+      if (!user?.emailVerified) { setAccountCountry(null); return; }
+      try {
+        const profile = await getUserData(user.uid);
+        if (active && getCurrentUser()?.uid === user.uid) setAccountCountry(profile ? countryForRecord(profile.country) : null);
+      } catch {
+        if (active && getCurrentUser()?.uid === user.uid) setAccountCountry(null);
+      }
+    });
+    return () => { active = false; unsubscribe(); };
   }, []);
+
+  useEffect(() => {
+    const viewerId = currentUser?.uid;
+    if (!database || !accountCountry || !viewerId || !enrollmentOpen(accountCountry)) {
+      setRequests([]);
+      setStats({ totalRequests: 0, fulfilledRequests: 0, totalDonations: 0 });
+      return;
+    }
+    const requestsRef = ref(database, countryDataPath(accountCountry, 'bloodRequests'));
+    let active = true;
+    // New-country requests are private while pending/rejected. Read only
+    // approved public requests plus this viewer's own requests; keep BD as-is.
+    const sources = accountCountry === 'BD'
+      ? [{ key: 'all', target: requestsRef }]
+      : [
+          { key: 'approved', target: query(requestsRef, orderByChild('status'), equalTo('approved')) },
+          { key: 'open', target: query(requestsRef, orderByChild('status'), equalTo('open')) },
+          { key: 'own', target: query(requestsRef, orderByChild('userId'), equalTo(viewerId)) },
+        ];
+    const snapshots = new Map<string, Record<string, any>>();
+    const publish = () => {
+      const merged = Object.assign({}, ...snapshots.values()) as Record<string, any>;
+      const visible = Object.entries(merged)
+        .map(([id, value]) => ({ id, ...value }))
+        .filter(request => recordBelongsToCountry(request, accountCountry))
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      setRequests(visible);
+      const fulfilled = visible.filter(request => request.fulfilled).length;
+      setStats({ totalRequests: visible.length, fulfilledRequests: fulfilled, totalDonations: fulfilled });
+    };
+    const unsubscribers = sources.map(source => onValue(source.target, snapshot => {
+      if (!active) return;
+      snapshots.set(source.key, (snapshot.val() || {}) as Record<string, any>);
+      publish();
+    }, error => {
+      if (!active) return;
+      console.error('Error fetching blood requests:', error);
+      snapshots.delete(source.key);
+      publish();
+    }));
+
+    return () => { active = false; unsubscribers.forEach(unsubscribe => unsubscribe()); };
+  }, [accountCountry, currentUser?.uid]);
 
   const T = {
     en: {
@@ -275,12 +298,26 @@ export default function BloodRequest() {
         return;
       }
 
+      const requesterProfile = await getUserData(currentUser.uid);
+      const requesterCountry = requesterProfile ? countryForRecord(requesterProfile.country) : null;
+      if (!requesterCountry || requesterCountry !== accountCountry || !enrollmentOpen(requesterCountry)) {
+        alert('Blood requests are not available for this account country yet.');
+        setSubmitting(false);
+        return;
+      }
+      if (requesterCountry !== 'BD' && !countryDisclosureConfirmed) {
+        setErrors(previous => ({ ...previous, disclosure: 'Confirm that you have authority to share this request with verified users in your country.' }));
+        setSubmitting(false);
+        return;
+      }
+
       const user = getCurrentUser();
       
       const urgencyMap = ['low', 'medium', 'high', 'critical'];
       const unitsValue = units === 'Custom' ? customUnits : units;
       
       const newRequest = {
+        country: requesterCountry,
         patientName: formData.patientName,
         bloodType: blood,
         hospital: formData.hospital,
@@ -295,7 +332,7 @@ export default function BloodRequest() {
         fulfilled: false
       };
 
-      await push(ref(database, 'bloodRequests'), newRequest);
+      await push(ref(database, countryDataPath(requesterCountry, 'bloodRequests')), newRequest);
       // Cross-user notifications are paused until a trusted server-side
       // matcher can send them without reading every donor profile in a browser.
       
@@ -317,6 +354,7 @@ export default function BloodRequest() {
           message: ''
         });
         setErrors({});
+        setCountryDisclosureConfirmed(false);
       }, 3000);
     } catch (error) {
       console.error('Error submitting request:', error);
@@ -661,6 +699,26 @@ export default function BloodRequest() {
                 <textarea className="inp" name="message" value={formData.message} onChange={handleInputChange} rows={4} placeholder={t.messagePh} style={{ resize:"vertical", minHeight:110 }}/>
               </div>}
 
+              {formVis && accountCountry && accountCountry !== 'BD' && <section className="anim-form fd5" aria-label="Request sharing preview" style={{ background:'#fff9f9', border:'1.5px solid #e8d4d4', borderRadius:14, padding:'20px', marginBottom:24, overflowWrap:'anywhere' }}>
+                <h3 style={{ fontSize:18, fontWeight:700, color:'#2d1515', marginBottom:8 }}>Review who will see this request</h3>
+                <p style={{ fontSize:14, color:'#7a4040', marginBottom:12 }}>After launch, verified accounts in {accountCountry === 'IN' ? 'India' : 'Pakistan'} and authorized super admins can read the request below. It is not sent to users in other countries. Submitting does not automatically notify donors; any alerts require separate approval.</p>
+                <dl style={{ display:'grid', gridTemplateColumns:'minmax(0,1fr) minmax(0,2fr)', gap:'6px 12px', fontSize:14, color:'#2d1515', marginBottom:14 }}>
+                  <dt>Patient name</dt><dd>{formData.patientName || '—'}</dd>
+                  <dt>Blood group</dt><dd>{blood || '—'}</dd>
+                  <dt>Hospital</dt><dd>{formData.hospital || '—'}</dd>
+                  <dt>Location</dt><dd>{formData.location || '—'}</dd>
+                  <dt>Contact number</dt><dd>{formData.contact || '—'}</dd>
+                  <dt>Urgency</dt><dd>{t.urgencyLvl[urgency]}</dd>
+                  <dt>Units</dt><dd>{units === 'Custom' ? customUnits || '—' : units}</dd>
+                  <dt>Additional message</dt><dd>{formData.message || '—'}</dd>
+                </dl>
+                <label style={{ display:'flex', alignItems:'flex-start', gap:10, fontSize:14, color:'#2d1515', cursor:'pointer' }}>
+                  <input type="checkbox" checked={countryDisclosureConfirmed} onChange={event => { setCountryDisclosureConfirmed(event.target.checked); setErrors(previous => ({ ...previous, disclosure:'' })); }} style={{ marginTop:4, accentColor:'#8b0000' }} />
+                  <span>I am authorized to share these patient and contact details with the audience described above.</span>
+                </label>
+                {errors.disclosure && <p role="alert" style={{ color:'#b91c1c', fontSize:13, marginTop:8 }}>{errors.disclosure}</p>}
+              </section>}
+
               {/* Submit */}
               {formVis && <div className="anim-form fd5">
                 <button className="submit-btn" type="submit" disabled={submitting||!blood}>
@@ -833,7 +891,7 @@ export default function BloodRequest() {
                     >
                       {language === 'bn' ? 'যোগাযোগ করুন' : 'Contact'}
                     </button>
-                    {!request.fulfilled && (
+                    {!request.fulfilled && request.userId === currentUser?.uid && (
                       <button
                         onClick={() => handleMarkFulfilled(request.id)}
                         style={{
@@ -851,7 +909,7 @@ export default function BloodRequest() {
                         {language === 'bn' ? 'পূরণ করুন' : 'Mark Fulfilled'}
                       </button>
                     )}
-                    <button
+                    {request.userId === currentUser?.uid && <button
                       onClick={() => handleDeleteRequest(request.id)}
                       style={{
                         padding: '8px 16px',
@@ -866,7 +924,7 @@ export default function BloodRequest() {
                       }}
                     >
                       {language === 'bn' ? 'মুছুন' : 'Delete'}
-                    </button>
+                    </button>}
                   </div>
                 </div>
               ))}
@@ -879,6 +937,7 @@ export default function BloodRequest() {
       {activeRequest && (
         <MessagingChat
           requestId={activeRequest.id}
+          country={accountCountry || 'BD'}
           receiverId={activeRequest.userId || 'requester'}
           receiverName={activeRequest.patientName}
           isOpen={chatOpen}

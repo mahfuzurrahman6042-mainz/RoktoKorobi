@@ -5,6 +5,9 @@
   "main": "next dev",
   "scripts": {
     "dev": "next dev --webpack",
+    "dev:country-test": "node scripts/run-country-test-app.mjs",
+    "emulators:country-test": "node scripts/run-country-emulators.mjs",
+    "seed:country-test": "node scripts/seed-local-country-test.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
@@ -38,5 +41,8 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "typescript": "^5.2.2"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.6"
   }
 }

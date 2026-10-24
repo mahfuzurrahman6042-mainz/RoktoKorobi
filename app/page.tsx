@@ -15,6 +15,7 @@ import { listAllHospitals, listAllDonors, getUserData, getCurrentUser, onAuthSta
 import NotificationsPanel from "@/components/NotificationsPanel";
 import ToastNotifications from "@/components/ToastNotifications";
 import NotificationPermission from "@/components/NotificationPermission";
+import { COUNTRIES, COUNTRY_MAP_VIEWPORTS, countryForRecord, enrollmentOpen, type CountryCode } from '@/lib/countries';
 
 /* ═══════════════════════════════════════════════════════════════════
    ROKTOKOROBI — রক্তকরবী  |  Complete PWA Preview
@@ -143,6 +144,7 @@ export default function Home() {
   const [donors, setDonors] = useState<any[]>([]);
   const [directoryLoading, setDirectoryLoading] = useState(true);
   const [stats, setStats] = useState<{ users: number; donors: number; requestsFulfilled: number; partners: number; updatedAt: number } | null>(null);
+  const [homeCountry, setHomeCountry] = useState<CountryCode | null>(null);
   const testimonialStats = {
     en: [{ n: String(stats?.donors ?? '—'), l: 'Registered Donors' }, { n: String(stats?.requestsFulfilled ?? '—'), l: 'Requests Fulfilled' }, { n: String(stats?.partners ?? '—'), l: 'Partner Organisations' }],
     bn: [{ n: String(stats?.donors ?? '—'), l: 'নিবন্ধিত দাতা' }, { n: String(stats?.requestsFulfilled ?? '—'), l: 'পূর্ণ অনুরোধ' }, { n: String(stats?.partners ?? '—'), l: 'অংশীদার সংস্থা' }],
@@ -161,40 +163,69 @@ export default function Home() {
     setLanguage(savedLang);
 
     // Check authentication status using Firebase
-    const unsubscribe = onAuthStateChange((user) => {
+    let active = true;
+    const unsubscribe = onAuthStateChange(async (user) => {
+      setHomeCountry(null);
+      setStats(null);
+      setDonors([]);
+      setHospitals([]);
+      setSearchResults([]);
+      setHasSearchedDonors(false);
+      setSelectedDistrict('');
+      setArea('');
       if (user) {
         setIsLoggedIn(true);
-        // Fetch user data using Firebase user ID
-        fetchUserData(user.uid);
+        setUserData(null);
+        if (!user.emailVerified) return;
+        try {
+          const profile = await getUserData(user.uid);
+          if (!active || getCurrentUser()?.uid !== user.uid) return;
+          if (!profile) return;
+          setUserData({ name: profile.name || 'User', bloodGroup: profile.bloodGroup || 'N/A' });
+          setHomeCountry(countryForRecord(profile.country));
+        } catch (error) {
+          console.error('Could not verify homepage country', error);
+        }
       } else {
         setIsLoggedIn(false);
         setUserData(null);
+        setHomeCountry('BD');
       }
     });
+    return () => { active = false; unsubscribe(); };
+  }, []);
 
-    // Fetch hospitals from Firebase
+  useEffect(() => {
+    if (!homeCountry || !enrollmentOpen(homeCountry)) {
+      setDonors([]);
+      setHospitals([]);
+      setStats(null);
+      setDirectoryLoading(false);
+      return;
+    }
+    let active = true;
+    setDirectoryLoading(true);
     const fetchHospitals = async () => {
       try {
-        const hospitalsData = await listAllHospitals();
-        setHospitals(hospitalsData);
+        const hospitalsData = await listAllHospitals(homeCountry);
+        if (active) setHospitals(hospitalsData);
       } catch (error) {
         console.log('Error fetching hospitals:', error);
-        setHospitals([]);
+        if (active) setHospitals([]);
       }
     };
 
     // Fetch donors from Firebase
     const fetchDonors = async () => {
       try {
-        console.log('Starting to fetch donors...');
-        const donorsData = await listAllDonors();
-        setDonors(donorsData);
+        const donorsData = await listAllDonors(homeCountry);
+        if (active) setDonors(donorsData);
         
       } catch (error) {
         console.log('Error fetching donors:', error);
-        setDonors([]);
+        if (active) setDonors([]);
       } finally {
-        setDirectoryLoading(false);
+        if (active) setDirectoryLoading(false);
       }
     };
 
@@ -203,7 +234,8 @@ export default function Home() {
 
     // Public, aggregate-only figures are published by the verified super admin.
     // A missing or inaccessible snapshot is unknown, never a fabricated zero.
-    const stopStats = database ? onValue(ref(database, 'publicStats'), snapshot => {
+    const statsPath = homeCountry === 'BD' ? 'publicStats' : `countryData/${homeCountry}/publicStats`;
+    const stopStats = database ? onValue(ref(database, statsPath), snapshot => {
       const value = snapshot.val();
       if (!value || !['users', 'donors', 'requestsFulfilled', 'partners', 'updatedAt'].every(key => Number.isFinite(value[key]) && value[key] >= 0)) {
         setStats(null);
@@ -212,22 +244,8 @@ export default function Home() {
       setStats(value);
     }, error => { console.error('Public statistics unavailable', error); setStats(null); }) : () => {};
 
-    return () => { unsubscribe(); stopStats(); };
-  }, []);
-
-  const fetchUserData = async (userId: string) => {
-    try {
-      const data = await getUserData(userId);
-      if (data) {
-        setUserData({
-          name: data.name || 'User',
-          bloodGroup: data.bloodGroup || 'N/A'
-        });
-      }
-    } catch (error) {
-      console.log('Error fetching user data:', error);
-    }
-  };
+    return () => { active = false; stopStats(); };
+  }, [homeCountry]);
 
   const handleBloodTypeSelect = (type: string) => {
     setSelectedBloodType(type);
@@ -469,6 +487,9 @@ export default function Home() {
   }, []);
 
   if (!mounted) return null;
+  if (!homeCountry) return <main role="status" style={{ minHeight: '100vh', padding: 32, background: '#F5EDD8', color: '#2A1A14' }}><p>Checking your account country and access…</p><Link href="/verify-email" style={{ display: 'inline-flex', marginTop: 16, color: '#8E0F20' }}>Verify your email or check account access</Link></main>;
+  if (!enrollmentOpen(homeCountry)) return <main style={{ minHeight: '100vh', padding: 'clamp(24px, 6vw, 72px)', background: '#F5EDD8', color: '#2A1A14' }}><h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 36 }}>Your country’s service is coming soon</h1><p style={{ maxWidth: 620, marginTop: 20 }}>Donor listings, requests, and partner records from another country are not shown here. For urgent needs, contact a local hospital or blood bank.</p><Link href="/login" style={{ display: 'inline-flex', marginTop: 24, color: '#8E0F20' }}>Account access</Link></main>;
+  const countryName = COUNTRIES.find(item => item.code === homeCountry)?.name || homeCountry;
 
   return (
     <div className="home-page">
@@ -1254,7 +1275,9 @@ export default function Home() {
           </h1>
 
           <p className="hero-desc-card">
-            {language === 'bn'
+            {homeCountry !== 'BD'
+              ? `Connect with blood donors and people in need across ${countryName}.`
+              : language === 'bn'
               ? 'বাংলাদেশের বৃহত্তম রক্তদাতা নেটওয়ার্ক। আমরা রক্তদাতাদের সাথে রক্তের প্রয়োজনে থাকা মানুষদের সংযোগ করি।'
               : 'Bangladesh\'s largest blood donor network. We connect donors with people in need of blood.'}
           </p>
@@ -1307,7 +1330,7 @@ export default function Home() {
         <div className="stats">
           <div className="stat">
             <div className="stat-num">{stats?.users ?? '—'}</div>
-            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত সদস্য' : 'Registered Members'}</div>
+            <div className="stat-label">{language === 'bn' ? 'নিবন্ধিত ব্যবহারকারী' : 'Registered Users'}</div>
           </div>
           <div className="stat">
             <div className="stat-num">{stats?.donors ?? '—'}</div>
@@ -1462,8 +1485,8 @@ export default function Home() {
                   </div>
                 </div>
                 <div>
-                  <label className="form-label block text-sm font-medium mb-2">{language === 'bn' ? 'জেলা' : 'District'}</label>
-                  <select 
+                  <label className="form-label block text-sm font-medium mb-2">{homeCountry === 'BD' ? (language === 'bn' ? 'জেলা' : 'District') : 'City / service area'}</label>
+                  {homeCountry === 'BD' ? <select
                     className="form-select w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     value={selectedDistrict}
                     onChange={(e) => setSelectedDistrict(e.target.value)}
@@ -1523,7 +1546,10 @@ export default function Home() {
                     <option value="Meherpur">{language === 'bn' ? 'মেহেরপুর' : 'Meherpur'}</option>
                     <option value="Narail">{language === 'bn' ? 'নড়াই' : 'Narail'}</option>
                     <option value="Satkhira">{language === 'bn' ? 'সাতক্ষীরা' : 'Satkhira'}</option>
-                  </select>
+                  </select> : <>
+                    <input list="home-country-areas" className="form-input w-full px-4 py-3 border border-gray-300 rounded-lg" value={selectedDistrict} onChange={(event) => setSelectedDistrict(event.target.value)} placeholder="Enter city or service area" />
+                    <datalist id="home-country-areas">{[...new Set(donors.map(donor => donor.district).filter(Boolean))].sort().map(city => <option key={city} value={city} />)}</datalist>
+                  </>}
                 </div>
                 <div>
                   <label className="form-label block text-sm font-medium mb-2">{language === 'bn' ? 'এলাকা' : 'Area'}</label>
@@ -1906,8 +1932,9 @@ export default function Home() {
               `}</style>
               <MapErrorBoundary>
                 <BangladeshMap
-                  center={{ lat: 23.6850, lng: 90.3563 }}
-                  zoom={7}
+                  key={homeCountry}
+                  center={COUNTRY_MAP_VIEWPORTS[homeCountry].center}
+                  zoom={COUNTRY_MAP_VIEWPORTS[homeCountry].zoom}
                   donors={hasSearchedDonors ? searchResults : donors}
                   hospitals={hospitals.length > 0 ? hospitals : []}
                 />
@@ -1950,6 +1977,9 @@ export default function Home() {
               {!directoryLoading && donors.length === 0 && (
                 <div role="status" style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 10, maxWidth: 420, padding: '12px 16px', background: 'rgba(253, 249, 243, .96)', borderRadius: 12, color: '#2A1A14', boxShadow: '0 4px 18px rgba(0,0,0,.12)' }}>
                   {language === 'bn' ? 'এখনও প্রকাশের সম্মতি দেওয়া কোনো রক্তদাতা নেই। মানচিত্র চালু আছে; নতুন দাতারা সম্মতি দিলে এখানে দেখা যাবে।' : 'No donors have opted into the public map yet. The map is active and will show consented donors here.'}
+                  <Link href="/profile" style={{ display: 'block', width: 'fit-content', minHeight: 44, paddingTop: 10, color: '#8B1A1A', fontWeight: 700, textDecoration: 'underline' }}>
+                    {language === 'bn' ? 'রক্তদাতা? আপনার জেলা দেখান →' : 'Already a donor? Show your district →'}
+                  </Link>
                 </div>
               )}
             </div>
@@ -2045,7 +2075,7 @@ export default function Home() {
                 <span className="text-xl font-bold">রক্তকরবী</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
-                {language === 'bn' ? 'বাংলাদেশের বৃহত্তম রক্তদাতা নেটওয়ার্ক। আমরা রক্তদাতাদের সাথে রক্তের প্রয়োজনে থাকা মানুষদের সংযোগ করি।' : 'Bangladesh\'s largest blood donor network. We connect blood donors with those in need.'}
+                {homeCountry !== 'BD' ? `Connecting blood donors with people in need across ${countryName}.` : language === 'bn' ? 'বাংলাদেশের বৃহত্তম রক্তদাতা নেটওয়ার্ক। আমরা রক্তদাতাদের সাথে রক্তের প্রয়োজনে থাকা মানুষদের সংযোগ করি।' : 'Bangladesh\'s largest blood donor network. We connect blood donors with those in need.'}
               </p>
             </div>
             <div className="footer-col">

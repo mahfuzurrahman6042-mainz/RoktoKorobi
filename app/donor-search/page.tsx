@@ -1,7 +1,5 @@
-"use client";
-
-import DonorSearchSection from "@/components/DonorSearchSection";
+import { redirect } from 'next/navigation';
 
 export default function DonorSearchPage() {
-  return <DonorSearchSection />;
+  redirect('/donors');
 }

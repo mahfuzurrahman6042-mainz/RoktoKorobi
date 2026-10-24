@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { database, get, getUserData, ref, remove, set } from '@/lib/firebase';
+import { countryForRecord, enrollmentOpen } from '@/lib/countries';
 
 type Referral = { instituteId: string; name: string; joinedAt: string; active: boolean };
 
@@ -18,8 +19,10 @@ export default function PartnerRosterConsent({ uid, verified }: { uid: string; v
       try {
         const profile = await getUserData(uid);
         if (!profile?.instituteId || !profile?.referralCode || !profile?.name) return;
+        const country = countryForRecord(profile.country);
+        if (!country || !enrollmentOpen(country)) return;
         const invite = (await get(ref(database!, `partnerInvites/${profile.referralCode}`))).val();
-        if (invite?.instituteId !== profile.instituteId) return;
+        if (invite?.instituteId !== profile.instituteId || countryForRecord(invite.country) !== country) return;
         const member = (await get(ref(database!, `partnerMembers/${profile.instituteId}/${uid}`))).val();
         if (!cancelled) {
           setReferral({ instituteId: profile.instituteId, name: profile.name, joinedAt: profile.createdAt || new Date().toISOString(), active: invite.active === true });

@@ -2,6 +2,7 @@
 .env*.local
 .next
 node_modules
+.local-tools/
 dist
 build
 *.log

@@ -6,12 +6,14 @@ import type { User } from 'firebase/auth';
 import { ArrowLeft, Building2, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
 import CountryField from '@/components/CountryField';
-import { enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
+import { partnerEnrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
+import { policyConsentVersion, policyReviewHref } from '@/lib/policy-links';
+import CountryPolicyConsent from '@/components/country-policy-consent';
 
-type AccountForm = { name: string; email: string; phone: string; password: string; confirmPassword: string };
+type AccountForm = { name: string; email: string; phone: string; city: string; password: string; confirmPassword: string };
 
 export default function PartnerAccountPage() {
-  const [form, setForm] = useState<AccountForm>({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState<AccountForm>({ name: '', email: '', phone: '', city: '', password: '', confirmPassword: '' });
   const [country, setCountry] = useState<CountryCode>('BD');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -32,9 +34,9 @@ export default function PartnerAccountPage() {
     if (!database) throw new Error('The database is unavailable. Please try again later.');
     const now = new Date().toISOString();
     await update(ref(database, `users/${uid}`), {
-      uid, email, name: form.name.trim(), phone: form.phone.trim(), country,
+      uid, email, name: form.name.trim(), phone: form.phone.trim(), city: form.city.trim(), country,
       isDonor: false, donations: 0, acceptedTerms: true, acceptedPrivacy: true,
-      consentVersion: '2026-10-01', consentedAt: now, createdAt: now, updatedAt: now,
+      consentVersion: policyConsentVersion(country), consentedAt: now, createdAt: now, updatedAt: now,
     });
     try { await sendVerificationEmail(user); }
     catch { setVerificationWarning(true); }
@@ -44,7 +46,8 @@ export default function PartnerAccountPage() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
-    if (!enrollmentOpen(country)) return setError('Partner enrollment is not open in this country yet.');
+    if (!partnerEnrollmentOpen(country)) return setError('Partner enrollment is not open in this country yet.');
+    if (form.city.trim().length < 2) return setError('Enter your city or town.');
     if (!validPhoneForCountry(form.phone, country)) return setError('Enter a valid phone number for the selected country.');
     if (form.password.length < 8) return setError('Use a password of at least 8 characters.');
     if (form.password !== form.confirmPassword) return setError('The passwords do not match.');
@@ -67,6 +70,8 @@ export default function PartnerAccountPage() {
   };
 
   const field = 'mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white px-4 py-3 text-base focus-visible:outline-2 focus-visible:outline-[#A5102F]';
+  const reviewTerms = policyReviewHref(country, 'terms');
+  const reviewPrivacy = policyReviewHref(country, 'privacy');
   return <main className="min-h-screen bg-[#F5EDD8] px-5 py-8 text-[#1A0F0A] sm:py-12">
     <div className="mx-auto max-w-2xl">
       <Link href="/partner-register" className="inline-flex items-center gap-2 text-sm font-semibold text-[#A5102F] hover:underline"><ArrowLeft size={16} aria-hidden="true" />Back to partner information</Link>
@@ -80,11 +85,12 @@ export default function PartnerAccountPage() {
           <Link href="/verify-email?next=%2Fpartner-request" className="mt-5 inline-flex rounded-xl bg-[#A5102F] px-5 py-3 font-semibold text-white">Open email verification</Link>
           <Link href="/partner-request" className="ml-3 mt-5 inline-flex rounded-xl border border-[#A5102F]/20 px-5 py-3 font-semibold text-[#A5102F]">Request partnership</Link>
         </div> : <form onSubmit={submit} className="mt-8 space-y-5">
-          <CountryField value={country} onChange={setCountry} className={field} />
+          <CountryField value={country} onChange={next => { setCountry(next); setTermsAccepted(false); setPrivacyAccepted(false); }} className={field} purpose="partner" />
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-semibold">Full name<input required autoComplete="name" maxLength={100} value={form.name} onChange={event => setForm(previous => ({ ...previous, name: event.target.value }))} className={field} /></label>
             <label className="block text-sm font-semibold">Phone<input required type="tel" autoComplete="tel" maxLength={30} value={form.phone} onChange={event => setForm(previous => ({ ...previous, phone: event.target.value }))} className={field} /></label>
           </div>
+          <label className="block text-sm font-semibold">City or town<input required autoComplete="address-level2" minLength={2} maxLength={80} value={form.city} onChange={event => setForm(previous => ({ ...previous, city: event.target.value }))} className={field} placeholder="Where you are based" /></label>
           <label className="block text-sm font-semibold">Email address<input required type="email" autoComplete="email" maxLength={254} value={form.email} onChange={event => setForm(previous => ({ ...previous, email: event.target.value }))} className={field} /></label>
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
@@ -104,8 +110,11 @@ export default function PartnerAccountPage() {
             </div>
           </div>
           <div className="space-y-3 border-t border-[#C0152A]/10 pt-5 text-sm">
-            <label className="flex items-start gap-3"><input required type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/terms-of-service" target="_blank" className="font-semibold text-[#A5102F] underline">Terms of Service</Link>.</span></label>
-            <label className="flex items-start gap-3"><input required type="checkbox" checked={privacyAccepted} onChange={event => setPrivacyAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/privacy-policy" target="_blank" className="font-semibold text-[#A5102F] underline">Privacy Policy</Link>.</span></label>
+            <CountryPolicyConsent country={country} terms={termsAccepted} privacy={privacyAccepted} onTerms={setTermsAccepted} onPrivacy={setPrivacyAccepted} />
+            {country === 'BD' ? <>
+              <label className="flex items-start gap-3"><input required type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/terms-of-service" target="_blank" className="font-semibold text-[#A5102F] underline">Terms of Service</Link>.</span></label>
+              <label className="flex items-start gap-3"><input required type="checkbox" checked={privacyAccepted} onChange={event => setPrivacyAccepted(event.target.checked)} className="mt-1 accent-[#A5102F]" /><span>I accept the <Link href="/privacy-policy" target="_blank" className="font-semibold text-[#A5102F] underline">Privacy Policy</Link>.</span></label>
+            </> : !partnerEnrollmentOpen(country) && <p role="status" className="rounded-xl border border-[#C0152A]/20 bg-white p-4 leading-6">{country === 'IN' ? 'India' : 'Pakistan'} enrollment is not open yet.{reviewTerms && reviewPrivacy ? <span className="mt-2 flex gap-4"><Link href={reviewTerms} target="_blank" className="font-semibold text-[#A5102F] underline">Terms</Link><Link href={reviewPrivacy} target="_blank" className="font-semibold text-[#A5102F] underline">Privacy Policy</Link></span> : null}</p>}
           </div>
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">{error}</p>}
           <button disabled={busy} type="submit" className="w-full rounded-xl bg-[#A5102F] px-5 py-3.5 font-semibold text-white hover:bg-[#870D25] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A5102F] disabled:opacity-60">{busy ? 'Creating account…' : createdUid ? 'Finish account setup' : 'Create leader account'}</button>

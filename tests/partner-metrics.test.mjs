@@ -22,3 +22,23 @@ test('empty datasets show zero totals', () => {
     totalStudents: 0, totalDonors: 0, totalDonations: 0, totalBloodRequests: 0,
   });
 });
+
+test('country totals exclude another country, including legacy Bangladesh records', () => {
+  const users = {
+    legacy: { isDonor: true, donations: 5 },
+    india: { country: 'IN', isDonor: true, donations: 2 },
+    pakistan: { country: 'PK', isDonor: false, donations: 0 },
+  };
+  const requests = {
+    legacy: { userId: 'legacy' },
+    india: { userId: 'india', country: 'IN' },
+    mislabeled: { userId: 'india', country: 'PK' },
+    pakistan: { userId: 'pakistan', country: 'PK' },
+  };
+  assert.deepEqual(countPartnerImpact(users, requests, 'IN'), {
+    totalStudents: 1, totalDonors: 1, totalDonations: 2, totalBloodRequests: 1,
+  });
+  assert.deepEqual(countPartnerImpact(users, requests, 'PK'), {
+    totalStudents: 1, totalDonors: 0, totalDonations: 0, totalBloodRequests: 1,
+  });
+});

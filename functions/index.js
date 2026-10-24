@@ -1,33 +1,66 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const { countUsers, countRequests, countPartners } = require('./public-stats');
+const { belongsToCountry, countUsers, countRequests, countPartners } = require('./public-stats');
+const { notificationPayload, canSendCountryAlert, becamePublishableCountryRequest } = require('./notification-payload');
 
 admin.initializeApp();
 
-// Publish aggregate-only figures. These event handlers are idempotent: a retry
-// recounts the source collection instead of incrementing a potentially stale total.
-exports.refreshPublicUserStats = functions.database.ref('/users/{uid}').onWrite(async () => {
-  const snapshot = await admin.database().ref('users').once('value');
-  await admin.database().ref('publicStats').update({ ...countUsers(snapshot.val()), updatedAt: Date.now() });
-});
+// Recount instead of incrementing, so retries cannot inflate public totals.
+async function refreshAllPublicStats() {
+  const db = admin.database();
+  const [users, partners, bdRequests, inRequests, pkRequests] = await Promise.all([
+    db.ref('users').once('value'),
+    db.ref('partnerInstitutes').once('value'),
+    db.ref('bloodRequests').once('value'),
+    db.ref('countryData/IN/bloodRequests').once('value'),
+    db.ref('countryData/PK/bloodRequests').once('value'),
+  ]);
+  const requests = { BD: bdRequests.val(), IN: inRequests.val(), PK: pkRequests.val() };
+  const updates = {};
+  for (const country of ['BD', 'IN', 'PK']) {
+    const path = country === 'BD' ? 'publicStats' : `countryData/${country}/publicStats`;
+    updates[path] = {
+      ...countUsers(users.val(), country),
+      requestsFulfilled: countRequests(requests[country], country),
+      partners: countPartners(partners.val(), country),
+      updatedAt: Date.now(),
+    };
+  }
+  await db.ref().update(updates);
+}
 
-exports.refreshPublicRequestStats = functions.database.ref('/bloodRequests/{requestId}').onWrite(async () => {
-  const snapshot = await admin.database().ref('bloodRequests').once('value');
-  await admin.database().ref('publicStats').update({ requestsFulfilled: countRequests(snapshot.val()), updatedAt: Date.now() });
+exports.refreshPublicUserStats = functions.database.ref('/users/{uid}').onWrite(refreshAllPublicStats);
+exports.refreshPublicRequestStats = functions.database.ref('/bloodRequests/{requestId}').onWrite(refreshAllPublicStats);
+exports.refreshCountryPublicRequestStats = functions.database.ref('/countryData/{country}/bloodRequests/{requestId}').onWrite(async (_change, context) => {
+  if (context.params.country !== 'IN' && context.params.country !== 'PK') return null;
+  return refreshAllPublicStats();
 });
+exports.refreshPublicPartnerStats = functions.database.ref('/partnerInstitutes/{instituteId}').onWrite(refreshAllPublicStats);
 
-exports.refreshPublicPartnerStats = functions.database.ref('/partnerInstitutes/{instituteId}').onWrite(async () => {
-  const snapshot = await admin.database().ref('partnerInstitutes').once('value');
-  await admin.database().ref('publicStats').update({ partners: countPartners(snapshot.val()), updatedAt: Date.now() });
-});
-
-// Send push notification to eligible donors when a new blood request is created
-exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{requestId}')
-  .onCreate(async (snapshot, context) => {
+// Only notify donors in the same country as a newly created request.
+async function notifyDonorsForRequest(snapshot, context, country) {
     const bloodRequest = snapshot.val();
     const requestId = context.params.requestId;
+    if (!belongsToCountry(bloodRequest, country)) return null;
+    if (country !== 'BD') {
+      const [launch, alerts] = await Promise.all([
+        admin.database().ref(`settings/countryLaunch/${country}`).once('value'),
+        admin.database().ref(`settings/countryNotifications/${country}`).once('value'),
+      ]);
+      if (!canSendCountryAlert(country, bloodRequest, launch.val(), alerts.val())) return null;
+    }
 
-    console.log('New blood request created:', bloodRequest);
+    // Claim once before calling FCM. A retry or a later request edit must not
+    // broadcast the same alert again. Failed/partial attempts need manual review.
+    const dispatchRef = country === 'BD' ? null : admin.database().ref(`countryData/${country}/alertDispatches/${requestId}`);
+    if (dispatchRef) {
+      const claim = await dispatchRef.transaction(current => current == null
+        ? { status: 'attempted', attemptedAt: Date.now() }
+        : undefined);
+      if (!claim.committed) return null;
+    }
+
+    console.log('Publishable blood request:', requestId, country);
 
     try {
       // Get all users
@@ -36,6 +69,7 @@ exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{r
 
       if (!users) {
         console.log('No users found');
+        if (dispatchRef) await dispatchRef.update({ status: 'completed', recipientCount: 0, successCount: 0, failureCount: 0, finishedAt: Date.now() });
         return null;
       }
 
@@ -48,7 +82,7 @@ exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{r
         const user = users[userId];
 
         // Check if user is a donor with matching blood group
-        if (user.isDonor === true && user.bloodGroup === bloodRequest.bloodType) {
+        if (belongsToCountry(user, country) && user.isDonor === true && user.bloodGroup === bloodRequest.bloodType) {
           // Check if user has notification preferences enabled
           if (user.notificationPreferences?.enabled === false) {
             console.log(`User ${userId} has notifications disabled`);
@@ -66,25 +100,7 @@ exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{r
 
           // Check if user has FCM token
           if (user.fcmToken) {
-            const notification = {
-              notification: {
-                title: '🩸 Blood Request Alert',
-                body: `${bloodRequest.patientName} needs ${bloodRequest.bloodType} blood at ${bloodRequest.hospital}`,
-                icon: '/icon-192x192.png',
-                click_action: `https://roktokorobi.com/request`,
-                badge: '/icon-192x192.png'
-              },
-              data: {
-                requestId: requestId,
-                bloodType: bloodRequest.bloodType,
-                patientName: bloodRequest.patientName,
-                hospital: bloodRequest.hospital,
-                location: bloodRequest.location,
-                urgency: bloodRequest.urgency,
-                url: '/request'
-              },
-              token: user.fcmToken
-            };
+            const notification = { ...notificationPayload(requestId, country, bloodRequest.bloodType), token: user.fcmToken };
 
             notifications.push(notification);
             console.log(`Adding notification for user ${userId}`);
@@ -96,10 +112,14 @@ exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{r
 
       // Send notifications in batches (max 500 per batch)
       const batchSize = 500;
+      let successCount = 0;
+      let failureCount = 0;
       for (let i = 0; i < notifications.length; i += batchSize) {
         const batch = notifications.slice(i, i + batchSize);
         try {
           const response = await admin.messaging().sendAll(batch);
+          successCount += response.successCount;
+          failureCount += response.failureCount;
           console.log(`Batch ${i / batchSize + 1}: ${response.successCount} successful, ${response.failureCount} failed`);
           
           // Log any failures
@@ -112,16 +132,34 @@ exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{r
           }
         } catch (error) {
           console.error('Error sending notification batch:', error);
+          failureCount += batch.length;
         }
       }
 
-      console.log(`Sent ${notifications.length} notifications for blood request ${requestId}`);
+      if (dispatchRef) await dispatchRef.update({
+        status: failureCount > 0 ? 'partial-or-failed' : 'completed',
+        recipientCount: notifications.length, successCount, failureCount, finishedAt: Date.now(),
+      });
+      console.log(`Notification attempt for ${requestId}: ${successCount} sent, ${failureCount} failed`);
       return null;
 
     } catch (error) {
       console.error('Error processing blood request notification:', error);
+      if (dispatchRef) await dispatchRef.update({ status: 'failed', finishedAt: Date.now() });
       return null;
     }
+}
+
+exports.sendBloodRequestNotification = functions.database.ref('/bloodRequests/{requestId}')
+  .onCreate((snapshot, context) => notifyDonorsForRequest(snapshot, context, 'BD'));
+
+exports.sendCountryBloodRequestNotification = functions.database.ref('/countryData/{country}/bloodRequests/{requestId}')
+  .onWrite((change, context) => {
+    const country = context.params.country;
+    const before = change.before.exists() ? change.before.val() : null;
+    const after = change.after.exists() ? change.after.val() : null;
+    if (!becamePublishableCountryRequest(country, before, after)) return null;
+    return notifyDonorsForRequest(change.after, context, country);
   });
 
 // Clean up old notifications (older than 30 days)

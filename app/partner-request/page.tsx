@@ -5,10 +5,11 @@ import Link from 'next/link';
 import type { User } from 'firebase/auth';
 import { Building2, CheckCircle2, Clock3, ShieldCheck } from 'lucide-react';
 import { database, get, onAuthStateChange, ref, set } from '@/lib/firebase';
+import { countryForRecord, partnerEnrollmentOpen, type CountryCode } from '@/lib/countries';
 
 type Application = {
   uid: string; email: string; organizationName: string; organizationType: string;
-  district: string; contactPhone: string; message: string;
+  country: CountryCode; district: string; city?: string; contactPhone: string; message: string;
   status: 'pending' | 'approved' | 'rejected'; createdAt: number;
   rejectionReason?: string;
 };
@@ -20,7 +21,9 @@ export default function PartnerRequestPage() {
   const [name, setName] = useState('');
   const [type, setType] = useState('ngo');
   const [district, setDistrict] = useState('');
+  const [city, setCity] = useState('');
   const [phone, setPhone] = useState('');
+  const [country, setCountry] = useState<CountryCode | null>(null);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -37,7 +40,11 @@ export default function PartnerRequestPage() {
         get(ref(database, `partnerApplications/${currentUser.uid}`)),
       ]);
       if (!profileSnapshot.exists()) throw new Error('Complete your leader account first.');
+      const profileCountry = countryForRecord(profileSnapshot.val()?.country);
+      if (!profileCountry) throw new Error('Your account country could not be verified. Contact the RoktoKorobi team.');
+      setCountry(profileCountry);
       setPhone(String(profileSnapshot.val()?.phone || ''));
+      setCity(String(profileSnapshot.val()?.city || ''));
       setApplication(applicationSnapshot.exists() ? applicationSnapshot.val() as Application : null);
       setState('ready');
     } catch (cause) {
@@ -50,8 +57,12 @@ export default function PartnerRequestPage() {
     event.preventDefault();
     if (!user?.email || !user.emailVerified || !database || application || busy) return;
     setError('');
-    if (name.trim().length < 2 || district.trim().length < 2 || phone.trim().length < 5) {
-      setError('Please complete the organization name, district, and contact phone.');
+    if (!country || !partnerEnrollmentOpen(country)) {
+      setError('Partner applications are not yet open for this country.');
+      return;
+    }
+    if (name.trim().length < 2 || district.trim().length < 2 || city.trim().length < 2 || phone.trim().length < 5) {
+      setError('Please complete the organization name, district, city, and contact phone.');
       return;
     }
     setBusy(true);
@@ -59,8 +70,9 @@ export default function PartnerRequestPage() {
       const record: Application = {
         uid: user.uid,
         email: user.email,
+        country,
         organizationName: name.trim(), organizationType: type,
-        district: district.trim(), contactPhone: phone.trim(),
+        district: district.trim(), city: city.trim(), contactPhone: phone.trim(),
         message: message.trim(), status: 'pending', createdAt: Date.now(),
       };
       await set(ref(database, `partnerApplications/${user.uid}`), record);
@@ -84,16 +96,18 @@ export default function PartnerRequestPage() {
         {state === 'ready' && application && <div role="status" className="mt-8 rounded-2xl border border-[#C0152A]/15 bg-[#F5EDD8] p-6">
           {application.status === 'approved' ? <CheckCircle2 className="text-emerald-700" size={28} aria-hidden="true" /> : <Clock3 className="text-[#A5102F]" size={28} aria-hidden="true" />}
           <h2 className="mt-3 text-xl font-bold">{application.status === 'pending' ? 'Request received' : application.status === 'approved' ? 'Partner approved' : 'Request not approved'}</h2>
-          <p className="mt-2 leading-7">{application.organizationName} · {application.district}</p>
+          <p className="mt-2 leading-7">{application.organizationName} · {[application.city, application.district].filter(Boolean).join(', ')}</p>
           <p className="mt-1 text-sm text-[#5C463B]">{application.status === 'pending' ? 'Your request is awaiting super-admin review. We will use your account email to identify you.' : application.status === 'approved' ? 'Your organization has been activated. Open your partner dashboard after signing in.' : application.rejectionReason || 'Contact the RoktoKorobi team if you need more information.'}</p>
           {application.status === 'approved' && <Link href="/dashboard/partner" className="mt-4 inline-flex rounded-xl bg-[#A5102F] px-5 py-3 font-semibold text-white">Open partner dashboard</Link>}
         </div>}
         {state === 'ready' && !application && <form onSubmit={submit} className="mt-8 space-y-5">
+          <p className="rounded-xl bg-[#F5EDD8] p-3 text-sm font-semibold">Country: {country === 'BD' ? 'Bangladesh' : country === 'IN' ? 'India' : country === 'PK' ? 'Pakistan' : 'Unverified'}. Your organization will belong to this country only.</p>
           <label className="block text-sm font-semibold">Organization name<input required minLength={2} maxLength={120} value={name} onChange={event => setName(event.target.value)} className={field} placeholder="Korobi Campus Club" /></label>
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-semibold">Organization type<select value={type} onChange={event => setType(event.target.value)} className={field}><option value="ngo">NGO / student organization</option><option value="university">University club</option><option value="college">College club</option><option value="corporate">Other organization</option></select></label>
             <label className="block text-sm font-semibold">District<input required minLength={2} maxLength={80} value={district} onChange={event => setDistrict(event.target.value)} className={field} placeholder="Dhaka" /></label>
           </div>
+          <label className="block text-sm font-semibold">Organization city or town<input required autoComplete="address-level2" minLength={2} maxLength={80} value={city} onChange={event => setCity(event.target.value)} className={field} placeholder="Where your organization is based" /></label>
           <label className="block text-sm font-semibold">Contact phone<input required type="tel" minLength={5} maxLength={30} value={phone} onChange={event => setPhone(event.target.value)} className={field} /></label>
           <label className="block text-sm font-semibold">What would your organization like to do? <span className="font-normal">(optional)</span><textarea rows={4} maxLength={500} value={message} onChange={event => setMessage(event.target.value)} className={field} /></label>
           <p className="text-sm text-[#5C463B]">Requesting as <strong>{user?.email}</strong>. You can submit one request per account.</p>

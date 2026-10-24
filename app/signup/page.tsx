@@ -6,6 +6,8 @@ import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import CountryField from '@/components/CountryField';
 import { enrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
+import { policyConsentVersion, policyReviewHref } from '@/lib/policy-links';
+import CountryPolicyConsent from '@/components/country-policy-consent';
 import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
 
 export default function Signup() {
@@ -98,8 +100,8 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
     if (!enrollmentOpen(country)) return setError('Account enrollment is not open in this country yet.');
+    if (!validateForm()) return;
     if (!validPhoneForCountry(formData.phone, country)) return setError('Enter a valid phone number for the selected country.');
 
     setSubmitting(true);
@@ -118,7 +120,7 @@ export default function Signup() {
       await update(ref(database, `users/${user.uid}`), {
         uid: user.uid, email, name: formData.name.trim(), phone: formData.phone.trim(), country,
         isDonor: false, donations: 0, acceptedTerms: true, acceptedPrivacy: true,
-        consentVersion: '2026-10-01', consentedAt: now, createdAt: now, updatedAt: now,
+        consentVersion: policyConsentVersion(country), consentedAt: now, createdAt: now, updatedAt: now,
       });
       try { await sendVerificationEmail(user); }
       catch (cause) { console.error('Could not send verification email', cause); }
@@ -203,7 +205,7 @@ export default function Signup() {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <CountryField value={country} onChange={setCountry} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-[#F5EDD8] px-4 py-3 text-base" />
+                  <CountryField value={country} onChange={next => { setCountry(next); setAcceptTerms(false); setAcceptPrivacy(false); }} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-[#F5EDD8] px-4 py-3 text-base" />
                   
                   {/* Name and Email */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -327,6 +329,8 @@ export default function Signup() {
 
                   {/* Terms and Privacy Checkboxes */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
+                    <CountryPolicyConsent country={country} terms={acceptTerms} privacy={acceptPrivacy} onTerms={setAcceptTerms} onPrivacy={setAcceptPrivacy} />
+                    {country === 'BD' ? <>
                     {/* Terms of Service */}
                     <div style={{
                       background: '#F5EDD8',
@@ -376,7 +380,7 @@ export default function Signup() {
                               borderLeft: '3px solid #dc2626'
                             }}>
                               <p style={{ margin: '0 0 8px 0' }}>
-                                <strong>{language === 'bn' ? '১. শর্তাবলী গ্রহণ' : '1. Acceptance of Terms'}</strong>: {language === 'bn' ? 'আপনি অন্তত ১৮ বছর বয়সী হতে হবে এবং এই শর্তাবলী মেনে চলতে সম্মত হন।' : 'You must be at least 18 years old and agree to these terms.'}
+                                <strong>{language === 'bn' ? '১. শর্তাবলী গ্রহণ' : '1. Acceptance of Terms'}</strong>: {language === 'bn' ? 'আপনি এই শর্তাবলী মেনে চলতে সম্মত হন। রক্তদাতা হতে হলে অন্তত ১৮ বছর বয়সী হতে হবে।' : 'You agree to these terms. Blood donors must be at least 18 years old.'}
                               </p>
                               <p style={{ margin: '0 0 8px 0' }}>
                                 <strong>{language === 'bn' ? '২. ব্যবহারকারীর আচরণ' : '2. User Conduct'}</strong>: {language === 'bn' ? 'আপনি শুধুমাত্র আইনি উদ্দেশ্যে পরিষেবাটি ব্যবহার করবেন।' : 'Use the service only for lawful purposes.'}
@@ -458,6 +462,11 @@ export default function Signup() {
                         </div>
                       </div>
                     </div>
+                    </> : !enrollmentOpen(country) && <div role="status" style={{ padding: 16, border: '1.5px solid rgba(192,21,42,0.2)', borderRadius: 12, background: '#F5EDD8' }}>
+                      <p>{country === 'IN' ? 'India' : 'Pakistan'} enrollment is not open yet.</p>
+                      {policyReviewHref(country, 'terms') && <Link href={policyReviewHref(country, 'terms')!} target="_blank" style={{ color: '#C0152A', marginRight: 16 }}>Terms</Link>}
+                      {policyReviewHref(country, 'privacy') && <Link href={policyReviewHref(country, 'privacy')!} target="_blank" style={{ color: '#C0152A' }}>Privacy Policy</Link>}
+                    </div>}
                   </div>
 
                   {/* Signup Button */}

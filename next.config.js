@@ -86,6 +86,9 @@ const nextConfig = {
   compress: true,
   
   async headers() {
+    const emulatorSources = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true'
+      ? ' http://127.0.0.1:9099 http://127.0.0.1:9000 ws://127.0.0.1:9000'
+      : '';
     const securityHeaders = [
       // HSTS (HTTP Strict Transport Security) - fixed for GitHub
       {
@@ -122,11 +125,11 @@ const nextConfig = {
         key: 'Content-Security-Policy',
         value: [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com https://va.vercel-scripts.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com https://va.vercel-scripts.com" + emulatorSources,
           "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
           "img-src 'self' data: https://*.supabase.co https://*.tile.openstreetmap.org https://*.openstreetmap.org blob:",
           "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com",
-          "connect-src 'self' https://*.supabase.co https://*.vercel.app https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://firebasestorage.googleapis.com https://vitals.vercel-insights.com wss://*.firebaseio.com",
+          "connect-src 'self' https://*.supabase.co https://*.vercel.app https://*.firebaseio.com https://*.firebaseapp.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://firebasestorage.googleapis.com https://vitals.vercel-insights.com wss://*.firebaseio.com" + emulatorSources,
           "frame-src 'self' https://*.firebaseapp.com https://*.firebaseio.com",
           "base-uri 'self'",
           "form-action 'self'",

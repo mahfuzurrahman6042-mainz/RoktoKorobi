@@ -1,0 +1,5 @@
+# Owner direction on India and Pakistan policy content — 24 October 2026
+
+The owner stated in this session that they reviewed the four existing India and Pakistan policy texts and directed that the English versions be treated as final without draft labels. The same instruction changed eligibility so only blood donors must be 18 or older and requested that blood-request functionality be available in both countries.
+
+The final files incorporate those directed changes. The owner then confirmed that the current four policy versions had been reviewed, should be final, and should go live today, 24 October 2026. These versions state 24 October 2026 as their effective date, so the manifest records that date as part of the approved current text. The owner previously identified the responsible operator as RoktoKorobi TM and supplied the team contact email. This record is not evidence of an independently completed local legal or medical review. No operator service address or completed live acceptance report was supplied. If publication occurs on another date, revisit the effective date and version before enabling enrollment.

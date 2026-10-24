@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { equalTo, orderByChild, query } from 'firebase/database';
 import { database, get, getCurrentUser, isSuperAdmin, onAuthStateChange, push, ref, update } from '@/lib/firebase';
 import { countPartnerImpact } from '@/lib/partner-metrics';
+import { COUNTRIES, countryDataPath, countryForRecord, partnerEnrollmentOpen, type CountryCode } from '@/lib/countries';
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -21,6 +22,8 @@ export default function PartnerOnboardPage() {
   const [name, setName] = useState('');
   const [type, setType] = useState('ngo');
   const [district, setDistrict] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState<CountryCode>('BD');
   const [leaderEmail, setLeaderEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -54,7 +57,9 @@ export default function PartnerOnboardPage() {
           setName(String(application.organizationName || ''));
           setType(String(application.organizationType || 'ngo'));
           setDistrict(String(application.district || ''));
+          setCity(String(application.city || ''));
           setLeaderEmail(String(application.email || ''));
+          setCountry(countryForRecord(application.country) || 'BD');
         }
       }
     } catch {
@@ -79,12 +84,17 @@ export default function PartnerOnboardPage() {
       const leaderUid = Object.keys(matches)[0];
       if (!leaderUid) throw new Error('The leader must create and verify their own account before you can activate this partner.');
       const leader = matches[leaderUid];
+      const leaderCountry = countryForRecord(leader.country);
+      if (!leaderCountry || leaderCountry !== country) throw new Error('The selected country must match the leader account country.');
+      if (!partnerEnrollmentOpen(country)) throw new Error('Partner activation is not open in this country yet.');
+      if (city.trim().length < 2) throw new Error('Enter the organization city before activation.');
       if (leader.role && leader.role !== 'user') throw new Error('This account already has an administrative role. Review it manually.');
       if (leader.isBanned) throw new Error('A banned account cannot lead a partner organization.');
+      if (leader.instituteId) throw new Error('This account already leads or belongs to a partner organization.');
       if (applicationUid) {
         const applicationSnapshot = await get(ref(database, `partnerApplications/${applicationUid}`));
         const application = applicationSnapshot.val();
-        if (!application || application.status !== 'pending' || application.uid !== leaderUid || application.email !== email) {
+        if (!application || application.status !== 'pending' || application.uid !== leaderUid || application.email !== email || countryForRecord(application.country) !== country) {
           throw new Error('This request changed or does not match the selected leader. Refresh the applications list.');
         }
       }
@@ -106,7 +116,9 @@ export default function PartnerOnboardPage() {
         [`partnerInstitutes/${instituteId}`]: {
           name: partnerName,
           type,
+          country,
           district: district.trim(),
+          city: city.trim(),
           contactPerson: leader.name || email,
           email,
           status: 'approved',
@@ -115,7 +127,8 @@ export default function PartnerOnboardPage() {
           createdAt: now,
           updatedAt: now
         },
-        [`partnerInvites/${code}`]: { name: partnerName, instituteId, active: true },
+        [`partnerInvites/${code}`]: { name: partnerName, instituteId, country, active: true },
+        [`partnerStats/${instituteId}`]: { totalStudents: 0, totalDonors: 0, totalDonations: 0, totalBloodRequests: 0, updatedAt: now },
         [`users/${leaderUid}/role`]: 'partner_admin',
         [`users/${leaderUid}/instituteId`]: instituteId,
         [`users/${leaderUid}/updatedAt`]: now
@@ -127,7 +140,7 @@ export default function PartnerOnboardPage() {
         changes[`partnerApplications/${applicationUid}/reviewedBy`] = actor.uid;
       }
       await update(ref(database), changes);
-      setInviteLink(`${window.location.origin}/register?ref=${code}`);
+      setInviteLink(`${window.location.origin}/register?ref=${code}${country === 'BD' ? '' : `&country=${country}`}`);
       setPartners(previous => [...previous, { id: instituteId, name: partnerName }]);
       setSyncId(instituteId);
       setMessage('Partner activated. Test the signup link before sharing it.');
@@ -143,11 +156,14 @@ export default function PartnerOnboardPage() {
     setSyncBusy(true);
     setSyncMessage('');
     try {
+      const partnerSnapshot = await get(ref(database, `partnerInstitutes/${syncId}`));
+      const partnerCountry = countryForRecord(partnerSnapshot.val()?.country);
+      if (!partnerSnapshot.exists() || !partnerCountry) throw new Error('Partner country could not be verified.');
       const [members, requests] = await Promise.all([
         get(query(ref(database, 'users'), orderByChild('instituteId'), equalTo(syncId))),
-        get(ref(database, 'bloodRequests')),
+        get(ref(database, countryDataPath(partnerCountry, 'bloodRequests'))),
       ]);
-      const { totalStudents, totalDonors, totalDonations, totalBloodRequests } = countPartnerImpact(members.val(), requests.val());
+      const { totalStudents, totalDonors, totalDonations, totalBloodRequests } = countPartnerImpact(members.val(), requests.val(), partnerCountry);
       const updatedAt = new Date().toISOString();
       await update(ref(database), {
         [`partnerStats/${syncId}`]: { totalStudents, totalDonors, totalDonations, totalBloodRequests, updatedAt },
@@ -175,6 +191,11 @@ export default function PartnerOnboardPage() {
       <p className="mt-4 leading-7 text-[#5C463B]">The organization leader should <Link href="/partner-account" className="font-semibold text-[#C0152A] underline">create a leader account</Link> and verify their email. Activation gives that account access to this partner only; email verification is required to open the partner dashboard. Students still sign up themselves using the invitation link.</p>
 
       <form onSubmit={createPartner} className="mt-8 space-y-5 rounded-3xl border border-[#C0152A]/10 bg-[#FDFAF4] p-7 shadow-lg">
+        <label className="block text-sm font-semibold">Partner country
+          <select value={country} onChange={event => setCountry(event.target.value as CountryCode)} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white p-3 font-normal">
+            {COUNTRIES.map(item => <option key={item.code} value={item.code} disabled={!partnerEnrollmentOpen(item.code)}>{item.name}{partnerEnrollmentOpen(item.code) ? '' : ' — launch pending'}</option>)}
+          </select>
+        </label>
         <label className="block text-sm font-semibold">Organization name
           <input required maxLength={120} value={name} onChange={event => setName(event.target.value)} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white p-3 font-normal" placeholder="Moonlight Foundation" />
         </label>
@@ -185,6 +206,9 @@ export default function PartnerOnboardPage() {
         </label>
         <label className="block text-sm font-semibold">District
           <input required maxLength={80} value={district} onChange={event => setDistrict(event.target.value)} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white p-3 font-normal" placeholder="Dhaka" />
+        </label>
+        <label className="block text-sm font-semibold">Organization city or town
+          <input required minLength={2} maxLength={80} value={city} onChange={event => setCity(event.target.value)} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white p-3 font-normal" placeholder="Where the organization is based" />
         </label>
         <label className="block text-sm font-semibold">Leader's existing account email
           <input required type="email" value={leaderEmail} onChange={event => setLeaderEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-[#C0152A]/20 bg-white p-3 font-normal" placeholder="leader@example.org" />

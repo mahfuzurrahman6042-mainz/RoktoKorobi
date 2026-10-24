@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { listAllDonors, listAllHospitals, publicDistrictKey } from '@/lib/firebase';
+import { getCurrentUser, getUserData, listAllDonors, listAllHospitals, onAuthStateChange, publicDistrictKey } from '@/lib/firebase';
+import { COUNTRIES, COUNTRY_MAP_VIEWPORTS, countryForRecord, enrollmentOpen, type CountryCode } from '@/lib/countries';
 import BrandLogo from '@/components/BrandLogo';
 
 // Dynamic import for Leaflet map (SSR disabled)
@@ -244,10 +245,12 @@ export default function DonorsPage() {
   const [filteredDonors, setFilteredDonors] = useState([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [directoryStatus, setDirectoryStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [mounted, setMounted] = useState(false);
   const [statCount, setStatCount] = useState(0);
   const [districtCount, setDistrictCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountCountry, setAccountCountry] = useState<CountryCode | null>(null);
   const mapSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -265,13 +268,38 @@ export default function DonorsPage() {
   }, [language]);
 
   useEffect(() => {
+    let active = true;
+    const unsubscribe = onAuthStateChange(async user => {
+      setAccountCountry(null);
+      if (!user) { setAccountCountry('BD'); return; }
+      if (!user.emailVerified) { setAccountCountry(null); return; }
+      try {
+        const profile = await getUserData(user.uid);
+        if (active && getCurrentUser()?.uid === user.uid) setAccountCountry(profile ? countryForRecord(profile.country) : null);
+      } catch {
+        if (active && getCurrentUser()?.uid === user.uid) setAccountCountry(null);
+      }
+    });
+    return () => { active = false; unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
+    if (!accountCountry || !enrollmentOpen(accountCountry)) {
+      setDonors([]);
+      setFilteredDonors([]);
+      setHospitals([]);
+      return;
+    }
+    let active = true;
     // Load donors from Firebase Realtime Database
     const loadDonors = async () => {
       try {
-        const [donorsData, hospitalsData] = await Promise.all([
-          listAllDonors(),
-          listAllHospitals(),
+        const [donorResult, hospitalResult] = await Promise.allSettled([
+          listAllDonors(accountCountry),
+          listAllHospitals(accountCountry),
         ]);
+        if (!active) return;
+        const hospitalsData = hospitalResult.status === 'fulfilled' ? hospitalResult.value : [];
         setHospitals(hospitalsData.map((hospital: any) => ({
           id: hospital.id,
           name: hospital.name || 'Hospital',
@@ -280,7 +308,13 @@ export default function DonorsPage() {
           emergency: hospital.emergency === true,
           bloodNeeded: hospital.bloodNeeded || null,
         })).filter((hospital: any) => Number.isFinite(hospital.lat) && Number.isFinite(hospital.lng)));
-        if (donorsData && donorsData.length > 0) {
+        if (donorResult.status === 'rejected') {
+          console.error('Could not load public donors:', donorResult.reason);
+          setDonors([]);
+          setFilteredDonors([]);
+          setDirectoryStatus('error');
+        } else if (donorResult.value.length > 0) {
+          const donorsData = donorResult.value;
           const donorsArray = donorsData.map((doc: any) => ({
             id: doc.id,
             uid: doc.uid,
@@ -299,20 +333,24 @@ export default function DonorsPage() {
           }));
           setDonors(donorsArray);
           setFilteredDonors(donorsArray);
+          setDirectoryStatus('ready');
         } else {
-          // No donors in database yet
           setDonors([]);
           setFilteredDonors([]);
+          setDirectoryStatus('ready');
         }
       } catch (error) {
-        console.log('Firebase error:', error);
+        if (!active) return;
+        console.error('Could not load public donor map:', error);
         setDonors([]);
         setFilteredDonors([]);
+        setDirectoryStatus('error');
       }
     };
 
-    loadDonors();
-  }, []);
+    void loadDonors();
+    return () => { active = false; };
+  }, [accountCountry]);
 
   useEffect(() => {
     // Count up animation for stat
@@ -362,6 +400,21 @@ export default function DonorsPage() {
   const t = translations[language];
 
   if (!mounted) return null;
+
+  if (!accountCountry) return <main style={{ minHeight: '100vh', background: '#F5F0E8', padding: 32, color: '#2A1A14' }} role="status">Checking your country and donor-directory access…</main>;
+
+  if (accountCountry && !enrollmentOpen(accountCountry)) {
+    const countryName = COUNTRIES.find(item => item.code === accountCountry)?.name || accountCountry;
+    return <main style={{ minHeight: '100vh', background: '#F5F0E8', color: '#2A1A14', padding: 'clamp(24px, 6vw, 72px)', fontFamily: "'Hind Siliguri', sans-serif" }}>
+      <BrandLogo />
+      <section style={{ maxWidth: 640, margin: '12vh auto 0', padding: 32, borderRadius: 24, background: '#FDF9F3', border: '1px solid #E4D6BE' }}>
+        <p style={{ color: '#8E0F20', fontWeight: 700 }}>Donor directory · {countryName}</p>
+        <h1 style={{ marginTop: 12, fontFamily: "'Playfair Display', serif", fontSize: 'clamp(28px, 5vw, 42px)' }}>Coming to {countryName}</h1>
+        <p style={{ marginTop: 16, lineHeight: 1.7 }}>The donor map for your country is not open yet. Bangladesh donor locations are not shown to accounts in {countryName}. Please use a local hospital or blood bank for urgent needs.</p>
+        <a href="/" style={{ display: 'inline-flex', marginTop: 24, minHeight: 44, alignItems: 'center', color: '#8E0F20', fontWeight: 700 }}>Back to home</a>
+      </section>
+    </main>;
+  }
 
   return (
     <div style={{
@@ -964,7 +1017,7 @@ export default function DonorsPage() {
                   marginBottom: '8px',
                   color: '#666'
                 }}>
-                  {t.district_filter}
+                  {accountCountry === 'BD' ? t.district_filter : 'City / service area'}
                 </label>
                 <select
                   value={selectedDistrict}
@@ -979,8 +1032,8 @@ export default function DonorsPage() {
                     cursor: 'pointer'
                   }}
                 >
-                  <option value="">{t.all_districts}</option>
-                  {districts.map(division => (
+                  <option value="">{accountCountry === 'BD' ? t.all_districts : 'All areas'}</option>
+                  {accountCountry === 'BD' ? districts.map(division => (
                     <optgroup key={division.division} label={language === 'bn' ? division.division_bn : division.division}>
                       {division.districts.map(district => (
                         <option key={district.en} value={district.en}>
@@ -988,6 +1041,8 @@ export default function DonorsPage() {
                         </option>
                       ))}
                     </optgroup>
+                  )) : [...new Set(donors.map(donor => donor.district).filter(Boolean))].sort().map(area => (
+                    <option key={area} value={area}>{area}</option>
                   ))}
                 </select>
               </div>
@@ -1032,11 +1087,13 @@ export default function DonorsPage() {
               <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#1A1A1A' }}>
                 {t.map_header}
               </h3>
+              {accountCountry !== 'BD' && <a href="https://www.geonames.org/export/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6B5A50' }}>City locations: GeoNames (CC BY 4.0)</a>}
             </div>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             <BangladeshMap 
-              center={{ lat: 23.685, lng: 90.3563 }}
-              zoom={7}
+              key={accountCountry}
+              center={COUNTRY_MAP_VIEWPORTS[accountCountry].center}
+              zoom={COUNTRY_MAP_VIEWPORTS[accountCountry].zoom}
               donors={filteredDonors.map(donor => ({
                 id: donor.id,
                 uid: donor.uid,
@@ -1050,6 +1107,29 @@ export default function DonorsPage() {
               }))}
               hospitals={hospitals}
             />
+            {directoryStatus !== 'loading' && filteredDonors.length === 0 && (
+              <div role="status" style={{ position: 'absolute', zIndex: 500, left: 16, right: 16, bottom: 16, maxWidth: 440, padding: '16px 18px', borderRadius: 14, background: 'rgba(253, 249, 243, .97)', boxShadow: '0 4px 18px rgba(0,0,0,.18)', color: '#2A1A14' }}>
+                <strong style={{ display: 'block', marginBottom: 4 }}>
+                  {directoryStatus === 'error'
+                    ? (language === 'bn' ? 'রক্তদাতার তথ্য লোড করা যায়নি' : 'Donor locations could not be loaded')
+                    : donors.length > 0
+                      ? (language === 'bn' ? 'এই অনুসন্ধানে কোনো রক্তদাতা নেই' : 'No donors match these filters')
+                      : (language === 'bn' ? 'এখনও কোনো রক্তদাতার জেলা মানচিত্রে নেই' : 'No donor districts on the map yet')}
+                </strong>
+                <span style={{ display: 'block', fontSize: 14, lineHeight: 1.5 }}>
+                  {directoryStatus === 'error'
+                    ? (language === 'bn' ? 'পরে আবার চেষ্টা করুন।' : 'Please try again later.')
+                    : donors.length > 0
+                      ? (language === 'bn' ? 'অন্য রক্তের গ্রুপ বা জেলা বেছে নিন।' : 'Try another blood group or district.')
+                      : (language === 'bn' ? 'নিবন্ধিত রক্তদাতারা সম্মতি দিলে তাঁদের জেলা এখানে চিহ্নিত হবে।' : 'Registered donors can choose to show their district here. No one is displayed without consent.')}
+                </span>
+                {directoryStatus === 'ready' && donors.length === 0 && (
+                  <a href="/profile" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, marginTop: 8, color: '#8B1A1A', fontWeight: 700, textDecoration: 'underline' }}>
+                    {language === 'bn' ? 'রক্তদাতা? আপনার জেলা দেখান →' : 'Already a donor? Show your district →'}
+                  </a>
+                )}
+              </div>
+            )}
             </div>
           </div>
 

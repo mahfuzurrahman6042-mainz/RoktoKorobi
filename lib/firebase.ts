@@ -1,10 +1,18 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile, sendPasswordResetEmail, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
-import { getDatabase, Database, ref, set, get, update, onValue, push, remove } from 'firebase/database';
+import { getAuth, connectAuthEmulator, Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User, updateProfile, sendPasswordResetEmail, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
+import { getDatabase, connectDatabaseEmulator, Database, ref, set, get, update, onValue, push, remove } from 'firebase/database';
 import { getMessaging, Messaging, getToken, onMessage } from 'firebase/messaging';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { countryDataPath, countryForRecord, enrollmentOpen, localCountryTesting, recordBelongsToCountry, type CountryCode } from './countries';
 
-const firebaseConfig = {
+const emulatorMode = localCountryTesting();
+const firebaseConfig = emulatorMode ? {
+  apiKey: 'demo-roktokorobi-key',
+  authDomain: 'demo-roktokorobi-rules.firebaseapp.com',
+  databaseURL: 'https://demo-roktokorobi-rules-default-rtdb.firebaseio.com',
+  projectId: 'demo-roktokorobi-rules',
+  appId: 'demo-roktokorobi-local',
+} : {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
@@ -37,10 +45,16 @@ const initializeFirebase = () => {
       return;
     }
 
-    app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+    const appName = emulatorMode ? 'roktokorobi-local-demo' : '[DEFAULT]';
+    const existingApp = getApps().find(candidate => candidate.name === appName);
+    app = existingApp || initializeApp(firebaseConfig, appName);
     auth = getAuth(app);
     database = getDatabase(app);
-    storage = getStorage(app);
+    if (emulatorMode && !existingApp) {
+      connectAuthEmulator(auth, 'http://127.0.0.1:9099');
+      connectDatabaseEmulator(database, '127.0.0.1', 9000);
+    }
+    storage = emulatorMode ? null : getStorage(app);
 
     console.log('Firebase initialized successfully:', {
       hasApp: !!app,
@@ -49,7 +63,7 @@ const initializeFirebase = () => {
       hasStorage: !!storage
     });
 
-    if ('serviceWorker' in navigator) {
+    if (!emulatorMode && 'serviceWorker' in navigator) {
       try {
         messaging = getMessaging(app);
       } catch (error) {
@@ -253,46 +267,59 @@ export const syncPublicDonorListing = async (userId: string) => {
   }
   const profile = await getUserData(userId);
   if (profile?.isDonor !== true) return false;
-  const publicRef = ref(database, `donors/${userId}`);
+  const country = countryForRecord(profile.country);
+  if (!country) throw new Error('The account country could not be verified.');
+  const publicRef = ref(database, `${countryDataPath(country, 'donors')}/${userId}`);
   if (profile.publicMapConsent !== true) {
     await remove(publicRef);
     return false;
   }
-  if ((profile.country || 'BD') !== 'BD' || !getPublicDistrictCoordinates(profile.district || '')
-    || !['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(profile.bloodGroup)) {
-    throw new Error('A valid Bangladesh district and blood group are needed to appear on the map.');
+  if (!enrollmentOpen(country)) throw new Error('The donor map is not open in this country yet.');
+  if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(profile.bloodGroup)) {
+    throw new Error('A valid blood group is needed to appear on the map.');
+  }
+  if (country === 'BD' && !getPublicDistrictCoordinates(profile.district || '')) {
+    throw new Error('A valid Bangladesh district is needed to appear on the map.');
+  }
+  if (country !== 'BD') {
+    const { findCountryArea } = await import('./country-areas');
+    const area = findCountryArea(country, String(profile.areaId || ''));
+    if (!area || area.name !== profile.district) throw new Error('Choose a valid city in your country to appear on the map.');
   }
   await set(publicRef, {
     uid: userId,
-    country: 'BD',
+    country,
     district: profile.district,
     bloodGroup: profile.bloodGroup,
     available: profile.availability !== false,
     publicMapConsent: true,
+    ...(country === 'BD' ? {} : { areaId: profile.areaId }),
   });
   return true;
 };
 
 // The public donor directory is a separate, consented collection. Never read
 // /users here: that path contains private contact and medical information.
-export const listAllDonors = async () => {
+export const listAllDonors = async (selectedCountry: CountryCode = 'BD') => {
   if (!database) throw new Error('Database not initialized');
-  const snapshot = await get(ref(database, 'donors'));
+  const snapshot = await get(ref(database, countryDataPath(selectedCountry, 'donors')));
   if (!snapshot.exists()) return [];
 
   const data = snapshot.val();
+  const findArea = selectedCountry === 'BD' ? null : (await import('./country-areas')).findCountryArea;
   return Object.entries(data).flatMap(([id, raw]: [string, any]) => {
     const value = raw && typeof raw === 'object' ? raw : {};
     const district = String(value.district || '').trim();
-    const country = String(value.country || 'BD').toUpperCase();
+    const country = countryForRecord(value.country);
     const bloodGroup = String(value.bloodGroup || '');
     // Never render a donor's user-supplied GPS coordinates on a public map.
-    const coordinates = country === 'BD' ? getPublicDistrictCoordinates(district) : null;
+    const area = country !== 'BD' && findArea ? findArea(country, String(value.areaId || '')) : null;
+    const coordinates = country === 'BD' ? getPublicDistrictCoordinates(district) : area?.name === district ? area : null;
     const lat = Number(coordinates?.lat);
     const lng = Number(coordinates?.lng);
     // Only explicit public-map opt-ins belong in the directory. Never expose
     // private profile names, contact details, or exact user-supplied addresses.
-    if (value.publicMapConsent !== true || !district || country !== 'BD'
+    if (value.publicMapConsent !== true || !district || country !== selectedCountry || !coordinates
       || !['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(bloodGroup)
       || !Number.isFinite(lat) || !Number.isFinite(lng)) return [];
     return [{
@@ -310,23 +337,27 @@ export const listAllDonors = async () => {
 };
 
 export const getTotalDonorCount = async () => (await listAllDonors()).length;
-export const listAllHospitals = async () => {
+export const listAllHospitals = async (selectedCountry: CountryCode = 'BD') => {
   if (!database) throw new Error('Database not initialized');
-  const hospitalsRef = ref(database, 'hospitals');
+  const hospitalsRef = ref(database, countryDataPath(selectedCountry, 'hospitals'));
   const snapshot = await get(hospitalsRef);
   if (!snapshot.exists()) return [];
   const data = snapshot.val();
-  return Object.keys(data).map(key => ({ id: key, ...data[key] }));
+  return Object.keys(data)
+    .map(key => ({ id: key, ...data[key] }))
+    .filter(hospital => recordBelongsToCountry(hospital, selectedCountry));
 };
 
 // Get blood requests statistics
-export const getBloodRequestsStats = async () => {
+export const getBloodRequestsStats = async (selectedCountry: CountryCode = 'BD') => {
   if (!database) throw new Error('Database not initialized');
-  const requestsRef = ref(database, 'bloodRequests');
+  const requestsRef = ref(database, countryDataPath(selectedCountry, 'bloodRequests'));
   const snapshot = await get(requestsRef);
   if (!snapshot.exists()) return { total: 0, fulfilled: 0 };
   const data = snapshot.val();
-  const requests = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+  const requests = Object.keys(data)
+    .map(key => ({ id: key, ...data[key] }))
+    .filter(request => recordBelongsToCountry(request, selectedCountry));
   const fulfilled = requests.filter(req => req.fulfilled === true).length;
   return { total: requests.length, fulfilled };
 };
@@ -1101,10 +1132,10 @@ export const deleteImage = async (path: string) => {
 };
 
 // Messaging helper functions
-export const sendMessage = async (senderId: string, receiverId: string, requestId: string, content: string) => {
+export const sendMessage = async (senderId: string, receiverId: string, requestId: string, content: string, country: CountryCode = 'BD') => {
   if (!database) throw new Error('Database not initialized');
   
-  const messagesRef = ref(database, `messages/${requestId}`);
+  const messagesRef = ref(database, `${countryDataPath(country, 'messages')}/${requestId}`);
   const newMessageRef = push(messagesRef);
   
   await set(newMessageRef, {
@@ -1135,10 +1166,10 @@ export const getMessages = (requestId: string, callback: (messages: any[]) => vo
   });
 };
 
-export const markMessageAsRead = async (messageId: string, requestId: string) => {
+export const markMessageAsRead = async (messageId: string, requestId: string, country: CountryCode = 'BD') => {
   if (!database) throw new Error('Database not initialized');
   
-  const messageRef = ref(database, `messages/${requestId}/${messageId}`);
+  const messageRef = ref(database, `${countryDataPath(country, 'messages')}/${requestId}/${messageId}`);
   await update(messageRef, { read: true });
 };
 

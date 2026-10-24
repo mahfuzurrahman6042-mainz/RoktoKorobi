@@ -3,6 +3,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { Analytics } from '@vercel/analytics/next';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { HtmlLang } from '@/components/HtmlLang';
+import { localCountryTesting } from '@/lib/countries';
 
 export const metadata = {
   title: 'Roktokorobi - Blood Donation Platform',
@@ -33,12 +34,13 @@ export default function RootLayout({
         <LanguageProvider>
           <HtmlLang />
           {children}
+          {localCountryTesting() && <aside style={{ position: 'fixed', bottom: 8, right: 8, zIndex: 10000, background: '#2A1A14', color: '#fff', padding: '8px 14px', borderRadius: 10, fontSize: 13 }}><a href="/local-testing" style={{ color: '#fff' }}>Local test · Demo data only · Test accounts</a></aside>}
         </LanguageProvider>
       </body>
-      {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+      {!localCountryTesting() && process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
       )}
-      <Analytics />
+      {!localCountryTesting() && <Analytics />}
     </html>
   );
 }

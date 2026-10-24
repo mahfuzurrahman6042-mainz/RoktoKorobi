@@ -4,6 +4,7 @@ import type { User } from 'firebase/auth';
 import { database, get, isSuperAdmin, logoutUser, onAuthStateChange, ref, set } from '@/lib/firebase';
 import type { AdminDataSource, AdminSnapshot, Activity, Partner, RequestRecord, UserRecord } from './types';
 import { emptySnapshot } from './data-source';
+import { countCountryPublicStats } from '@/lib/country-stats';
 
 const asRecord = (value: unknown): Record<string, any> => value && typeof value === 'object' ? value as Record<string, any> : {};
 const iso = (value: unknown): string | null => typeof value === 'string' ? value : typeof value === 'number' ? new Date(value).toISOString() : null;
@@ -58,16 +59,18 @@ export function createFirebaseAdminSource(user: User): AdminDataSource {
         profile: { displayName: user.displayName || user.email, emailVerified: user.emailVerified },
         donorCounts,
       };
-      // Only these aggregate figures are public. Never expose user, patient, or
-      // partner records to the homepage to calculate a counter.
+      // Only these aggregate figures reach the homepage. Country records are
+      // counted separately; missing-country legacy records belong to BD only.
       try {
-        await set(ref(database, 'publicStats'), {
-          users: users.length,
-          donors: users.filter(item => asRecord(asRecord(usersSnap.val())[item.id]).isDonor === true).length,
-          requestsFulfilled: fulfilled,
-          partners: approved,
-          updatedAt: Date.now(),
-        });
+        await set(ref(database, 'publicStats'), countCountryPublicStats('BD', usersSnap.val(), partnersSnap.val(), requestsSnap.val()));
+        for (const country of ['IN', 'PK'] as const) {
+          try {
+            const countryRequests = await get(ref(database, `countryData/${country}/bloodRequests`));
+            await set(ref(database, `countryData/${country}/publicStats`), countCountryPublicStats(country, usersSnap.val(), partnersSnap.val(), countryRequests.val()));
+          } catch (error) {
+            console.error(`Could not publish ${country} statistics`, error);
+          }
+        }
       } catch (error) {
         console.error('Could not publish public statistics', error);
       }

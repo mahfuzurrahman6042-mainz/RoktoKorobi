@@ -819,8 +819,8 @@ export default function Profile() {
 
             </div>
 
-            {currentUser && <PartnerRosterConsent uid={currentUser.uid} verified={currentUser.emailVerified} />}
-            {currentUser && <DonorMapConsent uid={currentUser.uid} verified={currentUser.emailVerified} />}
+            {currentUser && <PartnerRosterConsent key={currentUser.uid} uid={currentUser.uid} verified={currentUser.emailVerified} />}
+            {currentUser && <DonorMapConsent key={currentUser.uid} uid={currentUser.uid} verified={currentUser.emailVerified} />}
 
             <div className="btn-group">
               <button className="btn btn-primary" onClick={handleSave}>

@@ -53,7 +53,7 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
         zoom,
         zoomControl: true,
         scrollWheelZoom: true,
-        minZoom: 5,
+        minZoom: 4,
         // District centroids are approximate; deep zoom would imply a home address.
         maxZoom: 12,
       });
@@ -134,6 +134,9 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
         }, {});
         const bloodGroupsLabel = Object.entries(groupCounts).map(([bloodGroup, count]) => `${escapeHtml(bloodGroup)}: ${count}`).join(', ');
 
+        const markerLabel = group.length > 1
+          ? `${group.length} donors`
+          : `1 donor · ${escapeHtml(donor.bloodGroup)}`;
         const donorIcon = L.divIcon({
           html: `
             <div style="
@@ -149,12 +152,12 @@ export default function BangladeshMap({ center, zoom, donors = [], hospitals = [
               cursor: pointer;
               ${!groupAvailable ? 'opacity: 0.6;' : ''}
             ">
-              ${group.length > 1 ? `${group.length} donors` : escapeHtml(donor.bloodGroup)}
+              📍 ${markerLabel}
             </div>
           `,
           className: 'custom-div-icon',
-          iconSize: [group.length > 1 ? 86 : 50, 28],
-          iconAnchor: [group.length > 1 ? 43 : 25, 14],
+          iconSize: [112, 28],
+          iconAnchor: [56, 14],
         });
 
         const marker = L.marker([donor.lat, donor.lng], { icon: donorIcon })
