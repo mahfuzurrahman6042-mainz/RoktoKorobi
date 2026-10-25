@@ -644,7 +644,7 @@ export default function BloodRequest() {
               {formVis && <div className="anim-form fd3 grid2" style={{ marginBottom:28 }}>
                 <div>
                   <label className="lbl">{t.contact} <span style={{color:"#dc2626"}}>*</span></label>
-                  <input className="inp" type="tel" name="contact" value={formData.contact} onChange={handleInputChange} placeholder={t.contactPh} required/>
+                  <input className="inp" type="tel" name="contact" value={formData.contact} onChange={handleInputChange} placeholder={accountCountry === 'IN' ? '+91 9XXXXXXXXX' : accountCountry === 'PK' ? '+92 3XXXXXXXXX' : t.contactPh} required/>
                   {errors.contact && <div style={{ color:"#dc2626", fontSize:"12px", marginTop:"4px" }}>{errors.contact}</div>}
                 </div>
                 <div>
@@ -846,7 +846,7 @@ export default function BloodRequest() {
                         {request.hospital} • {request.location}
                       </p>
                       <p style={{ fontSize: 13, color: '#9b6060' }}>
-                        {language === 'bn' ? 'প্রয়োজন:' : 'Units:'} {request.units} • {language === 'bn' ? 'যোগাযোগ:' : 'Contact:'} {request.contact}
+                        {language === 'bn' ? 'প্রয়োজন:' : 'Units:'} {request.unitsNeeded ?? request.units ?? '—'} • {language === 'bn' ? 'যোগাযোগ:' : 'Contact:'} {request.contact}
                       </p>
                     </div>
                     <div style={{ fontSize: 12, color: '#c4a0a0' }}>
@@ -859,7 +859,7 @@ export default function BloodRequest() {
                     </p>
                   )}
                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                    <button
+                    {(request.status === 'approved' || request.status === 'open') && !request.fulfilled && request.userId !== currentUser?.uid && <button
                       onClick={() => handleOpenChat(request)}
                       style={{
                         padding: '8px 16px',
@@ -874,7 +874,7 @@ export default function BloodRequest() {
                       }}
                     >
                       {language === 'bn' ? 'বার্তা' : 'Message'}
-                    </button>
+                    </button>}
                     <button
                       onClick={() => handleContact(request)}
                       style={{
@@ -891,7 +891,7 @@ export default function BloodRequest() {
                     >
                       {language === 'bn' ? 'যোগাযোগ করুন' : 'Contact'}
                     </button>
-                    {!request.fulfilled && request.userId === currentUser?.uid && (
+                    {!request.fulfilled && (request.status === 'approved' || request.status === 'open') && request.userId === currentUser?.uid && (
                       <button
                         onClick={() => handleMarkFulfilled(request.id)}
                         style={{
