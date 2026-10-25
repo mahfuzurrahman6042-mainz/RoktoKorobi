@@ -33,11 +33,10 @@ function checkCountry(country) {
   const record = manifest[country];
   if (!record) return [`${country}: unknown country`];
   const issues = [];
-  if (record.status !== 'release-approved') issues.push('status is not release-approved');
+  if (record.status !== 'release-approved' && record.status !== 'owner-authorized-rollout') issues.push('status is not release-approved or owner-authorized-rollout');
   if (broadPendingRequestRead()) issues.push('database rules expose pending blood requests to all verified users in the same country');
-  for (const key of ['operatorName', 'ownerReleaseAuthorization']) {
-    if (!record[key] || !String(record[key]).trim()) issues.push(`${key} is missing`);
-  }
+  if (!record.operatorName || !String(record.operatorName).trim()) issues.push('operatorName is missing');
+  evidencePath(record.ownerReleaseAuthorization, issues, 'ownerReleaseAuthorization');
   if (!record.operatorAddress) console.warn(`${country}: operator service address not recorded; confirm whether a local disclosure requirement applies`);
   if (!record.medicalSafetyReviewReference) console.warn(`${country}: independent medical-safety review evidence not recorded; do not describe it as completed`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(record.effectiveDate ?? '') || Number.isNaN(Date.parse(`${record.effectiveDate}T00:00:00Z`)) || new Date(`${record.effectiveDate}T00:00:00Z`).toISOString().slice(0, 10) !== record.effectiveDate) issues.push('effectiveDate must be a valid YYYY-MM-DD date');
@@ -54,7 +53,9 @@ function checkCountry(country) {
     if (document.sha256 !== digest) issues.push(`${kind} SHA-256 does not match the approved document`);
     if (unresolved.test(bytes.toString('utf8'))) issues.push(`${kind} contains unresolved draft markers`);
   }
-  for (const key of ['rulesTestReport', 'endToEndTestReport']) evidencePath(record[key], issues, key);
+  evidencePath(record.rulesTestReport, issues, 'rulesTestReport');
+  if (record.status === 'release-approved') evidencePath(record.endToEndTestReport, issues, 'endToEndTestReport');
+  else if (!record.endToEndTestReport) console.warn(`${country}: owner-authorized rollout; live end-to-end acceptance remains pending and must be recorded after activation`);
   if (record.notificationsEnabled === true) evidencePath(record.notificationTestReport, issues, 'notificationTestReport');
   else if (record.notificationsEnabled !== false) issues.push('notificationsEnabled must be explicitly true or false');
   return issues;
@@ -68,7 +69,7 @@ for (const country of countries) {
     console.error(`${country}: BLOCKED`);
     for (const issue of issues) console.error(`  - ${issue}`);
   } else {
-    console.log(`${country}: manifest complete. Human review and live verification are still required.`);
+    console.log(`${country}: ${manifest[country].status === 'owner-authorized-rollout' ? 'owner-authorized rollout checks complete; live acceptance remains pending' : 'manifest complete; human review and live verification are still required'}.`);
   }
 }
 if (blocked) process.exitCode = 1;

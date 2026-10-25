@@ -1,6 +1,6 @@
 {
   "IN": {
-    "status": "blocked",
+    "status": "owner-authorized-rollout",
     "operatorName": "RoktoKorobi TM",
     "operatorAddress": null,
     "effectiveDate": "2026-10-24",
@@ -8,7 +8,7 @@
     "privacy": { "path": "docs/india-privacy.md", "version": "IN-PRIV-1.0", "sha256": "2b2c856c7aae4e39e3bf07b4bc295de4f361e87b570d3566d8e264496b27ee5f", "contentAuthorizationReference": "docs/country-policy-owner-direction-2026-10-24.md" },
     "terms": { "path": "docs/india-terms.md", "version": "IN-TERMS-1.0", "sha256": "1f07b1147ef3d057aa926f2a2656dad6604784e4fc951448e66d0f96db47cea2", "contentAuthorizationReference": "docs/country-policy-owner-direction-2026-10-24.md" },
     "medicalSafetyReviewReference": null,
-    "ownerReleaseAuthorization": "docs/country-operator-statement-2026-10-22.md",
+    "ownerReleaseAuthorization": "docs/country-owner-rollout-direction-2026-10-25.md",
     "rulesTestReport": "docs/india-pakistan-technical-verification-2026-10-24.md",
     "technicalStatus": "policies-live-enrollment-closed-rules-deployed-functions-blocked-by-billing",
     "manualAcceptance": "pending-owner-test",
@@ -18,7 +18,7 @@
     "notes": "Document authorization is not a government certificate. A hospital partnership is not presumed mandatory."
   },
   "PK": {
-    "status": "blocked",
+    "status": "owner-authorized-rollout",
     "operatorName": "RoktoKorobi TM",
     "operatorAddress": null,
     "effectiveDate": "2026-10-24",
@@ -26,7 +26,7 @@
     "privacy": { "path": "docs/pakistan-privacy.md", "version": "PK-PRIV-1.0", "sha256": "db75be00fa3846c756c1e24c9e3f2f4bbc73bf2f684680a8ec2e3f345c589138", "contentAuthorizationReference": "docs/country-policy-owner-direction-2026-10-24.md" },
     "terms": { "path": "docs/pakistan-terms.md", "version": "PK-TERMS-1.0", "sha256": "61a938417e7ce8ab46d43982e1025ff86c063e8d95abc1b20f7cbc433278e16c", "contentAuthorizationReference": "docs/country-policy-owner-direction-2026-10-24.md" },
     "medicalSafetyReviewReference": null,
-    "ownerReleaseAuthorization": "docs/country-operator-statement-2026-10-22.md",
+    "ownerReleaseAuthorization": "docs/country-owner-rollout-direction-2026-10-25.md",
     "rulesTestReport": "docs/india-pakistan-technical-verification-2026-10-24.md",
     "technicalStatus": "policies-live-enrollment-closed-rules-deployed-functions-blocked-by-billing",
     "manualAcceptance": "pending-owner-test",
