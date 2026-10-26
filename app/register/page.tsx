@@ -412,7 +412,7 @@ export default function RegisterDonor() {
               {t('subtitle')}
             </p>
             <p style={{ display: 'inline-block', marginTop: '18px', padding: '10px 16px', borderRadius: '999px', background: '#FFF3E6', color: '#8B2635', fontSize: '14px', fontWeight: 700 }}>
-              {language === 'bn' ? 'রক্তদাতার নিবন্ধন ১৮+ · চিকিৎসাগত যোগ্যতা রক্তব্যাংক যাচাই করবে' : '18+ for blood donation · Medical eligibility is confirmed by a blood bank'}
+              {language === 'bn' ? 'রক্তদানের জন্য ১৮+' : '18+ for blood donation'}
             </p>
           </div>
 
