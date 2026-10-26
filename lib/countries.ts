@@ -53,8 +53,10 @@ export function partnerEnrollmentOpen(country: CountryCode): boolean {
 }
 
 export function validPhoneForCountry(phone: string, country: CountryCode): boolean {
-  const digits = phone.replace(/[\s()-]/g, '');
+  const digits = phone.trim().replace(/[\s().-]/g, '');
   if (country === 'BD') return /^(?:\+880|0)?1[3-9]\d{8}$/.test(digits);
   if (country === 'IN') return /^(?:\+91)?[6-9]\d{9}$/.test(digits);
-  return /^(?:\+92|0)?3\d{9}$/.test(digits);
+  // Pakistani mobile numbers are commonly entered as 03..., +923..., 923...
+  // or 00923...; all represent the same national number.
+  return /^(?:\+92|0092|92|0)?3\d{9}$/.test(digits);
 }

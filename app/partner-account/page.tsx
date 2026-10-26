@@ -48,7 +48,9 @@ export default function PartnerAccountPage() {
     setError('');
     if (!partnerEnrollmentOpen(country)) return setError('Partner enrollment is not open in this country yet.');
     if (form.city.trim().length < 2) return setError('Enter your city or town.');
-    if (!validPhoneForCountry(form.phone, country)) return setError('Enter a valid phone number for the selected country.');
+    if (!validPhoneForCountry(form.phone, country)) return setError(country === 'PK'
+      ? 'Enter a Pakistani mobile number such as 0300 1234567 or +92 300 1234567.'
+      : 'Enter a valid phone number for the selected country.');
     if (form.password.length < 8) return setError('Use a password of at least 8 characters.');
     if (form.password !== form.confirmPassword) return setError('The passwords do not match.');
     if (!termsAccepted || !privacyAccepted) return setError('Accept the terms and privacy policy to continue.');
@@ -88,7 +90,7 @@ export default function PartnerAccountPage() {
           <CountryField value={country} onChange={next => { setCountry(next); setTermsAccepted(false); setPrivacyAccepted(false); }} className={field} purpose="partner" />
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-semibold">Full name<input required autoComplete="name" maxLength={100} value={form.name} onChange={event => setForm(previous => ({ ...previous, name: event.target.value }))} className={field} /></label>
-            <label className="block text-sm font-semibold">Phone<input required type="tel" autoComplete="tel" maxLength={30} value={form.phone} onChange={event => setForm(previous => ({ ...previous, phone: event.target.value }))} className={field} /></label>
+            <label className="block text-sm font-semibold">Phone<input required type="tel" autoComplete="tel" maxLength={30} value={form.phone} onChange={event => setForm(previous => ({ ...previous, phone: event.target.value }))} className={field} placeholder={country === 'PK' ? '0300 1234567 or +92 300 1234567' : undefined} />{country === 'PK' && <span className="mt-1 block text-xs font-normal text-[#5C463B]">Use a Pakistan mobile number, with or without +92.</span>}</label>
           </div>
           <label className="block text-sm font-semibold">City or town<input required autoComplete="address-level2" minLength={2} maxLength={80} value={form.city} onChange={event => setForm(previous => ({ ...previous, city: event.target.value }))} className={field} placeholder="Where you are based" /></label>
           <label className="block text-sm font-semibold">Email address<input required type="email" autoComplete="email" maxLength={254} value={form.email} onChange={event => setForm(previous => ({ ...previous, email: event.target.value }))} className={field} /></label>

@@ -1,7 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { countryDataPath, countryForRecord, recordBelongsToCountry, enrollmentOpen, partnerEnrollmentOpen } from '../lib/countries.ts';
+import { countryDataPath, countryForRecord, recordBelongsToCountry, enrollmentOpen, partnerEnrollmentOpen, validPhoneForCountry } from '../lib/countries.ts';
+
+test('Pakistan mobile numbers accept common international and local formats', () => {
+  for (const phone of ['0300 1234567', '+92 300 1234567', '923001234567', '0092-300-1234567', '3001234567']) {
+    assert.equal(validPhoneForCountry(phone, 'PK'), true, phone);
+  }
+  for (const phone of ['+91 9876543210', '021 12345678', '0300 123456', '+92 0300 1234567']) {
+    assert.equal(validPhoneForCountry(phone, 'PK'), false, phone);
+  }
+});
 
 test('legacy records belong only to the Bangladesh pilot', () => {
   assert.equal(countryForRecord(undefined), 'BD');
