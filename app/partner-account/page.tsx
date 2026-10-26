@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import type { User } from 'firebase/auth';
 import { ArrowLeft, Building2, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
-import { database, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
+import { database, get, getCurrentUser, ref, registerUser, sendVerificationEmail, update, updateProfile } from '@/lib/firebase';
 import CountryField from '@/components/CountryField';
 import { partnerEnrollmentOpen, validPhoneForCountry, type CountryCode } from '@/lib/countries';
 import { policyConsentVersion, policyReviewHref } from '@/lib/policy-links';
@@ -57,7 +57,15 @@ export default function PartnerAccountPage() {
     setBusy(true);
     try {
       const email = form.email.trim().toLowerCase();
-      const user = createdUid ? getCurrentUser() : (await registerUser(email, form.password)).user;
+      if (!database) throw new Error('The database is unavailable. Please try again later.');
+      if (country !== 'BD' && (await get(ref(database, `settings/countryLaunch/${country}`))).val() !== true) {
+        throw new Error('Partner enrollment is temporarily paused in this country. No new account was created. Please try again later.');
+      }
+      // Firebase Auth can succeed before the database profile write fails. On a
+      // retry (including after a reload), finish the same signed-in account.
+      const signedInUser = getCurrentUser();
+      const resuming = !!signedInUser && signedInUser.email?.toLowerCase() === email;
+      const user = createdUid || resuming ? signedInUser : (await registerUser(email, form.password)).user;
       if (!user || (createdUid && user.uid !== createdUid)) throw new Error('Your session changed. Please sign in again.');
       const uid = user.uid;
       setCreatedUid(uid);
@@ -66,7 +74,9 @@ export default function PartnerAccountPage() {
     } catch (cause) {
       const code = (cause as { code?: string }).code;
       setError(code === 'auth/email-already-in-use'
-        ? 'This email already has an account. Sign in instead, or use another email.'
+        ? 'This email already has an account. Sign in, then request partnership. If account setup was interrupted, return here while signed in and finish it.'
+        : code === 'PERMISSION_DENIED' || code === 'permission_denied'
+          ? 'Your account was created, but its profile could not be saved. Keep this page open and retry Finish account setup. If it still fails, contact the RoktoKorobi team with this error; do not create another account.'
         : cause instanceof Error ? cause.message : 'Account creation did not finish. Please try again.');
     } finally { setBusy(false); }
   };

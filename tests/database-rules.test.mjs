@@ -79,6 +79,14 @@ test('database rules protect partner requests and existing flows', async () => {
     await assertFails(foreignSignup.ref('users/foreignSignup').set(foreignProfile));
     await assertSucceeds(owner.ref('settings/countryLaunch/IN').set(true));
     await assertSucceeds(owner.ref('settings/countryLaunch/PK').set(true));
+    const newPakistanLeader = environment.authenticatedContext('newPakistanLeader', { email: 'new-pakistan-leader@example.org', email_verified: false }).database();
+    await assertSucceeds(newPakistanLeader.ref('users/newPakistanLeader').update({
+      uid: 'newPakistanLeader', email: 'new-pakistan-leader@example.org', name: 'Pakistan Leader',
+      phone: '+92 300 1234567', city: 'Lahore', country: 'PK', isDonor: false, donations: 0,
+      acceptedTerms: true, acceptedPrivacy: true,
+      consentVersion: 'PK-PRIV-1.0+PK-TERMS-1.0',
+      consentedAt: '2026-10-26T00:00:00.000Z', createdAt: '2026-10-26T00:00:00.000Z', updatedAt: '2026-10-26T00:00:00.000Z',
+    }));
     const publicInvite = await assertSucceeds(guest.ref('partnerInvites/INPRIVATE1').once('value'));
     assert.deepEqual(publicInvite.val(), { name: 'India organization', country: 'IN', instituteId: 'indiaPartner', active: true });
     await assertFails(guest.ref('partnerInvites/ININACTIVE').once('value'));
