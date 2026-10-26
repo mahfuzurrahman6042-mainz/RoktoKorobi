@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { ReactNode } from "react";
+import PolicyBackButton from "./policy-back-button";
 import styles from "./policy-page.module.css";
 
 type Country = "India" | "Pakistan";
@@ -97,6 +98,7 @@ export default function PolicyPage({ country, kind }: { country: Country; kind: 
   const effective = lines.find((line) => line.startsWith("Effective date:"))?.replace("Effective date:", "").trim();
 
   return <main className={styles.page}>
+    <PolicyBackButton />
     <header className={styles.hero}>
       <div className={styles.brand}>RoktoKorobi</div>
       <p className={styles.tagline}>Blood Donation Platform — {country}</p>

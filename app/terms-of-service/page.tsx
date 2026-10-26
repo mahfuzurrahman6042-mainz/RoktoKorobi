@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PolicyBackButton from "@/components/policy-back-button";
 
 type Lang = "en" | "bn";
 
@@ -472,6 +473,8 @@ export default function TermsOfService() {
           onClick={() => setLang("bn")}
         >বাং</button>
       </div>
+
+      <PolicyBackButton />
 
       {/* ── HERO BAND ── */}
       <section className="hero-band">

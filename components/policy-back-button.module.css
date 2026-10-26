@@ -1,0 +1,45 @@
+.bar {
+  background: #faf7f2;
+  border-bottom: 1px solid #ddd8d0;
+}
+
+.inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 8px 40px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #8b0000;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b0000;
+  cursor: pointer;
+  font: 600 14px/1 'Hind Siliguri', sans-serif;
+}
+
+.button:hover {
+  background: #f9f0f0;
+}
+
+.button:focus-visible {
+  outline: 3px solid #1a1a1a;
+  outline-offset: 3px;
+}
+
+@media (max-width: 680px) {
+  .inner {
+    padding: 8px 20px;
+  }
+}
+
+@media print {
+  .bar {
+    display: none;
+  }
+}
