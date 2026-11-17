@@ -5,6 +5,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { HtmlLang } from '@/components/HtmlLang';
 import { localCountryTesting } from '@/lib/countries';
 import RkHomepageHero from '@/components/RkHomepageHero';
+import ExperienceStatsSync from '@/components/ExperienceStatsSync';
 
 export const metadata = {
   title: 'Roktokorobi - Blood Donation Platform',
@@ -39,6 +40,7 @@ export default function RootLayout({
           <HtmlLang />
           {children}
           <RkHomepageHero />
+          <ExperienceStatsSync />
           {localCountryTesting() && <aside style={{ position: 'fixed', bottom: 8, right: 8, zIndex: 10000, background: '#2A1A14', color: '#fff', padding: '8px 14px', borderRadius: 10, fontSize: 13 }}><a href="/local-testing" style={{ color: '#fff' }}>Local test · Demo data only · Test accounts</a></aside>}
         </LanguageProvider>
       </body>
