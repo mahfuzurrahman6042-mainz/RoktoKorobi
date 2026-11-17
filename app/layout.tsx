@@ -30,6 +30,9 @@ export default function RootLayout({
     <html lang="en" data-scroll-behavior="smooth">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        <style>{`
+          .home-page .mission-section { display: none !important; }
+        `}</style>
       </head>
       <body>
         <LanguageProvider>
