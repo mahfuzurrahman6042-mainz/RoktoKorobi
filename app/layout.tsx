@@ -30,6 +30,11 @@ export default function RootLayout({
     <html lang="en" data-scroll-behavior="smooth">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        <style>{`
+          .home-page .mission-section .stats { display: none !important; }
+          .home-page .mission-section > p[role="status"] { display: none !important; }
+          .home-page .mission-section .pill-group { margin-bottom: 0 !important; }
+        `}</style>
       </head>
       <body>
         <LanguageProvider>
