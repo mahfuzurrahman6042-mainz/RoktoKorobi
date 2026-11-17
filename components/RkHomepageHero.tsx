@@ -13,7 +13,7 @@ declare global {
 }
 
 // ---- EDIT HERE ----
-const DATA: Stats = { partners: 117, users: 583, donors: 350, fulfilled: 105 };
+const DATA: Stats = { partners: 17, users: 40, donors: 40, fulfilled: 1 };
 const PUBLISHED_AT: string | null = null;
 // -------------------
 
@@ -56,9 +56,8 @@ const styles = `
 .rk-hero *{box-sizing:border-box}.rk-hero .rk-wrap{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,6vw,88px);align-items:center}
 .rk-hero h1{margin:0;font-size:clamp(3rem,7.2vw,5.75rem);line-height:1.02;font-weight:700;letter-spacing:-.01em}.rk-hero h1 span{display:block}.rk-hero h1 .l2{font-style:italic;font-weight:700}.rk-hero h1 .l3{color:var(--rk-red)}.rk-hero[data-lang="bn"] h1{line-height:1.25}.rk-hero[data-lang="bn"] h1 .l2{font-style:normal}
 .rk-hero .rk-tag{margin:28px 0 0;color:var(--rk-teal);font-size:clamp(1.25rem,2.2vw,1.625rem);font-weight:600}.rk-hero .rk-lede{margin:14px 0 0;color:var(--rk-muted);font-size:1.125rem;line-height:1.7;max-width:48ch}.rk-hero .rk-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:36px}.rk-hero .rk-btn{display:inline-flex;align-items:center;min-height:52px;padding:0 30px;border-radius:999px;font:inherit;font-weight:600;font-size:1.0625rem;text-decoration:none;border:1.5px solid transparent;transition:background-color .2s,border-color .2s,color .2s}.rk-hero .rk-btn.primary{background:var(--rk-red);color:#fff}.rk-hero .rk-btn.primary:hover{background:#98111F}.rk-hero .rk-btn.ghost{border-color:#B9A89C;color:var(--rk-ink)}.rk-hero .rk-btn.ghost:hover{border-color:var(--rk-ink)}.rk-hero .rk-btn:focus-visible{outline:3px solid var(--rk-teal);outline-offset:3px}
-.rk-hero .rk-panel{background:var(--rk-dark);color:var(--rk-cream);border-radius:28px;padding:clamp(28px,4vw,44px)}.rk-hero .rk-lead-num{font-size:clamp(4.5rem,9vw,7rem);font-weight:700;line-height:.9;color:#fff;font-variant-numeric:tabular-nums}.rk-hero .rk-lead-label{margin-top:14px;font-size:1.25rem;font-weight:600}.rk-hero .rk-lead-sub{margin-top:4px;color:var(--rk-cream-muted);font-size:1rem}.rk-hero .rk-lead-note{margin-top:12px;color:var(--rk-cream-muted);font-size:.875rem}
-.rk-hero .rk-rows{display:grid;gap:24px;margin:36px 0 0;padding:28px 0 0;list-style:none;border-top:1px solid rgba(255,255,255,.16)}.rk-hero .rk-row{display:grid;grid-template-columns:auto 1fr;column-gap:18px;row-gap:8px;align-items:baseline}.rk-hero .rk-row .n{font-size:2rem;font-weight:700;line-height:1;min-width:3.2ch;font-variant-numeric:tabular-nums}.rk-hero .rk-row .t{font-size:1.0625rem;font-weight:600}.rk-hero .rk-row .t small{display:block;margin-top:2px;color:var(--rk-cream-muted);font-size:.875rem;font-weight:400}.rk-hero .rk-bar{grid-column:1/-1;height:10px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}.rk-hero .rk-bar i{display:block;height:100%;width:0;border-radius:inherit;background:var(--rk-red-bright);transition:width 1.1s cubic-bezier(.2,.7,.2,1)}.rk-hero.is-in .rk-bar i{width:var(--w)}.rk-hero .rk-meta{margin:28px 0 0;color:var(--rk-cream-muted);font-size:.8125rem}.rk-hero .rk-meta:empty{display:none}
-@media(max-width:900px){.rk-hero{padding:48px 20px 64px}.rk-hero .rk-wrap{grid-template-columns:1fr;gap:44px}}@media(prefers-reduced-motion:reduce){.rk-hero .rk-bar i,.rk-hero .rk-btn{transition:none}}
+.rk-hero .rk-panel{background:rgba(255,255,255,.18);color:var(--rk-ink);border-radius:18px;padding:0;overflow:hidden;border:1px solid rgba(0,0,0,.08);box-shadow:0 12px 28px rgba(36,22,14,.06)}.rk-hero .rk-topstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}.rk-hero .rk-stat{text-align:center;padding:20px 12px 18px;border-right:1px solid rgba(17,17,17,.1);background:rgba(255,255,255,.12)}.rk-hero .rk-stat:last-child{border-right:none}.rk-hero .rk-static-num{font-weight:700;font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.1;color:var(--rk-red);font-variant-numeric:tabular-nums}.rk-hero .rk-static-label{margin-top:8px;font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--rk-ink);opacity:.8}.rk-hero .rk-lead-num,.rk-hero .rk-lead-label,.rk-hero .rk-lead-sub,.rk-hero .rk-lead-note,.rk-hero .rk-rows,.rk-hero .rk-row,.rk-hero .rk-bar,.rk-hero .rk-meta{display:none!important}
+@media(max-width:900px){.rk-hero{padding:48px 20px 64px}.rk-hero .rk-wrap{grid-template-columns:1fr;gap:44px}.rk-hero .rk-topstats{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){.rk-hero .rk-bar i,.rk-hero .rk-btn{transition:none}}
 `;
 
 export default function RkHomepageHero() {
@@ -111,7 +110,16 @@ export default function RkHomepageHero() {
     if (!root) return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const paint = (values: Stats = DATA) => root.querySelectorAll<HTMLElement>('[data-count]').forEach(element => {
-      element.textContent = formatNumber(values[element.dataset.count as StatKey], language);
+      const key = element.dataset.count as StatKey;
+      if (key === 'users' && values.users === 40) {
+        element.textContent = formatNumber(values.users, language);
+      } else if (key === 'donors') {
+        element.textContent = formatNumber(values.donors, language);
+      } else if (key === 'fulfilled') {
+        element.textContent = formatNumber(values.fulfilled, language);
+      } else if (key === 'partners') {
+        element.textContent = formatNumber(values.partners, language);
+      }
     });
     const countUp = () => {
       if (reduceMotion) { paint(); return; }
@@ -127,10 +135,11 @@ export default function RkHomepageHero() {
     };
     paint();
     root.querySelectorAll<HTMLElement>('[data-t]').forEach(element => {
-      element.textContent = translated(element.dataset.t as keyof typeof T.en, language);
+      const key = element.dataset.t as keyof typeof T.en;
+      if (key === 'users' || key === 'donors' || key === 'fulfilled' || key === 'partners') {
+        element.textContent = T[language][key];
+      }
     });
-    const meta = root.querySelector<HTMLElement>('#rkMeta');
-    if (meta) meta.textContent = PUBLISHED_AT ? T[language].published + new Date(PUBLISHED_AT).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-GB') : '';
     const intersectionObserver = new IntersectionObserver(entries => {
       if (entries[0]?.isIntersecting) {
         root.classList.add('is-in');
@@ -143,11 +152,6 @@ export default function RkHomepageHero() {
   }, [language, target]);
 
   if (pathname !== '/' || !target) return null;
-  const widths = {
-    users: DATA.users ? '100%' : '0%',
-    donors: DATA.users ? `${DATA.donors / DATA.users * 100}%` : '0%',
-    fulfilled: DATA.users ? `${DATA.fulfilled / DATA.users * 100}%` : '0%',
-  };
   return createPortal(
     <section className="rk-hero" id="rkHero" data-lang={language} aria-labelledby="rkH1">
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -162,13 +166,11 @@ export default function RkHomepageHero() {
           <div className="rk-cta"><a className="rk-btn primary" href="/register" data-t="cta1">{T[language].cta1}</a><a className="rk-btn ghost" href="/donors" data-t="cta2">{T[language].cta2}</a></div>
         </div>
         <aside className="rk-panel" aria-label="Platform numbers">
-          <div className="rk-lead-num" data-count="partners">117</div><div className="rk-lead-label" data-t="partners">{T[language].partners}</div><div className="rk-lead-sub" data-t="regions">{T[language].regions}</div><div className="rk-lead-note">{translated('perPartner', language)}</div>
-          <ul className="rk-rows">
-            <li className="rk-row"><span className="n" data-count="users">583</span><span className="t" data-t="users">{T[language].users}</span><span className="rk-bar" aria-hidden="true"><i style={{ '--w': widths.users } as React.CSSProperties} /></span></li>
-            <li className="rk-row"><span className="n" data-count="donors">350</span><span className="t" data-t="donors">{T[language].donors}</span><span className="rk-bar" aria-hidden="true"><i style={{ '--w': widths.donors } as React.CSSProperties} /></span></li>
-            <li className="rk-row"><span className="n" data-count="fulfilled">105</span><span className="t"><span data-t="fulfilled">{T[language].fulfilled}</span><small>{translated('fulfilledNote', language)}</small></span><span className="rk-bar" aria-hidden="true"><i style={{ '--w': widths.fulfilled } as React.CSSProperties} /></span></li>
-          </ul>
-          <p className="rk-meta" id="rkMeta">{PUBLISHED_AT ? T[language].published + new Date(PUBLISHED_AT).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-GB') : ''}</p>
+          <div className="rk-topstats">
+            <div className="rk-stat"><div className="rk-static-num" data-count="donors">40</div><div className="rk-static-label" data-t="donors">{T[language].donors}</div></div>
+            <div className="rk-stat"><div className="rk-static-num" data-count="fulfilled">1</div><div className="rk-static-label" data-t="fulfilled">{T[language].fulfilled}</div></div>
+            <div className="rk-stat"><div className="rk-static-num" data-count="partners">17</div><div className="rk-static-label" data-t="partners">{T[language].partners}</div></div>
+          </div>
         </aside>
       </div>
     </section>, target,
